@@ -4,7 +4,16 @@ export default function SiteHeader() {
   const linkStyle = {
     color: "white",
     textDecoration: "none",
-    opacity: 0.9,
+    opacity: 0.85,
+    transition: "opacity 0.15s ease",
+  };
+
+  const handleEnter = (e) => {
+    e.currentTarget.style.opacity = "1";
+  };
+
+  const handleLeave = (e) => {
+    e.currentTarget.style.opacity = "0.85";
   };
 
   return (
@@ -12,6 +21,9 @@ export default function SiteHeader() {
       style={{
         borderBottom: "1px solid #1e293b",
         background: "#0b1320",
+        position: "sticky",
+        top: 0,
+        zIndex: 100,
       }}
     >
       <div
@@ -32,6 +44,7 @@ export default function SiteHeader() {
             textDecoration: "none",
             fontWeight: 700,
             letterSpacing: "0.02em",
+            fontSize: "16px",
           }}
         >
           IndustriallyStrong
@@ -45,12 +58,29 @@ export default function SiteHeader() {
             fontSize: "15px",
           }}
         >
-          <Link to="/" style={linkStyle}>Home</Link>
-          <Link to="/concepts" style={linkStyle}>Concepts</Link>
-          <Link to="/systems" style={linkStyle}>Systems</Link>
-          <Link to="/research" style={linkStyle}>Research</Link>
-          <Link to="/about" style={linkStyle}>About</Link>
-          <Route path="/contact" element={<Contact />} />
+          <Link to="/" style={linkStyle} onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
+            Home
+          </Link>
+
+          <Link to="/concepts" style={linkStyle} onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
+            Concepts
+          </Link>
+
+          <Link to="/systems" style={linkStyle} onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
+            Systems
+          </Link>
+
+          <Link to="/research" style={linkStyle} onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
+            Research
+          </Link>
+
+          <Link to="/about" style={linkStyle} onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
+            About
+          </Link>
+
+          <Link to="/contact" style={linkStyle} onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
+            Contact
+          </Link>
         </nav>
       </div>
     </header>
