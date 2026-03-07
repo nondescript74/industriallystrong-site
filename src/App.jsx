@@ -7,6 +7,7 @@ import Research from "./pages/Research";
 import About from "./pages/About";
 import SiteHeader from "./components/SiteHeader";
 import SiteFooter from "./components/SiteFooter";
+import QRLPhoenix from "./pages/QRLPhoenix";
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
         <Route path="/systems" element={<Systems />} />
         <Route path="/research" element={<Research />} />
         <Route path="/about" element={<About />} />
+        <Route path="/systems/qrlphoenix" element={<QRLPhoenix />} />
       </Routes>
 
       <SiteFooter />

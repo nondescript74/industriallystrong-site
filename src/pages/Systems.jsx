@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import PageShell from "../components/PageShell";
 
 export default function Systems() {
@@ -29,7 +30,14 @@ export default function Systems() {
               padding: "26px",
             }}
           >
-            <h2>QRLPhoenix</h2>
+            <h2>
+              <Link 
+                to="/systems/qrlphoenix" 
+                style={{ color: "white", textDecoration: "none" }}
+              >
+                QRLPhoenix
+              </Link>
+            </h2>
 
             <p style={{ opacity: 0.85 }}>
               iOS strategy intelligence platform combining AI agents with
