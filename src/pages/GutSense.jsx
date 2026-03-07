@@ -1,0 +1,105 @@
+import PageShell from "../components/PageShell";
+
+export default function GutSense() {
+  return (
+    <PageShell>
+      <section style={{ marginBottom: "48px" }}>
+        <h1 style={{ fontSize: "42px", marginBottom: "12px" }}>GutSense</h1>
+
+        <p style={{ fontSize: "20px", maxWidth: "850px", opacity: 0.9 }}>
+          GutSense is a multi-agent dietary intelligence system designed to
+          evaluate foods against FODMAP sensitivity, allergens, and individual
+          dietary constraints.
+        </p>
+      </section>
+
+      <section
+        style={{
+          border: "1px solid #1e293b",
+          borderRadius: "14px",
+          padding: "28px",
+          marginBottom: "32px",
+        }}
+      >
+        <h2 style={{ marginTop: 0 }}>What it does</h2>
+
+        <p style={{ opacity: 0.88, maxWidth: "900px" }}>
+          GutSense combines multiple AI models to analyze food composition,
+          dietary risk factors, and personal sensitivities. The system
+          synthesizes outputs from several models into a unified evaluation
+          surface for the user.
+        </p>
+
+        <ul style={{ opacity: 0.82 }}>
+          <li>Food sensitivity evaluation</li>
+          <li>Allergen and FODMAP analysis</li>
+          <li>Multi-agent AI synthesis</li>
+          <li>Mobile delivery via SwiftUI</li>
+        </ul>
+      </section>
+
+      <section
+        style={{
+          border: "1px solid #1e293b",
+          borderRadius: "14px",
+          padding: "28px",
+          marginBottom: "32px",
+        }}
+      >
+        <h2 style={{ marginTop: 0 }}>Architecture</h2>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+            gap: "16px",
+            marginTop: "24px",
+          }}
+        >
+          <div style={{ border: "1px solid #243041", borderRadius: "12px", padding: "18px" }}>
+            <strong>iOS client</strong>
+            <p style={{ opacity: 0.8, marginBottom: 0 }}>
+              SwiftUI application for user interaction.
+            </p>
+          </div>
+
+          <div style={{ border: "1px solid #243041", borderRadius: "12px", padding: "18px" }}>
+            <strong>Backend</strong>
+            <p style={{ opacity: 0.8, marginBottom: 0 }}>
+              Railway-hosted service orchestrating model analysis.
+            </p>
+          </div>
+
+          <div style={{ border: "1px solid #243041", borderRadius: "12px", padding: "18px" }}>
+            <strong>Claude + Gemini</strong>
+            <p style={{ opacity: 0.8, marginBottom: 0 }}>
+              External model evaluation and reasoning.
+            </p>
+          </div>
+
+          <div style={{ border: "1px solid #243041", borderRadius: "12px", padding: "18px" }}>
+            <strong>Apple Foundation Models</strong>
+            <p style={{ opacity: 0.8, marginBottom: 0 }}>
+              On-device intelligence for synthesis and response.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section
+        style={{
+          border: "1px solid #1e293b",
+          borderRadius: "14px",
+          padding: "28px",
+        }}
+      >
+        <h2 style={{ marginTop: 0 }}>Status</h2>
+
+        <p style={{ opacity: 0.88, maxWidth: "900px" }}>
+          GutSense currently operates as a private iOS application in tester
+          access with a live backend and evolving multi-agent architecture.
+        </p>
+      </section>
+    </PageShell>
+  );
+}

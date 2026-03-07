@@ -8,6 +8,7 @@ import About from "./pages/About";
 import SiteHeader from "./components/SiteHeader";
 import SiteFooter from "./components/SiteFooter";
 import QRLPhoenix from "./pages/QRLPhoenix";
+import GutSense from "./pages/GutSense";
 
 export default function App() {
   return (
@@ -21,6 +22,7 @@ export default function App() {
         <Route path="/research" element={<Research />} />
         <Route path="/about" element={<About />} />
         <Route path="/systems/qrlphoenix" element={<QRLPhoenix />} />
+        <Route path="/systems/gutsense" element={<GutSense />} />
       </Routes>
 
       <SiteFooter />

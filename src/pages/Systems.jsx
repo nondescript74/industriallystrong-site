@@ -31,8 +31,8 @@ export default function Systems() {
             }}
           >
             <h2>
-              <Link 
-                to="/systems/qrlphoenix" 
+              <Link
+                to="/systems/qrlphoenix"
                 style={{ color: "white", textDecoration: "none" }}
               >
                 QRLPhoenix
@@ -59,7 +59,14 @@ export default function Systems() {
               padding: "26px",
             }}
           >
-            <h2>GutSense</h2>
+            <h2>
+              <Link
+                to="/systems/gutsense"
+                style={{ color: "white", textDecoration: "none" }}
+              >
+                GutSense
+              </Link>
+            </h2>
 
             <p style={{ opacity: 0.85 }}>
               Multi-agent dietary intelligence system designed to help users
