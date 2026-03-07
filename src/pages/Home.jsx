@@ -1,11 +1,32 @@
 export default function Home() {
   return (
     <div>
-      <h1>IndustriallyStrong</h1>
-      <p>
-        Ideas, systems, and research architectures for organizations capable of
-        executing at scale.
-      </p>
+      <section 
+        style={{
+          padding: "80px 0",
+          borderBottom: "1px solid #1e293b"
+        }}
+      >
+        <h1 
+          style={{
+            fontSize: "48px",
+            marginBottom: "20px"
+          }}
+        >
+          IndustriallyStrong
+        </h1>
+
+        <p 
+          style={{
+            fontSize: "20px",
+            maxWidth: "900px",
+            opacity: 0.9
+          }}
+        >
+          Systems, research architectures, and program concepts for organizations
+          capable of executing at scale.
+        </p>
+      </section>
 
       <section style={{ marginTop: "40px" }}>
         <h2>Program thesis</h2>
@@ -32,24 +53,50 @@ export default function Home() {
         </ul>
       </section>
 
-      <section style={{ marginTop: "40px" }}>
-        <h2>Live system map</h2>
-        <p>
-          The current IndustriallyStrong surface connects concept development to
-          working systems.
-        </p>
-        <ul>
-          <li>
-            <strong>QRLPhoenix</strong> — iOS strategy intelligence platform
-          </li>
-          <li>
-            <strong>GutSense</strong> — multi-agent dietary intelligence system
-          </li>
-          <li>
-            <strong>MHT-FAISS Engine</strong> — real-time research and demo
-            surface
-          </li>
-        </ul>
+      <section style={{ marginTop: "60px" }}>
+        <h2>Live systems</h2>
+
+        <div 
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+            gap: "20px",
+            marginTop: "30px"
+          }}
+        >
+          <div 
+            style={{ 
+              padding: "20px", 
+              border: "1px solid #1e293b", 
+              borderRadius: "10px" 
+            }}
+          >
+            <h3>QRLPhoenix</h3>
+            <p>AI-assisted iOS strategy discovery platform.</p>
+          </div>
+
+          <div 
+            style={{ 
+              padding: "20px", 
+              border: "1px solid #1e293b", 
+              borderRadius: "10px" 
+            }}
+          >
+            <h3>GutSense</h3>
+            <p>Multi-agent dietary intelligence system.</p>
+          </div>
+
+          <div 
+            style={{ 
+              padding: "20px", 
+              border: "1px solid #1e293b", 
+              borderRadius: "10px" 
+            }}
+          >
+            <h3>MHT-FAISS Engine</h3>
+            <p>Real-time strategy hypothesis exploration system.</p>
+          </div>
+        </div>
       </section>
     </div>
   );
