@@ -50,6 +50,7 @@ export default function SiteHeader() {
           <Link to="/systems" style={linkStyle}>Systems</Link>
           <Link to="/research" style={linkStyle}>Research</Link>
           <Link to="/about" style={linkStyle}>About</Link>
+          <Route path="/contact" element={<Contact />} />
         </nav>
       </div>
     </header>
