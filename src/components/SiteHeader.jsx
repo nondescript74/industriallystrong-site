@@ -74,6 +74,10 @@ export default function SiteHeader() {
             Systems
           </Link>
 
+          <Link to="/decks" style={linkStyle} onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
+            Decks
+          </Link>
+          
           <Link to="/research" style={linkStyle} onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
             Research
           </Link>
