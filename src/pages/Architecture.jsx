@@ -73,6 +73,19 @@ export default function Architecture() {
               Multiple Hypothesis Tracking evolves, prunes, and ranks competing
               paths through the strategy state space over time.
             </p>
+            <a
+              href="/decks/mht.html"
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                display: "inline-block",
+                marginTop: "18px",
+                color: "#6fa8ff",
+                textDecoration: "none",
+              }}
+            >
+              Open the full MHT capability deck →
+            </a>
           </div>
         </div>
       </section>

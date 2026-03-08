@@ -29,7 +29,14 @@ export default function Research() {
           strategies that have already been filtered or evaluated by AI agents.
         </p>
 
-        <div style={{ marginTop: "28px" }}>
+        <div
+          style={{
+            marginTop: "28px",
+            display: "flex",
+            gap: "14px",
+            flexWrap: "wrap",
+          }}
+        >
           <a
             href="https://demomhtfaiss.industriallystrong.com"
             target="_blank"
@@ -45,6 +52,22 @@ export default function Research() {
             }}
           >
             View live MHT-FAISS demo
+          </a>
+
+          <a
+            href="/decks/mht.html"
+            target="_blank"
+            rel="noreferrer"
+            style={{
+              display: "inline-block",
+              padding: "12px 18px",
+              border: "1px solid #334155",
+              borderRadius: "10px",
+              textDecoration: "none",
+              color: "white",
+            }}
+          >
+            View capability deck
           </a>
         </div>
       </section>
