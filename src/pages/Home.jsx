@@ -2,6 +2,7 @@ import PageShell from "../components/PageShell";
 import CardLink from "../components/CardLink";
 import PrimaryButton from "../components/PrimaryButton";
 import { trackEvent } from "../utils/analytics";
+import LiveMetricsCard from "../components/LiveMetricsCard";
 
 export default function Home() {
   return (
@@ -293,7 +294,7 @@ export default function Home() {
         </div>
 
       </section>
-
+      <LiveMetricsCard />
     </PageShell>
   );
 }
