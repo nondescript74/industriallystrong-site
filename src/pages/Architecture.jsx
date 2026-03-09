@@ -2,6 +2,7 @@ import PageShell from "../components/PageShell";
 import PrimaryButton from "../components/PrimaryButton";
 import MHTDeck from "../components/MHTDeck";
 import "../assets/mhtDeck.css";
+import { trackEvent } from "../utils/analytics";
 
 export default function Architecture() {
   return (
@@ -79,6 +80,7 @@ export default function Architecture() {
               href="https://industriallystrong.com/decks/mht.html"
               target="_blank"
               rel="noreferrer"
+              onClick={() => trackEvent("navigation", "open_mht_deck")}
               style={{
                 display: "inline-block",
                 marginTop: "18px",
@@ -184,6 +186,7 @@ export default function Architecture() {
             href="https://demomhtfaiss.industriallystrong.com"
             target="_blank"
             rel="noreferrer"
+            onClick={() => trackEvent("navigation", "launch_live_demo")}
             style={{
               display: "inline-block",
               padding: "12px 18px",

@@ -1,9 +1,31 @@
 import { Link } from "react-router-dom";
+import { trackEvent } from "../utils/analytics";
 
-export default function PrimaryButton({ to, children, secondary = false }) {
+export default function PrimaryButton({
+  to,
+  children,
+  secondary = false,
+  eventLabel,
+  onClick
+}) {
+
+  const handleClick = (e) => {
+
+    // automatic analytics event if provided
+    if (eventLabel) {
+      trackEvent("navigation", eventLabel);
+    }
+
+    // allow custom handlers
+    if (onClick) {
+      onClick(e);
+    }
+  };
+
   return (
     <Link
       to={to}
+      onClick={handleClick}
       style={{
         display: "inline-block",
         padding: "12px 18px",

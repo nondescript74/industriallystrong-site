@@ -1,6 +1,7 @@
 import PageShell from "../components/PageShell";
 import CardLink from "../components/CardLink";
 import PrimaryButton from "../components/PrimaryButton";
+import { trackEvent } from "../utils/analytics";
 
 export default function Home() {
   return (
@@ -49,12 +50,21 @@ export default function Home() {
         </p>
 
         <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
-          <PrimaryButton to="/systems">View systems</PrimaryButton>
-          <PrimaryButton to="/research" secondary>
+          <PrimaryButton to="/systems" eventLabel="open_systems">
+            View systems
+          </PrimaryButton>
+
+          <PrimaryButton to="/research" secondary eventLabel="open_research">
             Explore research
+          </PrimaryButton>
+
+          <PrimaryButton to="/architecture" eventLabel="open_architecture">
+            Explore Architecture
           </PrimaryButton>
         </div>
       </section>
+
+      {/* Platform Flow */}
 
       <section className="architecture-flow">
         <div className="architecture-flow__intro">
@@ -64,6 +74,7 @@ export default function Home() {
           >
             Platform Flow
           </h2>
+
           <p
             className="section-subtitle"
             style={{ textAlign: "left", marginBottom: "0" }}
@@ -74,6 +85,7 @@ export default function Home() {
         </div>
 
         <div className="architecture-flow__grid">
+
           <div className="flow-card">
             <div className="flow-card__label">Applications</div>
             <h3>QRLPhoenix + GutSense</h3>
@@ -115,24 +127,35 @@ export default function Home() {
               your own domain.
             </p>
           </div>
+
         </div>
       </section>
 
+      {/* Program Structure */}
+
       <section className="program-structure">
         <div className="container">
+
           <h2 className="section-title">Program Structure</h2>
+
           <p className="section-subtitle">
             From foundational research to deployed systems and live demonstrations.
           </p>
 
           <div className="structure-grid">
+
             <div className="structure-card">
               <h3>Research</h3>
               <p>
                 Foundational work on high-dimensional signal processing,
                 hypothesis tracking, and associative retrieval methods.
               </p>
-              <a href="/research" className="structure-link">
+
+              <a
+                href="/research"
+                className="structure-link"
+                onClick={() => trackEvent("navigation","open_research")}
+              >
                 View Research →
               </a>
             </div>
@@ -143,31 +166,43 @@ export default function Home() {
                 Production architectures that operationalize research results,
                 including QRLPhoenix and FAISS-based inference pipelines.
               </p>
-              <a href="/systems" className="structure-link">
+
+              <a
+                href="/systems"
+                className="structure-link"
+                onClick={() => trackEvent("navigation","open_systems")}
+              >
                 View Systems →
               </a>
             </div>
 
             <div className="structure-card">
               <h3>Live Demonstrations</h3>
+
               <p>
                 Interactive deployments illustrating system behavior and
                 architectural performance in real environments.
               </p>
+
               <a
                 href="https://demomhtfaiss.industriallystrong.com"
                 className="structure-link"
                 target="_blank"
                 rel="noreferrer"
+                onClick={() => trackEvent("navigation","launch_live_demo")}
               >
                 Launch Demo →
               </a>
             </div>
+
           </div>
         </div>
       </section>
 
+      {/* Live Systems */}
+
       <section style={{ marginTop: "72px" }}>
+
         <h2 style={{ marginBottom: "28px" }}>Live Systems</h2>
 
         <div
@@ -177,10 +212,12 @@ export default function Home() {
             gap: "22px",
           }}
         >
+
           <a
             href="https://demomhtfaiss.industriallystrong.com"
             target="_blank"
             rel="noreferrer"
+            onClick={() => trackEvent("navigation","launch_live_demo")}
             style={{ textDecoration: "none", color: "inherit" }}
           >
             <div className="structure-card">
@@ -193,9 +230,10 @@ export default function Home() {
           </a>
 
           <a
-            href="/decks/mht.html"
+            href="https://industriallystrong.com/decks/mht.html"
             target="_blank"
             rel="noreferrer"
+            onClick={() => trackEvent("navigation","open_mht_deck")}
             style={{ textDecoration: "none", color: "inherit" }}
           >
             <div className="structure-card">
@@ -213,10 +251,15 @@ export default function Home() {
               to the research engine and agent analysis workflows.
             </p>
           </CardLink>
+
         </div>
+
       </section>
 
+      {/* Core Systems */}
+
       <section style={{ marginTop: "72px" }}>
+
         <h2 style={{ marginBottom: "28px" }}>Core Systems</h2>
 
         <div
@@ -226,6 +269,7 @@ export default function Home() {
             gap: "22px",
           }}
         >
+
           <CardLink to="/systems/qrlphoenix" title="QRLPhoenix">
             <p style={{ margin: 0 }}>
               AI-assisted iOS strategy discovery and evaluation platform.
@@ -245,8 +289,11 @@ export default function Home() {
               populations.
             </p>
           </CardLink>
+
         </div>
+
       </section>
+
     </PageShell>
   );
 }

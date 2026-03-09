@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { trackEvent } from "../utils/analytics";
 
 export default function SiteHeader() {
   const linkStyle = {
@@ -56,6 +57,7 @@ export default function SiteHeader() {
             gap: "22px",
             flexWrap: "wrap",
             fontSize: "15px",
+            alignItems: "center"
           }}
         >
           <Link to="/" style={linkStyle} onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
@@ -77,7 +79,7 @@ export default function SiteHeader() {
           <Link to="/decks" style={linkStyle} onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
             Decks
           </Link>
-          
+
           <Link to="/research" style={linkStyle} onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
             Research
           </Link>
@@ -93,6 +95,18 @@ export default function SiteHeader() {
           <Link to="/contact" style={linkStyle} onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
             Contact
           </Link>
+
+          <a
+            href="https://www.linkedin.com/in/zahirudeen-premji-5a7a553b1/"
+            target="_blank"
+            rel="noreferrer"
+            style={linkStyle}
+            onMouseEnter={handleEnter}
+            onMouseLeave={handleLeave}
+            onClick={() => trackEvent("external", "linkedin_profile")}
+          >
+            LinkedIn
+          </a>
         </nav>
       </div>
     </header>
