@@ -14,7 +14,18 @@ import Architecture from "./pages/Architecture";
 import Decks from "./pages/Decks";
 import Programs from "./pages/Programs";
 
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import { trackStatcounterPageView } from "./utils/statcounter";
+
 export default function App() {
+
+  const location = useLocation();
+
+  useEffect(() => {
+    trackStatcounterPageView();
+  }, [location.pathname]);
+
   return (
     <div>
       <SiteHeader />
