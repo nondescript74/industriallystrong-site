@@ -76,7 +76,7 @@ export default function Architecture() {
               paths through the strategy state space over time.
             </p>
             <a
-              href="/decks/mht.html"
+              href="https://industriallystrong.com/decks/mht.html"
               target="_blank"
               rel="noreferrer"
               style={{
@@ -167,7 +167,19 @@ export default function Architecture() {
             flexWrap: "wrap",
           }}
         >
-          <PrimaryButton to="/research">View research</PrimaryButton>
+          <a
+            href="https://industriallystrong.com/research"
+            style={{
+              display: "inline-block",
+              padding: "12px 18px",
+              borderRadius: "10px",
+              textDecoration: "none",
+              background: "#2563eb",
+              color: "white",
+            }}
+          >
+            View research
+          </a>
           <a
             href="https://demomhtfaiss.industriallystrong.com"
             target="_blank"
