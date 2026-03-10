@@ -1,0 +1,90 @@
+<svg width="1200" height="675" viewBox="0 0 1200 675" xmlns="http://www.w3.org/2000/svg">
+
+<style>
+.title{font:600 36px system-ui; fill:#111}
+.subtitle{font:400 18px system-ui; fill:#666}
+.heading{font:600 20px system-ui; fill:#222}
+.label{font:400 16px system-ui; fill:#444}
+.caption{font:500 18px system-ui; fill:#111}
+.machine{fill:#cfd6df}
+.module{fill:#3f6db3}
+.arrow{stroke:#888; stroke-width:2}
+</style>
+
+<!-- background -->
+<rect width="1200" height="675" fill="white"/>
+
+<!-- title -->
+<text x="600" y="80" text-anchor="middle" class="title">
+Lithography Scaling Paths
+</text>
+
+<text x="600" y="110" text-anchor="middle" class="subtitle">
+Two fundamentally different ways exposure systems scale
+</text>
+
+<!-- LEFT COLUMN -->
+
+<text x="250" y="180" text-anchor="middle" class="heading">
+Monolithic Lithography Systems
+</text>
+
+<!-- machine graphic -->
+<rect x="170" y="210" width="160" height="100" rx="8" class="machine"/>
+
+<!-- arrows -->
+<line x1="250" y1="320" x2="250" y2="350" class="arrow"/>
+<line x1="250" y1="380" x2="250" y2="410" class="arrow"/>
+<line x1="250" y1="440" x2="250" y2="470" class="arrow"/>
+
+<!-- text -->
+<text x="250" y="370" text-anchor="middle" class="label">Higher resolution</text>
+<text x="250" y="430" text-anchor="middle" class="label">More optical complexity</text>
+<text x="250" y="490" text-anchor="middle" class="label">Larger machines</text>
+
+<text x="250" y="540" text-anchor="middle" class="caption">
+Scaling through optical complexity
+</text>
+
+<!-- RIGHT COLUMN -->
+
+<text x="950" y="180" text-anchor="middle" class="heading">
+Distributed Lithography Architecture
+</text>
+
+<!-- module grid -->
+<rect x="880" y="210" width="40" height="40" class="module"/>
+<rect x="930" y="210" width="40" height="40" class="module"/>
+<rect x="980" y="210" width="40" height="40" class="module"/>
+<rect x="1030" y="210" width="40" height="40" class="module"/>
+
+<rect x="880" y="260" width="40" height="40" class="module"/>
+<rect x="930" y="260" width="40" height="40" class="module"/>
+<rect x="980" y="260" width="40" height="40" class="module"/>
+<rect x="1030" y="260" width="40" height="40" class="module"/>
+
+<rect x="880" y="310" width="40" height="40" class="module"/>
+<rect x="930" y="310" width="40" height="40" class="module"/>
+<rect x="980" y="310" width="40" height="40" class="module"/>
+<rect x="1030" y="310" width="40" height="40" class="module"/>
+
+<!-- arrows -->
+<line x1="950" y1="360" x2="950" y2="390" class="arrow"/>
+<line x1="950" y1="420" x2="950" y2="450" class="arrow"/>
+<line x1="950" y1="480" x2="950" y2="510" class="arrow"/>
+
+<!-- text -->
+<text x="950" y="410" text-anchor="middle" class="label">Higher throughput</text>
+<text x="950" y="470" text-anchor="middle" class="label">More exposure modules</text>
+<text x="950" y="530" text-anchor="middle" class="label">Parallel scaling</text>
+
+<text x="950" y="580" text-anchor="middle" class="caption">
+Scaling through semiconductor integration
+</text>
+
+<!-- bottom line -->
+<text x="600" y="640" text-anchor="middle" class="heading">
+Architecture determines how technologies scale
+</text>
+
+</svg>
