@@ -1,0 +1,18 @@
+<svg viewBox="0 0 500 420" xmlns="http://www.w3.org/2000/svg">
+
+<rect x="80" y="40" width="340" height="60" fill="#4da6ff"/>
+<text x="120" y="75" fill="white">Optical Conditioning</text>
+
+<rect x="80" y="110" width="340" height="60" fill="#e3b04b"/>
+<text x="140" y="145">MEMS Steering</text>
+
+<rect x="80" y="180" width="340" height="60" fill="#d95f5f"/>
+<text x="140" y="215" fill="white">Emitter Array</text>
+
+<rect x="80" y="250" width="340" height="60" fill="#8b6bd9"/>
+<text x="130" y="285" fill="white">Control Electronics</text>
+
+<rect x="80" y="320" width="340" height="60" fill="#5e5e5e"/>
+<text x="120" y="355" fill="white">Thermal Substrate</text>
+
+</svg>
