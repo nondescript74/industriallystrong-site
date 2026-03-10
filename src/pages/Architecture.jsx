@@ -26,16 +26,15 @@ export default function Architecture() {
               like semiconductors?
             </h1>
             <p className="litho-hero-copy">
-              A conceptual architecture for programmable lithography built from
-              tiled semiconductor exposure modules rather than a single
-              monolithic exposure engine.
+              A lithography thesis built around tiled semiconductor exposure
+              modules instead of a single large exposure engine.
             </p>
           </div>
         </section>
 
         <Section
           eyebrow="The trajectory"
-          title="For decades, lithography has scaled by building larger machines."
+          title="Lithography has historically scaled by building larger and more complex machines."
           className="narrative"
         >
           <div className="trajectory-strip">
@@ -60,7 +59,7 @@ export default function Architecture() {
 
         <Section
           eyebrow="The question"
-          title="What if the exposure system itself became a semiconductor architecture?"
+          title="What if the exposure system itself were built as a semiconductor structure?"
           className="question"
         >
           <div className="question-grid">
@@ -91,7 +90,7 @@ export default function Architecture() {
 
         <Section
           eyebrow="Architecture"
-          title="A tiled exposure surface built from programmable writer heads."
+          title="A tiled exposure surface built from writer heads."
           className="architecture"
         >
           <p className="section-copy">
@@ -103,7 +102,7 @@ export default function Architecture() {
             <div className="writer-grid">
               {Array.from({ length: 8 }).map((_, i) => (
                 <div className="writer-tile" key={i}>
-                  <div className="writer-title">Writer Head</div>
+                  <div className="writer-title">Exposure Head</div>
                   <div className="writer-layers">
                     <span>Optics</span>
                     <span>MEMS</span>
@@ -130,7 +129,7 @@ export default function Architecture() {
                   <span key={i} />
                 ))}
               </div>
-              <div className="wafer-label">Photoresist wafer</div>
+              <div className="wafer-label">Resist-coated wafer</div>
             </div>
 
             <div className="micro-caption">
@@ -141,13 +140,12 @@ export default function Architecture() {
 
         <Section
           eyebrow="Writer head"
-          title="The writer head should look like semiconductor hardware."
+          title="The writer head should read as semiconductor hardware."
           className="cross-section-panel"
         >
           <p className="section-copy">
             The concept becomes more credible when the writer head is framed as
-            a layered semiconductor module rather than as an abstract light
-            source.
+            a layered semiconductor module rather than an abstract light source.
           </p>
 
           <div className="cross-section-card">
@@ -171,14 +169,14 @@ export default function Architecture() {
 
         <Section
           eyebrow="Feasibility"
-          title="The first question is simple: can enough energy reach the wafer?"
+          title="Can enough energy reach the wafer?"
           className="feasibility"
         >
           <p className="section-copy">
-            A first-order estimate suggests photon budget may be workable.
+            A first-order estimate suggests the photon budget may be workable.
             <br />
-            The harder problem is system synchronization, calibration,
-            stitching, and control.
+            The harder problem is synchronization, calibration, stitching, and
+            control.
           </p>
 
           <div className="energy-stage-row">
@@ -215,7 +213,7 @@ export default function Architecture() {
                 <strong>~700–800 cm²/s</strong>
               </div>
               <div className="wide">
-                <span>Likely dominant real constraints</span>
+                <span>Dominant system constraints</span>
                 <strong>
                   Synchronization · alignment · stitching · calibration · control
                 </strong>
@@ -226,12 +224,12 @@ export default function Architecture() {
 
         <Section
           eyebrow="Landscape"
-          title="This is not the same path as monolithic scanner scaling."
+          title="This is a different scaling path from monolithic scanner development."
           className="landscape"
         >
           <p className="section-copy">
-            The concept fits into a different architectural lane: distributed,
-            programmable exposure rather than a single centralized system.
+            The concept sits in a different lane: distributed, tiled exposure
+            rather than a single centralized tool.
           </p>
 
           <div className="industry-map-card">
@@ -269,7 +267,7 @@ export default function Architecture() {
 
         <Section
           eyebrow="Scaling"
-          title="Architecture determines how technologies scale."
+          title="Architecture determines how lithography scales."
           className="scaling"
         >
           <div className="scaling-comparison">
@@ -317,7 +315,7 @@ export default function Architecture() {
             <h2>
               Lithography may eventually scale not through larger optical
               machines, but through semiconductor-manufacturable exposure
-              architectures.
+              modules.
             </h2>
           </div>
         </section>
