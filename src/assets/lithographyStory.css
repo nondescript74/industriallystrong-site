@@ -8,11 +8,11 @@
   --line: rgba(149, 178, 224, 0.18);
   --blue: #7ca6e9;
   --blue-strong: #4e79c6;
-  --cyan: #77c9ff;
-  --gold: #e2b55c;
-  --red: #d36272;
+  --cyan: #6bc8ff;
+  --gold: #e1b85c;
+  --red: #d46b76;
   --violet: #8a74d6;
-  --gray: #6b7383;
+  --gray: #707784;
 }
 
 .litho-page {
@@ -60,6 +60,7 @@
 
 .litho-section {
   padding: 24px 20px;
+  margin-bottom: 32px;
 }
 
 .litho-section-inner,
@@ -273,6 +274,8 @@
   height: 38px;
   border-radius: 999px;
   background: linear-gradient(180deg, rgba(120, 207, 255, 0.95), rgba(120, 207, 255, 0.06));
+  box-shadow: 0 0 8px rgba(100, 200, 255, 0.5);
+  animation: beamPulse 2.2s infinite ease-in-out;
 }
 
 .wafer-band {
@@ -308,7 +311,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  transform: translateY(-4px);
   font-size: 18px;
+  font-weight: 500;
   color: #f6f9ff;
 }
 
@@ -334,27 +339,27 @@
 }
 
 .cross-layer.optics {
-  background: rgba(104, 201, 255, 0.92);
+  background: var(--cyan);
   color: #06131d;
 }
 
 .cross-layer.mems {
-  background: rgba(227, 184, 95, 0.94);
+  background: var(--gold);
   color: #251700;
 }
 
 .cross-layer.emitters {
-  background: rgba(211, 98, 114, 0.96);
+  background: var(--red);
   color: white;
 }
 
 .cross-layer.asic {
-  background: rgba(136, 114, 217, 0.92);
+  background: var(--violet);
   color: white;
 }
 
 .cross-layer.thermal {
-  background: rgba(105, 113, 128, 0.96);
+  background: var(--gray);
   color: white;
 }
 
@@ -399,22 +404,22 @@
 }
 
 .energy-stage.wall {
-  min-height: 170px;
+  height: 170px;
   background: #223044;
 }
 
 .energy-stage.optical {
-  min-height: 142px;
+  height: 140px;
   background: #2a425f;
 }
 
 .energy-stage.conditioning {
-  min-height: 120px;
+  height: 115px;
   background: #345277;
 }
 
 .energy-stage.wafer {
-  min-height: 98px;
+  height: 95px;
   background: #43699c;
 }
 
@@ -431,8 +436,9 @@
 }
 
 .energy-arrow {
-  font-size: 28px;
+  font-size: 34px;
   color: var(--soft);
+  opacity: 0.7;
   padding-bottom: 18px;
 }
 
@@ -644,6 +650,12 @@
   text-align: center;
   width: min(920px, 100%);
   margin: 0 auto;
+}
+
+@keyframes beamPulse {
+  0% { opacity: 0.3; }
+  50% { opacity: 1; }
+  100% { opacity: 0.3; }
 }
 
 @media (max-width: 980px) {
