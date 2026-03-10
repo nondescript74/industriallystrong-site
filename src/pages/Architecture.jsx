@@ -1,205 +1,269 @@
 import PageShell from "../components/PageShell";
-import PrimaryButton from "../components/PrimaryButton";
-import MHTDeck from "../components/MHTDeck";
-import "../assets/mhtDeck.css";
-import { trackEvent } from "../utils/analytics";
+import "../assets/lithographyStory.css";
 
 export default function Architecture() {
   return (
     <PageShell>
-      <section style={{ marginBottom: "60px" }}>
-        <h1 style={{ fontSize: "42px", marginBottom: "10px" }}>
-          System Architecture
-        </h1>
-
-        <p style={{ fontSize: "20px", maxWidth: "860px", opacity: 0.9 }}>
-          IndustriallyStrong connects deployed applications, agent-driven
-          analysis, and research infrastructure into a unified technical stack.
-        </p>
-      </section>
-
-      <section className="architecture-flow">
-        <div className="architecture-flow__intro">
-          <h2
-            className="section-title"
-            style={{ textAlign: "left", marginBottom: "14px" }}
-          >
-            End-to-End Flow
-          </h2>
-          <p
-            className="section-subtitle"
-            style={{ textAlign: "left", marginBottom: 0 }}
-          >
-            From candidate strategy inputs to real-time exploration and live
-            deployment.
+      <div className="litho-story">
+        <section className="litho-hero">
+          <div className="litho-eyebrow">IndustriallyStrong Research</div>
+          <h1>Programmable Lithography Architectures</h1>
+          <p className="litho-hero-copy">
+            Exploring a semiconductor-manufacturable lithography direction built
+            from tiled exposure modules rather than a single monolithic exposure
+            engine.
           </p>
-        </div>
+        </section>
 
-        <div className="architecture-flow__grid">
-          <div className="flow-card">
-            <div className="flow-card__label">Inputs</div>
-            <h3>Strategy Sources</h3>
+        <section className="litho-panel">
+          <div className="litho-panel-inner">
+            <div className="litho-kicker">The question</div>
+            <h2>What if lithography scaled like semiconductors?</h2>
             <p>
-              Public and generated trading strategies enter the system as raw
-              candidates for downstream evaluation.
+              For decades, lithography has scaled through larger optics, more
+              complex sources, and increasingly sophisticated machines.
+            </p>
+            <p>
+              This concept explores a different architectural path: exposure
+              systems composed of many programmable modules operating in
+              parallel.
             </p>
           </div>
+        </section>
 
-          <div className="flow-arrow">→</div>
-
-          <div className="flow-card">
-            <div className="flow-card__label">Agent Layer</div>
-            <h3>AI Evaluation</h3>
-            <p>
-              Agents classify, enrich, compare, and synthesize strategy signals
-              before deeper indexing and ranking.
+        <section className="litho-panel">
+          <div className="litho-panel-inner">
+            <div className="litho-kicker">Concept</div>
+            <h2>Tiled exposure architecture</h2>
+            <p className="litho-section-copy">
+              A distributed exposure surface formed from multiple writer heads,
+              each responsible for a local field.
             </p>
+
+            <div className="tile-architecture">
+              <div className="tile-grid">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div className="writer-head" key={i}>
+                    <div className="writer-head-title">Writer Head</div>
+                    <div className="writer-head-stack">
+                      <span>Optics</span>
+                      <span>MEMS</span>
+                      <span>Array</span>
+                      <span>ASIC</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="beam-row">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div className="beam-group" key={i}>
+                    <span />
+                    <span />
+                    <span />
+                  </div>
+                ))}
+              </div>
+
+              <div className="wafer-stage">
+                <div className="wafer-stage-label">Photoresist wafer</div>
+              </div>
+
+              <div className="tile-caption">
+                Many programmable exposure elements operating simultaneously.
+              </div>
+            </div>
           </div>
+        </section>
 
-          <div className="flow-arrow">→</div>
-
-          <div className="flow-card">
-            <div className="flow-card__label">Retrieval Layer</div>
-            <h3>FAISS Vector Search</h3>
-            <p>
-              High-dimensional vector indexing supports efficient similarity
-              search across large candidate populations.
+        <section className="litho-panel">
+          <div className="litho-panel-inner">
+            <div className="litho-kicker">Fabrication plausibility</div>
+            <h2>Semiconductor writer-head structure</h2>
+            <p className="litho-section-copy">
+              The core idea is not a giant optical machine, but a layered module
+              that looks like semiconductor hardware.
             </p>
+
+            <div className="cross-section">
+              <div className="layer optics">Optical conditioning layer</div>
+              <div className="layer mems">MEMS steering layer</div>
+              <div className="layer emitters">Emitter / modulation array</div>
+              <div className="layer electronics">
+                Driver electronics + timing control
+              </div>
+              <div className="layer thermal">Thermal / power substrate</div>
+
+              <div className="cross-section-beams">
+                <span />
+                <span />
+                <span />
+              </div>
+
+              <div className="cross-wafer">Wafer exposure plane</div>
+            </div>
           </div>
+        </section>
 
-          <div className="flow-arrow">→</div>
-
-          <div className="flow-card">
-            <div className="flow-card__label">Tracking Layer</div>
-            <h3>MHT Hypothesis Engine</h3>
-            <p>
-              Multiple Hypothesis Tracking evolves, prunes, and ranks competing
-              paths through the strategy state space over time.
+        <section className="litho-panel">
+          <div className="litho-panel-inner">
+            <div className="litho-kicker">Feasibility</div>
+            <h2>Wall plug → wafer</h2>
+            <p className="litho-section-copy">
+              A first-order engineering model suggests that photon budget may
+              not be the dominant constraint. System synchronization,
+              calibration, stitching, and control can matter just as much.
             </p>
-            <a
-              href="https://industriallystrong.com/decks/mht.html"
-              target="_blank"
-              rel="noreferrer"
-              onClick={() => trackEvent("navigation", "open_mht_deck")}
-              style={{
-                display: "inline-block",
-                marginTop: "18px",
-                color: "#6fa8ff",
-                textDecoration: "none",
-              }}
-            >
-              Open the full MHT capability deck →
-            </a>
+
+            <div className="energy-flow">
+              <div className="energy-bar wall">
+                <div className="energy-label">Wall plug</div>
+                <div className="energy-value">100 W</div>
+              </div>
+              <div className="energy-arrow">↓</div>
+              <div className="energy-bar optical">
+                <div className="energy-label">Optical generation</div>
+                <div className="energy-value">~30 W</div>
+              </div>
+              <div className="energy-arrow">↓</div>
+              <div className="energy-bar conditioning">
+                <div className="energy-label">Conditioned beam</div>
+                <div className="energy-value">~22 W</div>
+              </div>
+              <div className="energy-arrow">↓</div>
+              <div className="energy-bar wafer">
+                <div className="energy-label">Power at wafer</div>
+                <div className="energy-value">~16 W</div>
+              </div>
+            </div>
+
+            <div className="throughput-card">
+              <div className="throughput-title">Illustrative throughput model</div>
+              <div className="throughput-formula">Area rate = Power / Resist dose</div>
+              <div className="throughput-grid">
+                <div>
+                  <span className="throughput-key">Power at wafer</span>
+                  <strong>~16 W</strong>
+                </div>
+                <div>
+                  <span className="throughput-key">Example resist dose</span>
+                  <strong>20 mJ/cm²</strong>
+                </div>
+                <div>
+                  <span className="throughput-key">Photon-limit capacity</span>
+                  <strong>~700–800 cm²/s</strong>
+                </div>
+                <div>
+                  <span className="throughput-key">Real constraint</span>
+                  <strong>Synchronization + stitching + calibration</strong>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section style={{ marginTop: "72px", marginBottom: "72px" }}>
-        <MHTDeck />
-      </section>
-
-      <section style={{ marginTop: "64px" }}>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-            gap: "22px",
-          }}
-        >
-          <div className="flow-card">
-            <div className="flow-card__label">Interactive Layer</div>
-            <h3>Exploration Surface</h3>
-            <p>
-              Users inspect rankings, branching paths, and candidate dynamics in
-              a live environment connected to the research engine.
+        <section className="litho-panel">
+          <div className="litho-panel-inner">
+            <div className="litho-kicker">Landscape</div>
+            <h2>Three paths for lithography</h2>
+            <p className="litho-section-copy">
+              This concept is not framed as a replacement for every existing
+              tool. It is a different architectural path.
             </p>
+
+            <div className="industry-map-wrap">
+              <div className="industry-y-axis">Programmable patterning</div>
+              <div className="industry-map">
+                <div className="axis-x" />
+                <div className="axis-y" />
+
+                <div className="map-node euv">
+                  <strong>EUV scanners</strong>
+                  <span>Monolithic machines</span>
+                </div>
+
+                <div className="map-node nil">
+                  <strong>Nanoimprint</strong>
+                  <span>Replication path</span>
+                </div>
+
+                <div className="map-node directwrite">
+                  <strong>Maskless direct write</strong>
+                  <span>Flexible, limited parallelism</span>
+                </div>
+
+                <div className="map-node distributed">
+                  <strong>Distributed semiconductor lithography</strong>
+                  <span>Tiled programmable modules</span>
+                </div>
+
+                <div className="x-axis-label">
+                  Monolithic machine → distributed semiconductor architecture
+                </div>
+              </div>
+            </div>
           </div>
+        </section>
 
-          <div className="flow-card">
-            <div className="flow-card__label">Deployment Layer</div>
-            <h3>Live Demo Surface</h3>
-            <p>
-              The architecture is exposed through a custom-domain demo that
-              demonstrates the real system rather than a static mockup.
-            </p>
+        <section className="litho-panel">
+          <div className="litho-panel-inner">
+            <div className="litho-kicker">Scaling</div>
+            <h2>Lithography scaling paths</h2>
+
+            <div className="scaling-slide">
+              <div className="scaling-column">
+                <div className="scaling-heading">Monolithic lithography systems</div>
+                <div className="machine-block" />
+                <div className="scaling-chain">
+                  <span>Higher resolution</span>
+                  <span>↓</span>
+                  <span>More optical complexity</span>
+                  <span>↓</span>
+                  <span>Larger machines</span>
+                </div>
+                <div className="scaling-caption">
+                  Scaling through optical complexity
+                </div>
+              </div>
+
+              <div className="scaling-column">
+                <div className="scaling-heading">
+                  Distributed lithography architecture
+                </div>
+                <div className="module-grid">
+                  {Array.from({ length: 12 }).map((_, i) => (
+                    <span key={i} />
+                  ))}
+                </div>
+                <div className="scaling-chain">
+                  <span>Higher throughput</span>
+                  <span>↓</span>
+                  <span>More exposure modules</span>
+                  <span>↓</span>
+                  <span>Parallel scaling</span>
+                </div>
+                <div className="scaling-caption">
+                  Scaling through semiconductor integration
+                </div>
+              </div>
+            </div>
+
+            <div className="scaling-footer">
+              Architecture determines how technologies scale.
+            </div>
           </div>
+        </section>
 
-          <div className="flow-card">
-            <div className="flow-card__label">Platform Role</div>
-            <h3>Research to Product</h3>
-            <p>
-              The architecture bridges foundational research, deployable system
-              design, and user-facing platform workflows such as QRLPhoenix.
-            </p>
+        <section className="litho-panel litho-closing">
+          <div className="litho-panel-inner">
+            <div className="litho-kicker">Thesis</div>
+            <h2>
+              Lithography may eventually scale not through larger machines, but
+              through semiconductor-manufacturable exposure architectures.
+            </h2>
           </div>
-        </div>
-      </section>
-
-      <section
-        style={{
-          marginTop: "64px",
-          border: "1px solid #1e293b",
-          borderRadius: "14px",
-          padding: "28px",
-          background: "#111827",
-        }}
-      >
-        <h2 style={{ marginTop: 0 }}>Why this architecture matters</h2>
-
-        <p style={{ opacity: 0.88, maxWidth: "920px" }}>
-          This stack is designed to turn advanced technical methods into usable
-          infrastructure. Rather than isolating vector search, agent analysis,
-          and tracking as separate ideas, IndustriallyStrong integrates them
-          into one system that can support live exploration and future product
-          workflows.
-        </p>
-
-        <ul style={{ opacity: 0.82, lineHeight: 1.8 }}>
-          <li>Connects research methods directly to deployed systems</li>
-          <li>Supports large candidate populations with practical retrieval</li>
-          <li>Demonstrates implementation depth behind the platform surface</li>
-          <li>Creates a foundation for future fintech intelligence systems</li>
-        </ul>
-
-        <div
-          style={{
-            marginTop: "24px",
-            display: "flex",
-            gap: "16px",
-            flexWrap: "wrap",
-          }}
-        >
-          <a
-            href="https://industriallystrong.com/research"
-            style={{
-              display: "inline-block",
-              padding: "12px 18px",
-              borderRadius: "10px",
-              textDecoration: "none",
-              background: "#2563eb",
-              color: "white",
-            }}
-          >
-            View research
-          </a>
-          <a
-            href="https://demomhtfaiss.industriallystrong.com"
-            target="_blank"
-            rel="noreferrer"
-            onClick={() => trackEvent("navigation", "launch_live_demo")}
-            style={{
-              display: "inline-block",
-              padding: "12px 18px",
-              border: "1px solid #334155",
-              borderRadius: "10px",
-              textDecoration: "none",
-              color: "white",
-            }}
-          >
-            Launch live demo
-          </a>
-        </div>
-      </section>
+        </section>
+      </div>
     </PageShell>
   );
 }
