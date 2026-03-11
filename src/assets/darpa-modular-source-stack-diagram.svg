@@ -1,0 +1,154 @@
+<svg viewBox="0 0 1400 900" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1400" y2="900" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0B1323"/>
+      <stop offset="1" stop-color="#111C30"/>
+    </linearGradient>
+
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#17243A"/>
+      <stop offset="1" stop-color="#111C2E"/>
+    </linearGradient>
+
+    <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#2B7FFF"/>
+      <stop offset="1" stop-color="#1958CE"/>
+    </linearGradient>
+
+    <linearGradient id="green" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#2ED4A0"/>
+      <stop offset="1" stop-color="#12956F"/>
+    </linearGradient>
+
+    <linearGradient id="orange" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#FFB347"/>
+      <stop offset="1" stop-color="#D88718"/>
+    </linearGradient>
+
+    <linearGradient id="violet" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#A178FF"/>
+      <stop offset="1" stop-color="#6E48D9"/>
+    </linearGradient>
+
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="10" stdDeviation="18" flood-color="#000000" flood-opacity="0.24"/>
+    </filter>
+  </defs>
+
+  <rect width="1400" height="900" fill="url(#bg)"/>
+
+  <text x="70" y="78" fill="#FFFFFF" font-size="36" font-family="Inter, Arial, sans-serif" font-weight="700">
+    Program Architecture: Modular Semiconductor Exposure Source Stack
+  </text>
+  <text x="70" y="114" fill="#A1B4CF" font-size="18" font-family="Inter, Arial, sans-serif">
+    A research-oriented decomposition of the enabling layers required for a semiconductor-manufacturable modular exposure architecture.
+  </text>
+
+  <g filter="url(#shadow)">
+    <rect x="70" y="170" width="860" height="660" rx="30" fill="url(#panel)" stroke="#263854"/>
+  </g>
+
+  <text x="110" y="215" fill="#D9E5F6" font-size="22" font-family="Inter, Arial, sans-serif" font-weight="700">
+    Enabling stack
+  </text>
+
+  <rect x="110" y="255" width="780" height="94" rx="22" fill="url(#blue)"/>
+  <text x="145" y="295" fill="#FFFFFF" font-size="24" font-family="Inter, Arial, sans-serif" font-weight="700">
+    1. Semiconductor source layer
+  </text>
+  <text x="145" y="325" fill="#E4EEFF" font-size="17" font-family="Inter, Arial, sans-serif">
+    Dense replicated emitters, semiconductor-compatible generation paths, and modular source fabrication.
+  </text>
+
+  <rect x="110" y="375" width="780" height="94" rx="22" fill="url(#green)"/>
+  <text x="145" y="415" fill="#08261C" font-size="24" font-family="Inter, Arial, sans-serif" font-weight="700">
+    2. MEMS / steering / local control layer
+  </text>
+  <text x="145" y="445" fill="#0C3A2B" font-size="17" font-family="Inter, Arial, sans-serif">
+    Fine beam steering, local alignment, selection logic, focus control, and distributed actuation.
+  </text>
+
+  <rect x="110" y="495" width="780" height="94" rx="22" fill="url(#orange)"/>
+  <text x="145" y="535" fill="#1A1204" font-size="24" font-family="Inter, Arial, sans-serif" font-weight="700">
+    3. Vacuum / thermal / packaging layer
+  </text>
+  <text x="145" y="565" fill="#4B330A" font-size="17" font-family="Inter, Arial, sans-serif">
+    Vacuum enclosure, cooling path, thermal isolation, mechanical support, and module packaging density.
+  </text>
+
+  <rect x="110" y="615" width="780" height="94" rx="22" fill="url(#violet)"/>
+  <text x="145" y="655" fill="#FFFFFF" font-size="24" font-family="Inter, Arial, sans-serif" font-weight="700">
+    4. Exposure orchestration layer
+  </text>
+  <text x="145" y="685" fill="#EFE7FF" font-size="17" font-family="Inter, Arial, sans-serif">
+    Synchronization, calibration, software coordination, pattern assignment, and aggregate throughput control.
+  </text>
+
+  <g stroke="#8EA0BA" stroke-width="3">
+    <line x1="500" y1="349" x2="500" y2="375"/>
+    <line x1="500" y1="469" x2="500" y2="495"/>
+    <line x1="500" y1="589" x2="500" y2="615"/>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="980" y="170" width="350" height="660" rx="30" fill="#131F33" stroke="#2C4060"/>
+  </g>
+
+  <text x="1015" y="220" fill="#FFFFFF" font-size="24" font-family="Inter, Arial, sans-serif" font-weight="700">
+    Program questions
+  </text>
+
+  <text x="1015" y="270" fill="#A9C2E6" font-size="17" font-family="Inter, Arial, sans-serif">
+    Source physics
+  </text>
+  <text x="1015" y="298" fill="#D6E1F0" font-size="16" font-family="Inter, Arial, sans-serif">
+    • what generation path is viable?
+  </text>
+  <text x="1015" y="322" fill="#D6E1F0" font-size="16" font-family="Inter, Arial, sans-serif">
+    • what efficiency is achievable?
+  </text>
+
+  <text x="1015" y="380" fill="#92E5C9" font-size="17" font-family="Inter, Arial, sans-serif">
+    MEMS / local control
+  </text>
+  <text x="1015" y="408" fill="#D6E1F0" font-size="16" font-family="Inter, Arial, sans-serif">
+    • steering precision
+  </text>
+  <text x="1015" y="432" fill="#D6E1F0" font-size="16" font-family="Inter, Arial, sans-serif">
+    • alignment stability
+  </text>
+  <text x="1015" y="456" fill="#D6E1F0" font-size="16" font-family="Inter, Arial, sans-serif">
+    • module independence
+  </text>
+
+  <text x="1015" y="520" fill="#FFC970" font-size="17" font-family="Inter, Arial, sans-serif">
+    Packaging / environment
+  </text>
+  <text x="1015" y="548" fill="#D6E1F0" font-size="16" font-family="Inter, Arial, sans-serif">
+    • vacuum architecture
+  </text>
+  <text x="1015" y="572" fill="#D6E1F0" font-size="16" font-family="Inter, Arial, sans-serif">
+    • cooling density
+  </text>
+  <text x="1015" y="596" fill="#D6E1F0" font-size="16" font-family="Inter, Arial, sans-serif">
+    • thermal cross-talk
+  </text>
+
+  <text x="1015" y="660" fill="#C3AEFF" font-size="17" font-family="Inter, Arial, sans-serif">
+    System orchestration
+  </text>
+  <text x="1015" y="688" fill="#D6E1F0" font-size="16" font-family="Inter, Arial, sans-serif">
+    • calibration at scale
+  </text>
+  <text x="1015" y="712" fill="#D6E1F0" font-size="16" font-family="Inter, Arial, sans-serif">
+    • software coordination
+  </text>
+  <text x="1015" y="736" fill="#D6E1F0" font-size="16" font-family="Inter, Arial, sans-serif">
+    • throughput optimization
+  </text>
+
+  <rect x="70" y="850" width="1260" height="26" rx="13" fill="#152238"/>
+  <text x="700" y="868" text-anchor="middle" fill="#D4E1F6" font-size="15" font-family="Inter, Arial, sans-serif" font-weight="600">
+    Research architecture framing: subsystem decomposition, enabling constraints, and program-level questions
+  </text>
+</svg>
