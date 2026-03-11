@@ -196,9 +196,19 @@ export default function Architecture() {
         </p>
 
         <div style={{ marginTop: "18px" }}>
-          <PrimaryButton href="/lithography">
+          <a
+            href="/lithography"
+            style={{
+              display: "inline-block",
+              padding: "12px 18px",
+              borderRadius: "999px",
+              border: "1px solid rgba(255,255,255,0.14)",
+              textDecoration: "none",
+              fontWeight: 600,
+            }}
+          >
             Explore Modular Lithography →
-          </PrimaryButton>
+          </a>
         </div>
       </section>
     </PageShell>
