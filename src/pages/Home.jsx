@@ -92,44 +92,43 @@ export default function Home() {
 
           {/* Lithography */}
           <a
-  href="/lithography"
-  style={{
-    border: "1px solid rgba(120,180,255,0.28)",
-    borderRadius: "18px",
-    padding: "22px",
-    textDecoration: "none",
-    color: "inherit",
-    background: "rgba(120,180,255,0.05)",
-    boxShadow: "0 10px 24px rgba(0,0,0,0.16)",
-  }}
->
-  <div
-    style={{
-      fontSize: "11px",
-      textTransform: "uppercase",
-      letterSpacing: "0.12em",
-      opacity: 0.72,
-      marginBottom: "8px",
-    }}
-  >
-    Physical systems
-  </div>
+            href="/lithography"
+            style={{
+              border: "1px solid rgba(120,180,255,0.28)",
+              borderRadius: "18px",
+              padding: "22px",
+              textDecoration: "none",
+              color: "inherit",
+              background: "rgba(120,180,255,0.05)",
+              boxShadow: "0 10px 24px rgba(0,0,0,0.16)",
+            }}
+          >
+            <div
+              style={{
+                fontSize: "11px",
+                textTransform: "uppercase",
+                letterSpacing: "0.12em",
+                opacity: 0.72,
+                marginBottom: "8px",
+              }}
+            >
+              Physical systems
+            </div>
+            <div
+              style={{
+                fontWeight: 700,
+                fontSize: "18px",
+                marginBottom: "6px",
+              }}
+            >
+              Modular Lithography Concept
+            </div>
 
-  <div
-    style={{
-      fontWeight: 700,
-      fontSize: "18px",
-      marginBottom: "6px",
-    }}
-  >
-    Modular Lithography Concept
-  </div>
-
-  <div style={{ opacity: 0.8, lineHeight: 1.6 }}>
-    Parallel exposure architectures, modular writers, and multi-wafer
-    throughput models for future lithography systems.
-  </div>
-</a>
+            <div style={{ opacity: 0.8, lineHeight: 1.6 }}>
+              Parallel exposure architectures, modular writers, and multi-wafer
+              throughput models for future lithography systems.
+            </div>
+          </a>
         </div>
       </section>
 
