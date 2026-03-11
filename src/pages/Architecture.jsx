@@ -1,60 +1,20 @@
 import PageShell from "../components/PageShell";
-import PrimaryButton from "../components/PrimaryButton";
 import architectureSystemDiagram from "../assets/architecture-system-diagram.svg";
 
 export default function Architecture() {
   return (
     <PageShell>
       <section style={{ marginBottom: "60px" }}>
-        <div
-          style={{
-            border: "1px solid rgba(255,255,255,0.1)",
-            borderRadius: "18px",
-            padding: "28px 24px",
-            background: "rgba(255,255,255,0.02)",
-          }}
-        >
-          <h3 style={{ fontSize: "24px", marginBottom: "14px" }}>
-            System flow
-          </h3>
+        <h1 style={{ fontSize: "42px", marginBottom: "10px" }}>
+          System Architecture
+        </h1>
 
-          <p style={{ margin: "0 0 20px", lineHeight: 1.7, opacity: 0.84 }}>
-            The architecture connects deployed applications, agent reasoning layers,
-            evidence handling, and experimental research infrastructure into a
-            unified system. Each layer performs a distinct role while remaining
-            tightly integrated into the operating model.
-          </p>
-
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-              gap: "14px",
-              alignItems: "stretch",
-            }}
-          >
-            {[
-              "Deployed Applications",
-              "Agent Orchestration",
-              "Evidence and Retrieval",
-              "Research Infrastructure",
-            ].map((item) => (
-              <div
-                key={item}
-                style={{
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  borderRadius: "14px",
-                  padding: "18px 16px",
-                  background: "rgba(255,255,255,0.02)",
-                  textAlign: "center",
-                  fontWeight: 600,
-                }}
-              >
-                {item}
-              </div>
-            ))}
-          </div>
-        </div>
+        <p style={{ fontSize: "20px", maxWidth: "860px", opacity: 0.9 }}>
+          IndustriallyStrong explores how architecture determines the behavior
+          of complex systems. Deployed applications, agent-driven reasoning,
+          evidence handling, and research infrastructure are connected into a
+          single operating model designed for real-world decision environments.
+        </p>
       </section>
 
       <section
@@ -101,11 +61,12 @@ export default function Architecture() {
             marginBottom: "24px",
           }}
         >
-          IndustriallyStrong connects deployed applications, agent-driven
-          analysis, and research infrastructure into a single operating model.
-          The goal is not another isolated demo, but a technical stack that
-          supports explainable reasoning, resilient workflows, and real-world
-          deployment.
+          Most AI systems today are built as isolated prompt interactions.
+          IndustriallyStrong instead focuses on system architecture: how
+          reasoning components, evidence sources, and operational workflows
+          interact under uncertainty. The goal is not another demo, but a
+          technical stack that supports explainable reasoning, resilient
+          workflows, and real-world deployment.
         </p>
 
         <div
@@ -174,6 +135,19 @@ export default function Architecture() {
         </div>
       </section>
 
+      <section style={{ marginBottom: "20px" }}>
+        <h2 style={{ fontSize: "26px", marginBottom: "10px" }}>
+          Architecture at a glance
+        </h2>
+
+        <p style={{ maxWidth: "860px", opacity: 0.85 }}>
+          The architecture connects deployed applications, agent reasoning
+          layers, evidence handling, and experimental research infrastructure
+          into a unified system. Each layer performs a distinct role while
+          remaining tightly integrated into the operating model.
+        </p>
+      </section>
+
       <section style={{ marginBottom: "60px" }}>
         <div
           style={{
@@ -187,7 +161,7 @@ export default function Architecture() {
         >
           <img
             src={architectureSystemDiagram}
-            alt="IndustriallyStrong system architecture diagram"
+            alt="IndustriallyStrong system architecture diagram showing deployed applications, agent orchestration, evidence and retrieval, and research infrastructure connected into a unified operating model."
             style={{ display: "block", width: "100%", height: "auto" }}
           />
         </div>
@@ -211,10 +185,10 @@ export default function Architecture() {
         </div>
 
         <p style={{ maxWidth: "900px", fontSize: "18px", lineHeight: "1.7" }}>
-          Architectural reasoning applies not only to software systems but also to
-          physical systems. One current exploration considers whether lithography
-          systems could scale through modular exposure architectures rather than
-          only through increasingly large optical machines.
+          Architectural reasoning applies not only to software systems but also
+          to physical systems. One current exploration considers whether
+          lithography systems could scale through modular exposure architectures
+          rather than only through increasingly large optical machines.
         </p>
 
         <p style={{ maxWidth: "900px", fontSize: "18px", lineHeight: "1.7" }}>
