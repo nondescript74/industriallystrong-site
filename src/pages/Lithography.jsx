@@ -2,6 +2,7 @@ import PageShell from "../components/PageShell";
 import "../assets/lithographyStory.css";
 import lithographyArchitectureDiagram from "../assets/lithography-architecture-diagram.svg";
 import multiWaferModularScanningDiagram from "../assets/multi-wafer-modular-scanning-diagram.svg";
+import darpaModularSourceStackDiagram from "../assets/darpa-modular-source-stack-diagram.svg";
 
 export default function Lithography() {
   return (
@@ -115,6 +116,37 @@ export default function Lithography() {
             className="lithography-diagram-image"
           />
         </div>
+      </section>
+
+      <section className="story-section">
+        <div className="story-eyebrow">Program architecture</div>
+
+        <h2>Enabling Stack for a Modular Exposure Program</h2>
+
+        <p>
+          A modular exposure architecture is not only a machine concept. It is a
+          research architecture composed of enabling layers: source generation, MEMS
+          steering and local control, vacuum and thermal packaging, and system-level
+          orchestration. This framing makes the concept easier to evaluate as a
+          program of work rather than only as a finished machine proposal.
+        </p>
+
+        <div className="lithography-diagram-frame">
+          <img
+            src={darpaModularSourceStackDiagram}
+            alt="Research architecture for a modular semiconductor exposure source stack showing source layer, MEMS steering layer, vacuum and thermal packaging layer, and exposure orchestration layer."
+            className="lithography-diagram-image"
+          />
+        </div>
+      </section>
+
+      <section className="story-section">
+        <p>
+          This decomposition separates the architectural claim from any single
+          implementation path. Different source physics, steering mechanisms, and
+          packaging strategies can be explored while preserving the broader modular
+          scaling thesis.
+        </p>
       </section>
     </PageShell>
   );
