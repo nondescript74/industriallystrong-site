@@ -174,25 +174,23 @@ export default function Architecture() {
       </section>
 
       <section style={{ marginBottom: "60px" }}>
-  <div
-    style={{
-      marginTop: "24px",
-      border: "1px solid rgba(255,255,255,0.1)",
-      borderRadius: "22px",
-      overflow: "hidden",
-      background: "rgba(255,255,255,0.02)",
-      boxShadow: "0 10px 30px rgba(0,0,0,0.18)",
-    }}
-  >
-    <img
-      src={architectureSystemDiagram}
-      alt="IndustriallyStrong system architecture diagram showing deployed applications, agent orchestration, evidence and retrieval, and research infrastructure connected into a unified operating model."
-      style={{ display: "block", width: "100%", height: "auto" }}
-    />
-  </div>
-</section>
-
-
+        <div
+          style={{
+            marginTop: "24px",
+            border: "1px solid rgba(255,255,255,0.1)",
+            borderRadius: "22px",
+            overflow: "hidden",
+            background: "rgba(255,255,255,0.02)",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.18)",
+          }}
+        >
+          <img
+            src={architectureSystemDiagram}
+            alt="IndustriallyStrong system architecture diagram"
+            style={{ display: "block", width: "100%", height: "auto" }}
+          />
+        </div>
+      </section>
 
       <section style={{ marginTop: "60px", marginBottom: "40px" }}>
         <h2 style={{ fontSize: "32px", marginBottom: "12px" }}>
