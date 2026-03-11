@@ -28,6 +28,67 @@ export default function Lithography() {
       </section>
 
       <section className="story-section">
+
+  <div className="story-eyebrow">Architectural comparison</div>
+
+  <h2>Two fundamentally different scaling models</h2>
+
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+      gap: "28px",
+      marginTop: "24px"
+    }}
+  >
+
+    <div
+      style={{
+        border: "1px solid rgba(255,255,255,0.12)",
+        borderRadius: "18px",
+        padding: "22px",
+        background: "rgba(255,255,255,0.02)"
+      }}
+    >
+      <div style={{ fontWeight: 700, marginBottom: "10px" }}>
+        Traditional lithography scaling
+      </div>
+
+      <ul style={{ lineHeight: 1.7, opacity: 0.85 }}>
+        <li>Single exposure system</li>
+        <li>Single wafer stage</li>
+        <li>Single reticle stage</li>
+        <li>Throughput increases through optical precision</li>
+        <li>Machine size and complexity grow</li>
+      </ul>
+    </div>
+
+    <div
+      style={{
+        border: "1px solid rgba(120,180,255,0.35)",
+        borderRadius: "18px",
+        padding: "22px",
+        background: "rgba(120,180,255,0.05)"
+      }}
+    >
+      <div style={{ fontWeight: 700, marginBottom: "10px" }}>
+        Modular lithography scaling
+      </div>
+
+      <ul style={{ lineHeight: 1.7, opacity: 0.9 }}>
+        <li>Many independent exposure writers</li>
+        <li>Local alignment per exposure module</li>
+        <li>Shared scanning apparatus</li>
+        <li>Multiple wafers processed simultaneously</li>
+        <li>Throughput scales through parallelism</li>
+      </ul>
+    </div>
+
+  </div>
+
+</section>
+
+      <section className="story-section">
         <p>
           Lithography systems have historically scaled through increasingly
           sophisticated optics and mechanical precision. That path has produced
