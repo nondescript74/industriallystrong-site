@@ -19,9 +19,7 @@ export default function Architecture() {
           </h3>
 
           <p style={{ margin: "0 0 20px", lineHeight: 1.7, opacity: 0.84 }}>
-            IndustriallyStrong connects deployed applications, agent orchestration,
-            evidence handling, and research infrastructure into a unified operating
-            model.
+            IndustriallyStrong explores how architecture determines the behavior of complex systems. Deployed applications, agent-driven reasoning, evidence handling, and research infrastructure are connected into a single operating model designed for real-world decision environments.
           </p>
 
           <div
