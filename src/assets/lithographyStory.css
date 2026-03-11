@@ -15,6 +15,18 @@
   --gray: #707784;
 }
 
+.lithography-diagram-frame{
+margin-top:24px;
+border:1px solid rgba(255,255,255,.1);
+border-radius:20px;
+overflow:hidden;
+}
+
+.lithography-diagram-image{
+width:100%;
+display:block;
+}
+
 .litho-page {
   color: var(--text);
   background:
