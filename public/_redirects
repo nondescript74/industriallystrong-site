@@ -1,0 +1,5 @@
+# Serve static lab pages directly
+/lab/*  /lab/:splat  200
+
+# SPA catch-all for React Router
+/*  /index.html  200

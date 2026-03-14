@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Phoenix Engine State</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; background: #f8fafc; color: #1e293b; }
+        .nav { background: #1a1a2e; padding: 8px 24px; display: flex; gap: 16px; align-items: center; }
+        .nav a { color: #aac; text-decoration: none; font-size: 14px; padding: 4px 12px; border-radius: 4px; }
+        .nav a:hover { background: #2a2a4e; }
+        .nav a.active { background: #2563eb; color: #fff; }
+        .content { max-width: 800px; margin: 40px auto; padding: 24px; }
+        pre { background: #1e293b; color: #e2e8f0; padding: 24px; border-radius: 12px; font-size: 14px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a href="index.html">Dashboard</a>
+        <a href="2d-process.html">2D Process Sim</a>
+        <a href="3d-pipeline.html">3D Pipeline</a>
+        <a href="fleet-economics.html">Fleet Economics</a>
+        <a href="multihead.html">Multi-Head Array</a>
+        <a href="psf-synthesis.html">PSF Synthesis</a>
+        <a href="phoenix-state.html" class="active">Phoenix Engine</a>
+    </div>
+    <div class="content">
+        <h1>Phoenix Engine State</h1>
+        <p>Adaptive dose correction system — multi-hypothesis state estimation for closed-loop metrology feedback.</p>
+        <pre>{
+  "active_hypotheses": {
+    "nominal": 0.8,
+    "thermal_drift": 0.1,
+    "source_aging": 0.1
+  },
+  "correction_factor": 1.05,
+  "dose_tolerance": "2.0%",
+  "status": "Adaptive Gating Active"
+}</pre>
+    </div>
+</body>
+</html>

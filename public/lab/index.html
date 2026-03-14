@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Laser-HHG-EUV Lab</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f0f1a; color: #e0e0e0; min-height: 100vh; }
+        .header { text-align: center; padding: 48px 24px 24px; }
+        .header h1 { font-size: 28px; font-weight: 700; color: #fff; letter-spacing: 1px; }
+        .header p { font-size: 14px; color: #888; margin-top: 8px; }
+        .cards { display: flex; justify-content: center; gap: 28px; padding: 32px 24px; flex-wrap: wrap; }
+        .card {
+            background: #1a1a2e; border: 1px solid #2a2a4e; border-radius: 12px;
+            width: 320px; padding: 28px 24px; text-decoration: none; color: #e0e0e0;
+            transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+        }
+        .card:hover { transform: translateY(-4px); border-color: #4a6cf7; box-shadow: 0 8px 30px rgba(74,108,247,0.15); }
+        .card .icon { font-size: 36px; margin-bottom: 14px; }
+        .card h2 { font-size: 18px; font-weight: 600; color: #fff; margin-bottom: 8px; }
+        .card p { font-size: 13px; color: #999; line-height: 1.5; }
+        .card .tag { display: inline-block; margin-top: 14px; font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
+        .tag-2d { background: #1e3a5f; color: #5ba3e6; }
+        .tag-3d { background: #2d1e5f; color: #a37be6; }
+        .tag-econ { background: #5f4b1e; color: #e6c45b; }
+        .tag-multi { background: #3b1e5f; color: #c45be6; }
+        .tag-api { background: #1e5f3a; color: #5be6a3; }
+        .footer { text-align: center; padding: 32px; font-size: 12px; color: #555; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Laser-HHG-EUV Lab</h1>
+        <p>Chip-Scale Coherent EUV Source Simulation Platform</p>
+    </div>
+    <div class="cards">
+        <a class="card" href="2d-process.html">
+            <div class="icon">&#x1F4CA;</div>
+            <h2>2D Process Simulation</h2>
+            <p>Interactive lithography pipeline: aerial image, acid map, PEB deprotection, and Mack dissolution rate. Tune dose, line width, and process parameters.</p>
+            <span class="tag tag-2d">HEATMAPS</span>
+        </a>
+        <a class="card" href="3d-pipeline.html">
+            <div class="icon">&#x1F52C;</div>
+            <h2>3D Optical Pipeline</h2>
+            <p>Full beam path from VCSEL source through HHG gas cell to wafer. Visualize gas supply, pressures, power budget, and harmonic generation physics.</p>
+            <span class="tag tag-3d">3D INTERACTIVE</span>
+        </a>
+        <a class="card" href="fleet-economics.html">
+            <div class="icon">&#x1F4B0;</div>
+            <h2>Fleet Economics</h2>
+            <p>Sensitivity analysis across EUV power levels. ASML power loss comparison, fleet sizing, CAPEX, and market segment breakdown.</p>
+            <span class="tag tag-econ">DARPA-READY</span>
+        </a>
+        <a class="card" href="multihead.html">
+            <div class="icon">&#x1F4A0;</div>
+            <h2>Multi-Head Writer</h2>
+            <p>Tiled multi-head array with A/B/C architecture selector, per-tile exposure calculator, stitching zones, and per-site dose calibration.</p>
+            <span class="tag tag-multi">PATENT DEMO</span>
+        </a>
+        <a class="card" href="psf-synthesis.html">
+            <div class="icon">&#x1F9EC;</div>
+            <h2>PSF Synthesis</h2>
+            <p>Spatiotemporal exposure compositing: build arbitrary effective PSFs from dithered sub-exposures. Coupled vs. sequential optimization, coherent sharpening, thermal relaxation.</p>
+            <span class="tag tag-psf" style="background:#1e5f5f; color:#5be6e6;">CLAIM 4 EVIDENCE</span>
+        </a>
+        <a class="card" href="phoenix-state.html">
+            <div class="icon">&#x2699;</div>
+            <h2>Phoenix Engine State</h2>
+            <p>Adaptive dose correction system status. View active hypotheses, correction factors, and dose tolerance for the Phoenix gating engine.</p>
+            <span class="tag tag-api">API JSON</span>
+        </a>
+    </div>
+    <div class="footer">Laser-HHG-EUV Lab &middot; buildzmarter-ai</div>
+</body>
+</html>

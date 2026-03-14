@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fleet Economics & ASML Comparison</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; background: #f8fafc; color: #1e293b; }
+        .nav { background: #1a1a2e; padding: 8px 24px; display: flex; gap: 16px; align-items: center; }
+        .nav a { color: #aac; text-decoration: none; font-size: 14px; padding: 4px 12px; border-radius: 4px; }
+        .nav a:hover { background: #2a2a4e; }
+        .nav a.active { background: #2563eb; color: #fff; }
+
+        .controls {
+            background: #fff; padding: 12px 24px; border-bottom: 1px solid #e2e8f0;
+            display: flex; flex-wrap: wrap; gap: 14px; align-items: end;
+        }
+        .control-group { display: flex; flex-direction: column; gap: 3px; }
+        .control-group label { font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+        .control-group input { padding: 5px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 13px; width: 100px; }
+        button {
+            padding: 7px 18px; background: #2563eb; color: #fff; border: none;
+            border-radius: 4px; font-size: 13px; cursor: pointer; font-weight: 600;
+        }
+        button:hover { background: #1d4ed8; }
+
+        .hero {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #fff; padding: 32px 40px; display: flex; gap: 32px; flex-wrap: wrap;
+        }
+        .hero-stat {
+            text-align: center; min-width: 180px; flex: 1;
+        }
+        .hero-stat .value { font-size: 36px; font-weight: 800; color: #38bdf8; }
+        .hero-stat .label { font-size: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+        .hero-stat .sub { font-size: 13px; color: #64748b; margin-top: 2px; }
+
+        .section { padding: 16px 24px; }
+        .section h2 { font-size: 18px; font-weight: 700; color: #0f172a; margin: 0 0 12px 0; border-bottom: 2px solid #2563eb; padding-bottom: 6px; display: inline-block; }
+
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+        .data-table th { background: #f1f5f9; padding: 10px 12px; text-align: left; font-weight: 700; color: #475569; border-bottom: 2px solid #e2e8f0; }
+        .data-table td { padding: 10px 12px; border-bottom: 1px solid #e2e8f0; }
+        .data-table tr:hover { background: #f8fafc; }
+        .positive { color: #16a34a; font-weight: 700; }
+        .negative { color: #dc2626; font-weight: 700; }
+
+        .segments { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 12px; }
+        .segment-card {
+            flex: 1; min-width: 200px; background: #fff; border: 1px solid #e2e8f0;
+            border-radius: 10px; padding: 20px; transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .segment-card:hover { transform: translateY(-3px); box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        .segment-icon { font-size: 28px; margin-bottom: 8px; }
+        .segment-card h3 { margin: 0 0 6px 0; font-size: 15px; color: #0f172a; }
+        .segment-card p { font-size: 12px; color: #64748b; margin: 0 0 10px 0; line-height: 1.4; }
+        .segment-stats { display: flex; gap: 8px; flex-wrap: wrap; }
+        .segment-stats span {
+            font-size: 11px; background: #f1f5f9; padding: 3px 8px; border-radius: 12px;
+            color: #475569; font-weight: 600;
+        }
+
+        .callout {
+            background: #fffbeb; border: 1px solid #fbbf24; border-radius: 8px;
+            padding: 14px 20px; margin: 16px 0; font-size: 13px; color: #92400e; line-height: 1.5;
+        }
+        .callout b { color: #78350f; }
+
+        .plot-container { padding: 0 8px; }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a href="2d-process.html">2D Process Sim</a>
+        <a href="3d-pipeline.html">3D Pipeline</a>
+        <a href="fleet-economics.html" class="active">Fleet Economics</a>
+        <a href="multihead.html">Multi-Head Array</a>
+    </div>
+
+    <div class="hero">
+        <div class="hero-stat">
+            <div class="value">+27%</div>
+            <div class="label">CAPEX vs ASML</div>
+            <div class="sub">$279M fleet vs $380M monolith</div>
+        </div>
+        <div class="hero-stat">
+            <div class="value">+96.9%</div>
+            <div class="label">Power Reduction</div>
+            <div class="sub">46 kW vs 1,500 kW</div>
+        </div>
+        <div class="hero-stat">
+            <div class="value">1.1%</div>
+            <div class="label">Single-Unit Failure</div>
+            <div class="sub">93 units → lose 1 = 1.1% capacity</div>
+        </div>
+        <div class="hero-stat">
+            <div class="value">2.4</div>
+            <div class="label">Wafers/Hr per Unit</div>
+            <div class="sub">@ 10.0 mW, 15.0 mJ/cm² dose</div>
+        </div>
+    </div>
+
+    <form class="controls" method="get" action="fleet-economics.html">
+        <div class="control-group">
+            <label>Resist Dose (mJ/cm²)</label>
+            <input type="number" name="dose_mj_cm2" value="15.0" step="1" min="1" max="100">
+        </div>
+        <div class="control-group">
+            <label>Unit Cost ($M)</label>
+            <input type="number" name="unit_cost_m" value="3.0" step="0.5" min="0.5" max="50">
+        </div>
+        <div class="control-group">
+            <label>Unit Power (kW)</label>
+            <input type="number" name="unit_power_kw" value="0.5" step="0.1" min="0.1" max="10">
+        </div>
+        <button type="submit">Recalculate</button>
+    </form>
+
+    <div class="callout">
+        <b>Sensitivity Analysis:</b> This dashboard shows how fleet economics change across EUV source power levels
+        from 0.1 mW (worst-case) to 50 mW (optimistic). Even at 1 mW, the fleet model delivers viable R&amp;D tools
+        at a fraction of ASML&rsquo;s cost and power. The dashed red lines show ASML NXE:3800E reference values.
+    </div>
+
+    <div class="section">
+        <h2>Performance Sensitivity vs. EUV Source Power</h2>
+        <div class="plot-container"><div>                        <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-3.4.0.min.js" integrity="sha256-KEmPoupLpFyGMyGAiOsiNDbKDKAvxXAn/W+oQa0ZAfk=" crossorigin="anonymous"></script>                <div id="20deba22-dcc1-491e-892a-d8cf57fdc6d2" class="plotly-graph-div" style="height:800px; width:1300px;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("20deba22-dcc1-491e-892a-d8cf57fdc6d2")) {                    Plotly.newPlot(                        "20deba22-dcc1-491e-892a-d8cf57fdc6d2",                        [{"hovertemplate":"EUV Power: %{x}\u003cbr\u003eThroughput: %{y:.2f} wph\u003cextra\u003e\u003c\u002fextra\u003e","marker":{"color":["#ef4444","#f97316","#eab308","#22c55e","#3b82f6"]},"name":"wph\u002funit","text":["0.0","0.2","1.2","2.4","12.0"],"textposition":"outside","x":["0.1 mW","1.0 mW","5.0 mW","10.0 mW","50.0 mW"],"y":[0.023907716215408523,0.23907716215408525,1.1953858107704263,2.3907716215408525,11.95385810770426],"type":"bar","xaxis":"x","yaxis":"y"},{"hovertemplate":"EUV Power: %{x}\u003cbr\u003eUnits needed: %{y}\u003cextra\u003e\u003c\u002fextra\u003e","marker":{"color":["#ef4444","#f97316","#eab308","#22c55e","#3b82f6"]},"name":"Units needed","text":["9202","921","185","93","19"],"textposition":"outside","x":["0.1 mW","1.0 mW","5.0 mW","10.0 mW","50.0 mW"],"y":[9202,921,185,93,19],"type":"bar","xaxis":"x2","yaxis":"y2"},{"hovertemplate":"EUV Power: %{x}\u003cbr\u003eCAPEX: $%{y:.0f}M\u003cextra\u003e\u003c\u002fextra\u003e","marker":{"color":["#ef4444","#f97316","#eab308","#22c55e","#3b82f6"]},"name":"Fleet CAPEX","text":["$27606M","$2763M","$555M","$279M","$57M"],"textposition":"outside","x":["0.1 mW","1.0 mW","5.0 mW","10.0 mW","50.0 mW"],"y":[27606.0,2763.0,555.0,279.0,57.0],"type":"bar","xaxis":"x3","yaxis":"y3"},{"hovertemplate":"EUV Power: %{x}\u003cbr\u003ePower: %{y:.0f} kW\u003cextra\u003e\u003c\u002fextra\u003e","marker":{"color":["#ef4444","#f97316","#eab308","#22c55e","#3b82f6"]},"name":"Fleet Power","text":["4601 kW","460 kW","92 kW","46 kW","10 kW"],"textposition":"outside","x":["0.1 mW","1.0 mW","5.0 mW","10.0 mW","50.0 mW"],"y":[4601.0,460.5,92.5,46.5,9.5],"type":"bar","xaxis":"x4","yaxis":"y4"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermapbox":[{"type":"scattermapbox","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05},"mapbox":{"style":"light"}}},"xaxis":{"anchor":"y","domain":[0.0,0.43],"title":{"text":"EUV Source Power"}},"yaxis":{"anchor":"x","domain":[0.5900000000000001,1.0],"title":{"text":"Wafers \u002f Hour"}},"xaxis2":{"anchor":"y2","domain":[0.5700000000000001,1.0],"title":{"text":"EUV Source Power"}},"yaxis2":{"anchor":"x2","domain":[0.5900000000000001,1.0],"title":{"text":"Units"}},"xaxis3":{"anchor":"y3","domain":[0.0,0.43],"title":{"text":"EUV Source Power"}},"yaxis3":{"anchor":"x3","domain":[0.0,0.41000000000000003],"title":{"text":"$M USD"}},"xaxis4":{"anchor":"y4","domain":[0.5700000000000001,1.0],"title":{"text":"EUV Source Power"}},"yaxis4":{"anchor":"x4","domain":[0.0,0.41000000000000003],"title":{"text":"kW"}},"annotations":[{"font":{"size":16},"showarrow":false,"text":"Throughput per Unit (wph)","x":0.215,"xanchor":"center","xref":"paper","y":1.0,"yanchor":"bottom","yref":"paper"},{"font":{"size":16},"showarrow":false,"text":"Fleet Size to Match ASML 220 wph","x":0.785,"xanchor":"center","xref":"paper","y":1.0,"yanchor":"bottom","yref":"paper"},{"font":{"size":16},"showarrow":false,"text":"Total Fleet CAPEX ($M)","x":0.215,"xanchor":"center","xref":"paper","y":0.41000000000000003,"yanchor":"bottom","yref":"paper"},{"font":{"size":16},"showarrow":false,"text":"Total Fleet Power (kW)","x":0.785,"xanchor":"center","xref":"paper","y":0.41000000000000003,"yanchor":"bottom","yref":"paper"},{"showarrow":false,"text":"ASML NXE (220 wph)","x":1,"xanchor":"right","xref":"x domain","y":220,"yanchor":"bottom","yref":"y"},{"showarrow":false,"text":"ASML NXE ($380M)","x":1,"xanchor":"right","xref":"x3 domain","y":380,"yanchor":"bottom","yref":"y3"},{"showarrow":false,"text":"ASML NXE (1500 kW)","x":1,"xanchor":"right","xref":"x4 domain","y":1500,"yanchor":"bottom","yref":"y4"}],"shapes":[{"line":{"color":"#888","dash":"dash"},"type":"line","x0":0,"x1":1,"xref":"x domain","y0":220,"y1":220,"yref":"y"},{"line":{"color":"#dc2626","dash":"dash"},"type":"line","x0":0,"x1":1,"xref":"x3 domain","y0":380,"y1":380,"yref":"y3"},{"line":{"color":"#dc2626","dash":"dash"},"type":"line","x0":0,"x1":1,"xref":"x4 domain","y0":1500,"y1":1500,"yref":"y4"}],"title":{"text":"Fleet Economics Sensitivity: Performance vs. EUV Source Power"},"margin":{"t":60,"b":40},"height":800,"width":1300,"showlegend":false},                        {"responsive": true}                    )                };            </script>        </div></div>
+    </div>
+
+    <div class="section">
+        <h2>Power Loss Chain Comparison</h2>
+        <p style="font-size: 13px; color: #64748b; margin: 0 0 8px 0;">
+            ASML’s incoherent tin-plasma source loses 99.99993% of input power before reaching the wafer.
+            A coherent chip-scale source eliminates the collection problem entirely.
+        </p>
+        <div class="plot-container"><div>                            <div id="bece99f4-f893-47d1-af52-5f387951f042" class="plotly-graph-div" style="height:600px; width:1300px;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("bece99f4-f893-47d1-af52-5f387951f042")) {                    Plotly.newPlot(                        "bece99f4-f893-47d1-af52-5f387951f042",                        [{"hoverinfo":"text","hovertext":["Grid Power\u003cbr\u003e1.5 MW\u003cbr\u003eFacility input","CO\u2082 Drive Laser\u003cbr\u003e40 kW\u003cbr\u003eTrumpf 40kW optical from 400kW electrical (10% eff)","Tin Plasma EUV\u003cbr\u003e2 kW\u003cbr\u003e5% conversion of 40kW laser \u2192 2kW into 2\u03c0 sr","Collector Mirror\u003cbr\u003e800.0 W\u003cbr\u003e~40% of 2kW (limited solid angle ~5 sr)","Spectral Filter (2%)\u003cbr\u003e500.0 W\u003cbr\u003eMo\u002fSi bandwidth filtering","Intermediate Focus\u003cbr\u003e250.0 W\u003cbr\u003eASML spec at IF","Scanner Optics (11 mirrors)\u003cbr\u003e3.0 W\u003cbr\u003e0.67^11 \u2248 1.2% of 250W","At Wafer\u003cbr\u003e1.0 W\u003cbr\u003e~1W usable at wafer plane"],"marker":{"color":["rgb(220,38,38)","rgb(224,64,64)","rgb(229,91,91)","rgb(234,118,118)","rgb(239,145,145)","rgb(244,172,172)","rgb(249,199,199)","rgb(254,226,226)"]},"name":"ASML LPP","text":["1.5 MW","40 kW","2 kW","800.0 W","500.0 W","250.0 W","3.0 W","1.0 W"],"textposition":"outside","x":["Grid Power","CO\u2082 Drive Laser","Tin Plasma EUV","Collector Mirror","Spectral Filter (2%)","Intermediate Focus","Scanner Optics (11 mirrors)","At Wafer"],"y":[6.176091259055681,4.6020599913279625,3.3010299956639813,2.9030899869919438,2.6989700043360187,2.3979400086720375,0.47712125471966244,0.0],"type":"bar","xaxis":"x","yaxis":"y"},{"hoverinfo":"text","hovertext":["Wall Plug\u003cbr\u003e500.0 W\u003cbr\u003eTotal electrical input","Drive Lasers (optical)\u003cbr\u003e50.0 W\u003cbr\u003eVCSEL + trap + HHG drive (~10% wall-plug eff)","Coherent EUV Source\u003cbr\u003e10.0 mW\u003cbr\u003e10 mW directed, coherent 13.5 nm","Scanner Optics (6 mirrors)\u003cbr\u003e900.0 \u00b5W\u003cbr\u003e0.67^6 \u2248 9% (fewer mirrors needed)","At Wafer\u003cbr\u003e900.0 \u00b5W\u003cbr\u003e~0.9 mW coherent at wafer"],"marker":{"color":["rgb(37,99,235)","rgb(82,132,239)","rgb(128,166,244)","rgb(173,200,249)","rgb(219,234,254)"]},"name":"Coherent Source","text":["500.0 W","50.0 W","10.0 mW","900.0 \u00b5W","900.0 \u00b5W"],"textposition":"outside","x":["Wall Plug","Drive Lasers (optical)","Coherent EUV Source","Scanner Optics (6 mirrors)","At Wafer"],"y":[2.6989700043360187,1.6989700043360187,-2.0,-3.0457574905606752,-3.0457574905606752],"type":"bar","xaxis":"x2","yaxis":"y2"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermapbox":[{"type":"scattermapbox","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05},"mapbox":{"style":"light"}}},"xaxis":{"anchor":"y","domain":[0.0,0.44],"tickangle":-35},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"Power (log\u2081\u2080 W)"},"range":[-4,7],"tickvals":[-3,-2,-1,0,1,2,3,4,5,6],"ticktext":["1 mW","10 mW","100 mW","1 W","10 W","100 W","1 kW","10 kW","100 kW","1 MW"]},"xaxis2":{"anchor":"y2","domain":[0.56,1.0],"tickangle":-35},"yaxis2":{"anchor":"x2","domain":[0.0,1.0],"title":{"text":"Power (log\u2081\u2080 W)"},"range":[-4,7],"tickvals":[-3,-2,-1,0,1,2,3,4,5,6],"ticktext":["1 mW","10 mW","100 mW","1 W","10 W","100 W","1 kW","10 kW","100 kW","1 MW"]},"annotations":[{"font":{"size":16},"showarrow":false,"text":"ASML LPP: 1.5 MW \u2192 1 W at Wafer","x":0.22,"xanchor":"center","xref":"paper","y":1.0,"yanchor":"bottom","yref":"paper"},{"font":{"size":16},"showarrow":false,"text":"Coherent Source: 500 W \u2192 0.9 mW at Wafer","x":0.78,"xanchor":"center","xref":"paper","y":1.0,"yanchor":"bottom","yref":"paper"}],"title":{"text":"Power Loss Chain: ASML Tin-Plasma vs. Coherent Chip-Scale Source"},"margin":{"t":60,"b":120},"height":600,"width":1300,"showlegend":false},                        {"responsive": true}                    )                };            </script>        </div></div>
+    </div>
+
+    <div class="section">
+        <h2>Detailed Comparison Table</h2>
+        <table class="data-table">
+        <thead><tr>
+            <th>EUV Power</th>
+            <th>wph / Unit</th>
+            <th>Time / Field</th>
+            <th>Fleet Size</th>
+            <th>Fleet CAPEX</th>
+            <th>vs ASML $380M</th>
+            <th>Fleet Power</th>
+            <th>vs ASML 1.5MW</th>
+            <th>Single-Unit<br>Failure Impact</th>
+        </tr></thead>
+        <tbody><tr>
+            <td><b>0.1 mW</b></td>
+            <td>0.02</td>
+            <td>1287.0s</td>
+            <td>9,202</td>
+            <td>$27,606M</td>
+            <td class="negative">-7165%</td>
+            <td>4,601 kW</td>
+            <td class="negative">-206.7%</td>
+            <td>0.0%</td>
+        </tr><tr>
+            <td><b>1.0 mW</b></td>
+            <td>0.24</td>
+            <td>128.7s</td>
+            <td>921</td>
+            <td>$2,763M</td>
+            <td class="negative">-627%</td>
+            <td>460 kW</td>
+            <td class="positive">+69.3%</td>
+            <td>0.1%</td>
+        </tr><tr>
+            <td><b>5.0 mW</b></td>
+            <td>1.20</td>
+            <td>25.7s</td>
+            <td>185</td>
+            <td>$555M</td>
+            <td class="negative">-46%</td>
+            <td>92 kW</td>
+            <td class="positive">+93.8%</td>
+            <td>0.5%</td>
+        </tr><tr>
+            <td><b>10.0 mW</b></td>
+            <td>2.39</td>
+            <td>12.9s</td>
+            <td>93</td>
+            <td>$279M</td>
+            <td class="positive">+27%</td>
+            <td>46 kW</td>
+            <td class="positive">+96.9%</td>
+            <td>1.1%</td>
+        </tr><tr>
+            <td><b>50.0 mW</b></td>
+            <td>11.95</td>
+            <td>2.6s</td>
+            <td>19</td>
+            <td>$57M</td>
+            <td class="positive">+85%</td>
+            <td>10 kW</td>
+            <td class="positive">+99.4%</td>
+            <td>5.3%</td>
+        </tr></tbody>
+    </table>
+    </div>
+
+    <div class="section">
+        <h2>Target Market Segments</h2>
+        <p style="font-size: 13px; color: #64748b; margin: 0 0 4px 0;">
+            Entry at R&amp;D tier where ASML cannot compete ($3M vs $380M minimum), then scale upward.
+        </p>
+        <div class="segments"><div class="segment-card">
+            <div class="segment-icon">🔬</div>
+            <h3>R&D / Prototyping</h3>
+            <p>University labs, national labs, resist characterization</p>
+            <div class="segment-stats">
+                <span>2 units</span>
+                <span>$6–9M</span>
+                <span>1–1.5 kW</span>
+            </div>
+        </div><div class="segment-card">
+            <div class="segment-icon">🛡️</div>
+            <h3>Specialty / Defense</h3>
+            <p>Trusted foundry, photonics, MEMS fabs</p>
+            <div class="segment-stats">
+                <span>10 units</span>
+                <span>$20–30M</span>
+                <span>5–10 kW</span>
+            </div>
+        </div><div class="segment-card">
+            <div class="segment-icon">🏭</div>
+            <h3>Mid-Volume</h3>
+            <p>Regional foundries, tower/UMC class</p>
+            <div class="segment-stats">
+                <span>50 units</span>
+                <span>$100–150M</span>
+                <span>25–50 kW</span>
+            </div>
+        </div><div class="segment-card">
+            <div class="segment-icon">🚀</div>
+            <h3>HVM Parity</h3>
+            <p>Match ASML 220 wph throughput</p>
+            <div class="segment-stats">
+                <span>92 units</span>
+                <span>$276M</span>
+                <span>46 kW</span>
+            </div>
+        </div></div>
+    </div>
+</body>
+</html>

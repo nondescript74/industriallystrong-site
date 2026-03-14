@@ -18,6 +18,7 @@ import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { trackStatcounterPageView } from "./utils/statcounter";
 import Lithography from "./pages/Lithography";
+import Lab from "./pages/Lab";
 
 export default function App() {
 
@@ -44,6 +45,7 @@ export default function App() {
         <Route path="/decks" element={<Decks />} />
         <Route path="/programs" element={<Programs />} />
         <Route path="/lithography" element={<Lithography />} />
+        <Route path="/lab" element={<Lab />} />
       </Routes>
 
       <SiteFooter />

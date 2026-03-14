@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import PageShell from "../components/PageShell";
 import "../assets/lithographyStory.css";
 
@@ -242,6 +243,44 @@ export default function Lithography() {
           modularity rather than primarily through monolithic optical
           complexity.
         </p>
+
+      </section>
+
+
+      {/* LAB LINK */}
+      <section className="story-section">
+
+        <div className="story-eyebrow">
+          Interactive simulations
+        </div>
+
+        <h2>
+          EUV Lab Visualizer
+        </h2>
+
+        <p>
+          Explore the physics behind modular lithography through interactive
+          simulations — PSF synthesis, multi-head writer arrays, beam
+          propagation, fleet economics, and more.
+        </p>
+
+        <Link
+          to="/lab"
+          style={{
+            display: "inline-block",
+            padding: "12px 28px",
+            background: "rgba(120,180,255,0.15)",
+            border: "1px solid rgba(120,180,255,0.35)",
+            borderRadius: "8px",
+            color: "#93c5fd",
+            textDecoration: "none",
+            fontWeight: 600,
+            fontSize: "15px",
+            marginTop: "8px",
+          }}
+        >
+          Open the Lab →
+        </Link>
 
       </section>
 
