@@ -247,5 +247,27 @@
             </div>
         </div></div>
     </div>
+<script data-cfasync="false">
+(function() {
+  function renderPlotly() {
+    if (typeof Plotly === "undefined") { setTimeout(renderPlotly, 100); return; }
+    var divs = document.querySelectorAll(".plotly-graph-div");
+    for (var i = 0; i < divs.length; i++) {
+      if (divs[i].children.length === 0) {
+        var scripts = document.querySelectorAll("script:not([src])");
+        for (var j = 0; j < scripts.length; j++) {
+          if (scripts[j].textContent.indexOf(divs[i].id) !== -1) {
+            try { eval(scripts[j].textContent); } catch(e) {}
+          }
+        }
+      }
+    }
+  }
+  if (document.readyState === "complete") { renderPlotly(); }
+  else { window.addEventListener("load", renderPlotly); }
+  setTimeout(renderPlotly, 500);
+  setTimeout(renderPlotly, 2000);
+})();
+</script>
 </body>
 </html>
