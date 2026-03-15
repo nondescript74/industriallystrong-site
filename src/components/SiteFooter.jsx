@@ -21,6 +21,31 @@ export default function SiteFooter() {
         <div>
           Systems, research architectures, and technical platform development.
         </div>
+        <div
+          style={{
+            marginTop: "16px",
+            fontSize: "11px",
+            opacity: 0.35,
+            letterSpacing: "0.04em",
+          }}
+        >
+          <a
+            href="https://z.industriallystrong.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              color: "inherit",
+              textDecoration: "none",
+              borderBottom: "1px dotted currentColor",
+              paddingBottom: "1px",
+              transition: "opacity 0.3s",
+            }}
+            onMouseOver={(e) => (e.currentTarget.style.opacity = "1")}
+            onMouseOut={(e) => (e.currentTarget.style.opacity = "inherit")}
+          >
+            About the builder
+          </a>
+        </div>
       </div>
     </footer>
   );
