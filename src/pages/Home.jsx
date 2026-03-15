@@ -219,7 +219,7 @@ export default function Home() {
           </a>
 
           <a
-            href="https://industriallystrong.com/decks/mht.html"
+            href="/decks/mht"
             target="_blank"
             rel="noreferrer"
             onClick={() => trackEvent("navigation", "open_mht_deck")}

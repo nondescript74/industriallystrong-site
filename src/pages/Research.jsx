@@ -55,7 +55,7 @@ export default function Research() {
           </a>
 
           <a
-            href="/decks/mht.html"
+            href="/decks/mht"
             target="_blank"
             rel="noreferrer"
             style={{
