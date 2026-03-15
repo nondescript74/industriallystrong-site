@@ -1041,9 +1041,9 @@
 </div>
 
 <div id="nav">
-  <button class="nav-btn" onclick="changeSlide(-1)">← PREV</button>
-  <button class="nav-btn" id="btnPause" onclick="togglePause()">PAUSE</button>
-  <button class="nav-btn" onclick="changeSlide(1)">NEXT →</button>
+  <button class="nav-btn" id="btnPrev">← PREV</button>
+  <button class="nav-btn" id="btnPause">PAUSE</button>
+  <button class="nav-btn" id="btnNext">NEXT →</button>
   <div id="counter">01 / 07</div>
 </div>
 
@@ -1052,96 +1052,6 @@
   <div id="globalTooltipText"></div>
 </div>
 
-<script>
-  const slides = document.querySelectorAll('.slide');
-  const counter = document.getElementById('counter');
-  const progress = document.getElementById('progress');
-  const btnPause = document.getElementById('btnPause');
-  const TOTAL = slides.length;
-  const AUTO_MS = 9000;
-  let current = 0;
-  let paused = false;
-  let timer = null;
-
-  function goTo(n) {
-    slides[current].classList.remove('active');
-    current = (n + TOTAL) % TOTAL;
-    slides[current].classList.add('active');
-    counter.textContent = `${String(current + 1).padStart(2, '0')} / ${String(TOTAL).padStart(2, '0')}`;
-    progress.style.width = `${((current + 1) / TOTAL) * 100}%`;
-  }
-
-  function changeSlide(dir) {
-    goTo(current + dir);
-    if (!paused) resetTimer();
-  }
-
-  function resetTimer() {
-    clearTimeout(timer);
-    timer = setTimeout(() => changeSlide(1), AUTO_MS);
-  }
-
-  function togglePause() {
-    paused = !paused;
-    btnPause.textContent = paused ? 'PLAY' : 'PAUSE';
-    if (paused) {
-      clearTimeout(timer);
-    } else {
-      resetTimer();
-    }
-  }
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowRight') changeSlide(1);
-    if (e.key === 'ArrowLeft') changeSlide(-1);
-    if (e.key === ' ') {
-      e.preventDefault();
-      togglePause();
-    }
-  });
-
-  const globalTooltip = document.getElementById('globalTooltip');
-  const globalTooltipTitle = document.getElementById('globalTooltipTitle');
-  const globalTooltipText = document.getElementById('globalTooltipText');
-
-  function positionTooltip(e) {
-    const pad = 18;
-    const rect = globalTooltip.getBoundingClientRect();
-    let x = e.clientX + 18;
-    let y = e.clientY + 18;
-
-    if (x + rect.width + pad > window.innerWidth) {
-      x = window.innerWidth - rect.width - pad;
-    }
-    if (y + rect.height + pad > window.innerHeight) {
-      y = e.clientY - rect.height - 18;
-    }
-    if (y < pad) y = pad;
-    if (x < pad) x = pad;
-
-    globalTooltip.style.left = `${x}px`;
-    globalTooltip.style.top = `${y}px`;
-  }
-
-  document.querySelectorAll('.help-target').forEach((el) => {
-    el.addEventListener('mouseenter', (e) => {
-      globalTooltipTitle.textContent = el.dataset.tipTitle || '';
-      globalTooltipText.textContent = el.dataset.tipText || '';
-      globalTooltip.classList.add('show');
-      positionTooltip(e);
-    });
-
-    el.addEventListener('mousemove', (e) => {
-      positionTooltip(e);
-    });
-
-    el.addEventListener('mouseleave', () => {
-      globalTooltip.classList.remove('show');
-    });
-  });
-
-  goTo(0);
-  resetTimer();
-</script>
+<script src="deck.js"></script>
 </body>
 </html>
