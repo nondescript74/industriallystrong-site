@@ -22,7 +22,7 @@ export default function Decks() {
           }}
         >
           <a
-            href="/decks/mht.html"
+            href="/decks/mht"
             target="_blank"
             rel="noreferrer"
             style={{ textDecoration: "none", color: "inherit" }}
