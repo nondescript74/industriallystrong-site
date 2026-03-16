@@ -33,25 +33,34 @@ export async function onRequest(context) {
     );
   }
 
-  // --- build date range for "today" in UTC --------------------------------
+  // --- build datetime range for "today" in UTC -----------------------------
   const now = new Date();
   const todayStr = now.toISOString().slice(0, 10); // "2026-03-15"
+  const startOfDay = `${todayStr}T00:00:00Z`;
+  const nowISO = now.toISOString();
 
   // --- Cloudflare GraphQL Analytics query ---------------------------------
+  // Uses httpRequestsAdaptiveGroups for near-real-time data (minutes delay)
+  // instead of httpRequests1dGroups which has a ~24h delay.
   const query = `
-    query SiteMetrics($zoneTag: String!, $since: String!, $until: String!) {
+    query SiteMetrics($zoneTag: String!, $since: DateTime!, $until: DateTime!) {
       viewer {
         zones(filter: { zoneTag: $zoneTag }) {
-          httpRequests1dGroups(
-            filter: { date_geq: $since, date_leq: $until }
-            limit: 1
-          ) {
-            sum {
-              pageViews
-              requests
+          httpRequestsAdaptiveGroups(
+            filter: {
+              datetime_geq: $since
+              datetime_leq: $until
+              requestSource: "eyeball"
             }
-            uniq {
-              uniques
+            limit: 10000
+          ) {
+            count
+            sum {
+              visits
+              pageViews
+            }
+            dimensions {
+              clientIP
             }
           }
         }
@@ -61,8 +70,8 @@ export async function onRequest(context) {
 
   const variables = {
     zoneTag: zoneId,
-    since: todayStr,
-    until: todayStr,
+    since: startOfDay,
+    until: nowISO,
   };
 
   try {
@@ -83,13 +92,14 @@ export async function onRequest(context) {
 
     const json = await cfRes.json();
 
-    // Pull the first (and only) day-group
+    // Aggregate adaptive groups — each row is grouped by clientIP
     const zones = json?.data?.viewer?.zones;
-    const group =
-      zones && zones.length > 0 && zones[0].httpRequests1dGroups?.[0];
+    const groups =
+      zones && zones.length > 0
+        ? zones[0].httpRequestsAdaptiveGroups ?? []
+        : [];
 
-    if (!group) {
-      // No data yet today — return zeros rather than dashes
+    if (groups.length === 0) {
       return Response.json(
         {
           visitors_today: 0,
@@ -106,29 +116,41 @@ export async function onRequest(context) {
       );
     }
 
-    const pageViews = group.sum?.pageViews ?? 0;
-    const totalRequests = group.sum?.requests ?? 0;
-    const uniqueVisitors = group.uniq?.uniques ?? 0;
+    // Sum across all groups
+    let totalPageViews = 0;
+    let totalVisits = 0;
+    const uniqueIPs = new Set();
 
-    // Cloudflare's free analytics don't split new vs. returning directly,
-    // so we estimate: returning ≈ unique visitors who generated more
-    // requests than page views (rough heuristic). A more accurate split
-    // requires Cloudflare Web Analytics (the JS beacon) or a paid plan.
-    const estimatedReturning = Math.max(
-      0,
-      Math.round(uniqueVisitors * 0.3) // conservative 30% returning estimate
-    );
-    const estimatedFirstTime = Math.max(
-      0,
-      uniqueVisitors - estimatedReturning
-    );
+    for (const g of groups) {
+      totalPageViews += g.sum?.pageViews ?? 0;
+      totalVisits += g.sum?.visits ?? 0;
+      if (g.dimensions?.clientIP) {
+        uniqueIPs.add(g.dimensions.clientIP);
+      }
+    }
+
+    const uniqueVisitors = uniqueIPs.size;
+
+    // Estimate new vs returning: visitors with multiple visits are returning
+    const ipVisitCounts = {};
+    for (const g of groups) {
+      const ip = g.dimensions?.clientIP;
+      if (ip) {
+        ipVisitCounts[ip] = (ipVisitCounts[ip] || 0) + (g.sum?.visits ?? 0);
+      }
+    }
+    let returningCount = 0;
+    for (const ip in ipVisitCounts) {
+      if (ipVisitCounts[ip] > 1) returningCount++;
+    }
+    const firstTimeCount = Math.max(0, uniqueVisitors - returningCount);
 
     return Response.json(
       {
         visitors_today: uniqueVisitors,
-        pageviews_today: pageViews,
-        first_time_visits: estimatedFirstTime,
-        returning_visits: estimatedReturning,
+        pageviews_today: totalPageViews,
+        first_time_visits: firstTimeCount,
+        returning_visits: returningCount,
       },
       {
         headers: {
