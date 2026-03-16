@@ -92,6 +92,15 @@ export async function onRequest(context) {
 
     const json = await cfRes.json();
 
+    // Debug mode: append ?debug=1 to see the raw Cloudflare response
+    const url = new URL(context.request.url);
+    if (url.searchParams.get("debug") === "1") {
+      return Response.json(
+        { raw: json, variables, startOfDay, nowISO },
+        { headers: { "Access-Control-Allow-Origin": "*" } }
+      );
+    }
+
     // Aggregate adaptive groups — each row is grouped by clientIP
     const zones = json?.data?.viewer?.zones;
     const groups =
