@@ -10,8 +10,32 @@
  *   CF_ZONE_ID    – Zone ID for industriallystrong.com
  */
 
+const ALLOWED_ORIGINS = [
+  "https://industriallystrong.com",
+  "https://www.industriallystrong.com",
+];
+
 export async function onRequest(context) {
-  const { env } = context;
+  const { env, request } = context;
+
+  // --- guard: reject non-GET and bot/scraper requests ----------------------
+  if (request.method !== "GET") {
+    return new Response("Method not allowed", { status: 405 });
+  }
+
+  const origin = request.headers.get("Origin") || "";
+  const referer = request.headers.get("Referer") || "";
+  const isBrowser =
+    ALLOWED_ORIGINS.some((o) => origin.startsWith(o)) ||
+    ALLOWED_ORIGINS.some((o) => referer.startsWith(o));
+
+  // Allow same-origin requests (no Origin header) but block foreign origins
+  if (origin && !isBrowser) {
+    return Response.json(
+      { error: "Forbidden" },
+      { status: 403 }
+    );
+  }
 
   const token = env.CF_API_TOKEN;
   const zoneId = env.CF_ZONE_ID;
@@ -110,7 +134,7 @@ export async function onRequest(context) {
         {
           headers: {
             "Cache-Control": "public, max-age=120",
-            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Origin": "https://industriallystrong.com",
           },
         }
       );
@@ -156,7 +180,7 @@ export async function onRequest(context) {
       {
         headers: {
           "Cache-Control": "public, max-age=120",
-          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Origin": "https://industriallystrong.com",
         },
       }
     );
