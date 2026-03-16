@@ -150,7 +150,7 @@ button:hover { background: #1d4ed8; }
             Total tiled region: 770×770 µm.
         </div>
 <div class="plot-container"><div> <script>/* moved to external js */</script>
- <div class="plotly-graph-div" id="c08dde66-59dc-4a14-99d3-2e2b072c6c8e" style="height:600px; width:700px;"></div> <script>/* moved to external js */</script> </div></div>
+ <div class="plotly-graph-div" id="c08dde66-59dc-4a14-99d3-2e2b072c6c8e" style="height:380px; width:450px;"></div> <script>/* moved to external js */</script> </div></div>
 </div>
 <div class="section">
 <h2>Architecture Comparison</h2>
@@ -437,9 +437,9 @@ function updateArrayChart(arch, nRows, nCols, overlapPct, tileSize, color) {
     yaxis: { title: 'Y (µm)', zeroline: false, scaleanchor: 'x', scaleratio: 1 },
     shapes: shapes,
     hovermode: 'closest',
-    height: 600,
-    width: 700,
-    margin: { l: 80, r: 40, t: 60, b: 80 }
+    height: 380,
+    width: 450,
+    margin: { l: 60, r: 20, t: 50, b: 60 }
   };
 
   Plotly.newPlot('c08dde66-59dc-4a14-99d3-2e2b072c6c8e', traces, layout, { responsive: true });
