@@ -57,7 +57,7 @@ export async function onRequest(context) {
             count
             sum {
               visits
-              pageViews
+              edgeResponseBytes
             }
             dimensions {
               clientIP
@@ -126,12 +126,13 @@ export async function onRequest(context) {
     }
 
     // Sum across all groups
-    let totalPageViews = 0;
+    // In adaptive groups: count = total requests, sum.visits = visit count
+    let totalRequests = 0;
     let totalVisits = 0;
     const uniqueIPs = new Set();
 
     for (const g of groups) {
-      totalPageViews += g.sum?.pageViews ?? 0;
+      totalRequests += g.count ?? 0;
       totalVisits += g.sum?.visits ?? 0;
       if (g.dimensions?.clientIP) {
         uniqueIPs.add(g.dimensions.clientIP);
@@ -157,7 +158,7 @@ export async function onRequest(context) {
     return Response.json(
       {
         visitors_today: uniqueVisitors,
-        pageviews_today: totalPageViews,
+        pageviews_today: totalVisits,
         first_time_visits: firstTimeCount,
         returning_visits: returningCount,
       },
