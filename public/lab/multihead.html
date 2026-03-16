@@ -281,6 +281,9 @@ document.querySelectorAll('.arch-card').forEach((card, idx) => {
   });
 });
 
+// Expose globally for onclick handler
+window.recalculate = recalculate;
+
 // Listen for button click
 submitBtn.addEventListener('click', recalculate);
 

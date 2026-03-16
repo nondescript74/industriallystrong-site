@@ -883,6 +883,7 @@ function recalculatePSF() {
 // ============================================================================
 // Event Listeners — attached immediately (DOM is ready since script is at end of body)
 // ============================================================================
+window.recalculatePSF = recalculatePSF; // expose globally for onclick handler
 document.getElementById('btn-synthesize').addEventListener('click', recalculatePSF);
 recalculatePSF();
 </script></body>

@@ -100,7 +100,8 @@ const hhgConversion = {
 
 const mirrorReflectivity = 0.67;  // per bounce at 13.5nm
 
-// Button click handler
+// Button click handler — expose globally for onclick attribute (browser extensions can block addEventListener)
+window.recalculatePipeline = recalculatePipeline;
 document.getElementById('btn-pipeline').addEventListener('click', recalculatePipeline);
 
 function recalculatePipeline() {

@@ -440,6 +440,8 @@ function runSimulation() {
   updatePlot(params);
 }
 
+window.runSimulation = runSimulation; // expose globally for onclick handler
+
 // Initial render on page load
 window.addEventListener('load', function() {
   const formData = new FormData(document.querySelector('form'));
