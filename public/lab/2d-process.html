@@ -62,7 +62,7 @@
 <label>Mack n</label>
 <input max="20" min="1" name="n_mack" step="any" type="number" value="5"/>
 </div>
-<button type="button" id="btn-simulate">Simulate</button>
+<button type="button" id="btn-simulate" onclick="runSimulation()">Simulate</button>
 </form>
 <div class="plot-container">
 <div> <script>/* moved to external js */</script>
@@ -424,8 +424,8 @@ function updatePlot(params) {
  }
 }
 
-// Button click handler
-document.getElementById('btn-simulate').addEventListener('click', function() {
+// Global click handler (onclick attribute, immune to extension interference)
+function runSimulation() {
   const formData = new FormData(document.querySelector('form'));
   const params = {
     dose: parseFloat(formData.get('dose')),
@@ -438,7 +438,7 @@ document.getElementById('btn-simulate').addEventListener('click', function() {
   };
 
   updatePlot(params);
-});
+}
 
 // Initial render on page load
 window.addEventListener('load', function() {

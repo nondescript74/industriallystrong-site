@@ -111,7 +111,7 @@
 <label>Unit Power (kW)</label>
 <input max="10" min="0.1" name="unit_power_kw" step="any" type="number" value="0.5"/>
 </div>
-<button type="button" id="btn-recalculate">Recalculate</button>
+<button type="button" id="btn-recalculate" onclick="window._fleetRecalculate()">Recalculate</button>
 </form>
 <div class="callout">
 <b>Sensitivity Analysis:</b> This dashboard shows how fleet economics change across EUV source power levels
@@ -253,17 +253,11 @@
   const OVERHEAD_FACTOR = 0.704; // stepping, alignment
   const POWER_LEVELS_MW = [0.1, 1.0, 5.0, 10.0, 50.0]; // mW
 
-  // Button animation state
-  let isRecalculating = false;
-
   // Get button
   const button = document.getElementById('btn-recalculate');
 
-  // Add click listener
-  button.addEventListener('click', function() {
-    if (isRecalculating) return;
-    recalculate();
-  });
+  // Expose recalculate globally for onclick handler (immune to extension interference)
+  window._fleetRecalculate = function() { recalculate(); };
 
   function recalculate() {
     // Get input values
@@ -278,7 +272,6 @@
     }
 
     // Animation
-    isRecalculating = true;
     const originalText = button.textContent;
     button.textContent = 'Recalculating...';
     button.disabled = true;
@@ -296,7 +289,6 @@
     setTimeout(() => {
       button.textContent = originalText;
       button.disabled = false;
-      isRecalculating = false;
     }, 300);
   }
 
