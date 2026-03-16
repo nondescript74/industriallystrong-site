@@ -857,24 +857,22 @@ function recalculatePSF() {
 }
 
 // ============================================================================
-// Event Listeners
+// Event Listeners — attached immediately (DOM is ready since script is at end of body)
 // ============================================================================
-document.addEventListener('DOMContentLoaded', function() {
-    // Initial calculation
-    recalculatePSF();
-
-    // Form submit listener
+(function() {
     const form = document.querySelector('form');
     form.addEventListener('submit', function(e) {
         e.preventDefault();
         recalculatePSF();
     });
 
-    // Also recalculate on individual input changes
     const inputs = form.querySelectorAll('input, select');
     inputs.forEach(input => {
         input.addEventListener('change', recalculatePSF);
     });
-});
+
+    // Initial calculation
+    recalculatePSF();
+})();
 </script></body>
 </html>
