@@ -62,7 +62,7 @@
 <label>Mack n</label>
 <input max="20" min="1" name="n_mack" step="any" type="number" value="5"/>
 </div>
-<button type="submit">Simulate</button>
+<button type="button" id="btn-simulate">Simulate</button>
 </form>
 <div class="plot-container">
 <div> <script>/* moved to external js */</script>
@@ -420,11 +420,9 @@ function updatePlot(params) {
   Plotly.react(plotDivId, data, layout, { responsive: true });
 }
 
-// Form submission handler
-document.querySelector('form').addEventListener('submit', function(e) {
-  e.preventDefault();
-
-  const formData = new FormData(this);
+// Button click handler
+document.getElementById('btn-simulate').addEventListener('click', function() {
+  const formData = new FormData(document.querySelector('form'));
   const params = {
     dose: parseFloat(formData.get('dose')),
     line_width: parseFloat(formData.get('line_width')),

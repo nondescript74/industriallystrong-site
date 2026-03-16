@@ -90,7 +90,7 @@ button:hover { background: #1d4ed8; }
 <label>Grid Res (nm/px)</label>
 <input max="5" min="0.5" name="dx_nm" step="any" type="number" value="1.0"/>
 </div>
-<button type="submit">Synthesize</button>
+<button type="button" id="btn-synthesize">Synthesize</button>
 </form>
 <div class="section">
 <h2>PSF Synthesis Overview</h2>
@@ -859,20 +859,7 @@ function recalculatePSF() {
 // ============================================================================
 // Event Listeners — attached immediately (DOM is ready since script is at end of body)
 // ============================================================================
-(function() {
-    const form = document.querySelector('form');
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        recalculatePSF();
-    });
-
-    const inputs = form.querySelectorAll('input, select');
-    inputs.forEach(input => {
-        input.addEventListener('change', recalculatePSF);
-    });
-
-    // Initial calculation
-    recalculatePSF();
-})();
+document.getElementById('btn-synthesize').addEventListener('click', recalculatePSF);
+recalculatePSF();
 </script></body>
 </html>

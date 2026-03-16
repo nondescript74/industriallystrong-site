@@ -111,7 +111,7 @@
 <label>Unit Power (kW)</label>
 <input max="10" min="0.1" name="unit_power_kw" step="any" type="number" value="0.5"/>
 </div>
-<button type="submit">Recalculate</button>
+<button type="button" id="btn-recalculate">Recalculate</button>
 </form>
 <div class="callout">
 <b>Sensitivity Analysis:</b> This dashboard shows how fleet economics change across EUV source power levels
@@ -256,15 +256,12 @@
   // Button animation state
   let isRecalculating = false;
 
-  // Get form and button
-  const form = document.querySelector('form[action="fleet-economics.html"]');
-  const button = form.querySelector('button[type="submit"]');
+  // Get button
+  const button = document.getElementById('btn-recalculate');
 
-  // Add submit listener
-  form.addEventListener('submit', function(e) {
-    e.preventDefault();
+  // Add click listener
+  button.addEventListener('click', function() {
     if (isRecalculating) return;
-
     recalculate();
   });
 

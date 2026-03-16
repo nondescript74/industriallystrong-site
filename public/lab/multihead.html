@@ -98,7 +98,7 @@ button:hover { background: #1d4ed8; }
 <label>Dose (mJ/cm²)</label>
 <input max="100" min="1" name="dose_mj_cm2" step="any" type="number" value="15.0"/>
 </div>
-<button type="submit">Update</button>
+<button type="button" id="btn-update">Update</button>
 </form>
 <div class="section">
 <h2>Architecture Selection</h2>
@@ -268,7 +268,7 @@ const overlapPctInput = form.querySelector('[name="overlap_pct"]');
 const emittersPerSideInput = form.querySelector('[name="emitters_per_side"]');
 const sourcePowerInput = form.querySelector('[name="source_power_mw"]');
 const doseInput = form.querySelector('[name="dose_mj_cm2"]');
-const submitBtn = form.querySelector('button[type="submit"]');
+const submitBtn = document.getElementById('btn-update');
 
 // Add click handlers to architecture cards
 document.querySelectorAll('.arch-card').forEach((card, idx) => {
@@ -281,11 +281,8 @@ document.querySelectorAll('.arch-card').forEach((card, idx) => {
   });
 });
 
-// Listen for form submit and inputs
-form.addEventListener('submit', (e) => {
-  e.preventDefault();
-  recalculate();
-});
+// Listen for button click
+submitBtn.addEventListener('click', recalculate);
 
 // Also recalculate on individual input changes
 [nRowsInput, nColsInput, overlapPctInput, emittersPerSideInput, sourcePowerInput, doseInput].forEach(input => {
