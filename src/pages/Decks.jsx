@@ -67,6 +67,52 @@ export default function Decks() {
             </div>
           </a>
 
+          <a
+            href="/decks/gutsense"
+            target="_blank"
+            rel="noreferrer"
+            style={{ textDecoration: "none", color: "inherit" }}
+          >
+            <div
+              style={{
+                padding: "22px",
+                border: "1px solid #1e293b",
+                borderRadius: "12px",
+                background: "#0f172a",
+                transition: "transform 0.18s ease, border-color 0.18s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-2px)";
+                e.currentTarget.style.borderColor = "#334155";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.borderColor = "#1e293b";
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "12px",
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                  opacity: 0.6,
+                  marginBottom: "10px",
+                }}
+              >
+                Live Demo
+              </div>
+
+              <h3 style={{ marginTop: 0, marginBottom: "10px" }}>
+                GutSense — Multi-Agent FODMAP Analysis
+              </h3>
+
+              <p style={{ opacity: 0.82, margin: 0 }}>
+                AI-powered IBS and FODMAP food analysis using Claude + Gemini
+                agents with synthesis reconciliation. Web companion to the iOS app.
+              </p>
+            </div>
+          </a>
+
           <CardLink to="/architecture" title="Architecture Overview">
             <p style={{ margin: 0 }}>
               System-level view of how applications, agent analysis, and the
@@ -102,7 +148,7 @@ export default function Decks() {
 
         <ul style={{ opacity: 0.82, lineHeight: 1.8 }}>
           <li>QRLPhoenix architecture deck</li>
-          <li>GutSense multi-agent system deck</li>
+          <li>GutSense deep-dive architecture deck</li>
           <li>DARPA-style concept brief</li>
           <li>Future research and demo walkthroughs</li>
         </ul>

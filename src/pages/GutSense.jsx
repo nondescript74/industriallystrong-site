@@ -35,6 +35,7 @@ export default function GutSense() {
           <li>Allergen and FODMAP analysis</li>
           <li>Multi-agent AI synthesis</li>
           <li>Mobile delivery via SwiftUI</li>
+          <li>Web companion via Next.js + FastAPI</li>
         </ul>
       </section>
 
@@ -96,8 +97,9 @@ export default function GutSense() {
         <h2 style={{ marginTop: 0 }}>Status</h2>
 
         <p style={{ opacity: 0.88, maxWidth: "900px" }}>
-          GutSense currently operates as a private iOS application in tester
-          access with a live backend and evolving multi-agent architecture.
+          GutSense operates as a private iOS application in tester access with a
+          live backend, plus a web companion demo accessible from the Decks page.
+          Multi-agent architecture continues to evolve across both platforms.
         </p>
       </section>
     </PageShell>

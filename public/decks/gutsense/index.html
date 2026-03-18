@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GutSense — Multi-Agent FODMAP Analysis · Industrially Strong</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --dark: #0c0616;
+      --navy: #140a22;
+      --cream: #f0e8f5;
+      --purple: #a855f7;
+      --violet: #7c3aed;
+      --teal: #14b8a6;
+      --amber: #f59e0b;
+      --red: #ef4444;
+      --green: #22c55e;
+      --muted: #7a6a8a;
+      --mid: #1a0e2e;
+      --steel: #4a3a5a;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: var(--dark);
+      font-family: 'DM Sans', sans-serif;
+      overflow: hidden;
+      color: var(--cream);
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.5;
+    }
+
+    #stage {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 80px 120px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.8s ease;
+    }
+
+    .slide.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .inner {
+      position: relative;
+      z-index: 2;
+    }
+
+    #nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      padding: 28px 60px;
+      background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, transparent 100%);
+      z-index: 100;
+    }
+
+    .nav-btn {
+      background: transparent;
+      border: 1.5px solid rgba(168,85,247,0.4);
+      color: var(--purple);
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 2px;
+      padding: 10px 22px;
+      cursor: pointer;
+      transition: all 0.25s;
+      margin-right: 12px;
+      text-transform: uppercase;
+    }
+
+    .nav-btn:hover {
+      background: var(--purple);
+      color: #000;
+      border-color: var(--purple);
+    }
+
+    #counter {
+      margin-left: auto;
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      color: rgba(168,85,247,0.4);
+      letter-spacing: 3px;
+    }
+
+    #progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      background: var(--purple);
+      transition: width 0.6s ease;
+      z-index: 200;
+      box-shadow: 0 0 16px rgba(168,85,247,0.5);
+    }
+
+    #homeLink {
+      position: fixed;
+      top: 24px;
+      left: 60px;
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(168,85,247,0.4);
+      text-decoration: none;
+      z-index: 200;
+      transition: color 0.2s;
+    }
+
+    #homeLink:hover { color: var(--purple); }
+
+    .eyebrow {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--purple);
+      margin-bottom: 20px;
+      opacity: 0;
+      transform: translateY(16px);
+      transition: all 0.5s ease 0.1s;
+    }
+
+    .big-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(48px, 7vw, 100px);
+      line-height: 0.92;
+      color: var(--cream);
+      opacity: 0;
+      transform: translateY(24px);
+      transition: all 0.6s ease 0.25s;
+    }
+
+    .big-title span { color: var(--purple); }
+    .big-title .teal { color: var(--teal); }
+    .big-title .amber { color: var(--amber); }
+    .big-title .red { color: var(--red); }
+    .big-title .green { color: var(--green); }
+
+    .body-text {
+      font-size: clamp(15px, 1.6vw, 18px);
+      line-height: 1.7;
+      color: rgba(240,232,245,0.72);
+      font-weight: 300;
+      opacity: 0;
+      transform: translateY(16px);
+      transition: all 0.5s ease 0.4s;
+      max-width: 640px;
+    }
+
+    .rule {
+      width: 48px;
+      height: 2px;
+      background: var(--purple);
+      margin: 24px 0;
+      opacity: 0;
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: all 0.5s ease 0.35s;
+    }
+
+    .slide.active .eyebrow,
+    .slide.active .big-title,
+    .slide.active .body-text,
+    .slide.active .rule,
+    .slide.active .badge,
+    .slide.active .agent-grid,
+    .slide.active .flow-diagram,
+    .slide.active .fodmap-visual,
+    .slide.active .gauge-row,
+    .slide.active .pill,
+    .slide.active .cta-block,
+    .slide.active .quote-mark,
+    .slide.active .quote-text,
+    .slide.active .quote-attr,
+    .slide.active .feature-grid {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+
+    .help-target { cursor: help; }
+    .help-title {
+      display: inline-flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .help-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 1px solid rgba(168,85,247,0.35);
+      color: var(--purple);
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      background: rgba(168,85,247,0.08);
+      flex-shrink: 0;
+      margin-top: 8px;
+    }
+
+    #globalTooltip {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: min(420px, 78vw);
+      background: rgba(12,6,22,0.98);
+      border: 1px solid rgba(168,85,247,0.2);
+      border-radius: 6px;
+      padding: 14px 16px;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.45);
+      opacity: 0;
+      transform: translateY(6px);
+      pointer-events: none;
+      transition: opacity 0.14s ease, transform 0.14s ease;
+      z-index: 5000;
+    }
+
+    #globalTooltip.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    #globalTooltipTitle {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--purple);
+      margin-bottom: 6px;
+    }
+
+    #globalTooltipText {
+      font-size: 13px;
+      line-height: 1.55;
+      color: rgba(240,232,245,0.78);
+      font-weight: 300;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(168,85,247,0.08);
+      border: 1px solid rgba(168,85,247,0.25);
+      border-radius: 2px;
+      padding: 8px 16px;
+      margin-bottom: 32px;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: all 0.5s ease 0s;
+    }
+
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--purple);
+      box-shadow: 0 0 8px var(--purple);
+      animation: pulse-dot 2s infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%,100% { opacity:1; transform:scale(1); }
+      50% { opacity:0.5; transform:scale(0.7); }
+    }
+
+    .badge-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: var(--purple);
+      text-transform: uppercase;
+    }
+
+    .bg-word {
+      position: absolute;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(100px,18vw,240px);
+      color: rgba(168,85,247,0.03);
+      line-height: 1;
+      pointer-events: none;
+      user-select: none;
+      letter-spacing: -2px;
+    }
+
+    .pill {
+      display: inline-block;
+      background: rgba(168,85,247,0.08);
+      border: 1px solid rgba(168,85,247,0.25);
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      padding: 6px 14px;
+      margin-right: 8px;
+      margin-top: 8px;
+      text-transform: uppercase;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: all 0.4s ease 0.6s;
+    }
+
+    /* Agent grid */
+    .agent-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      margin-top: 32px;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.6s ease 0.45s;
+    }
+
+    .agent-card {
+      padding: 24px 20px;
+      border: 1px solid rgba(168,85,247,0.15);
+      background: rgba(255,255,255,0.02);
+      text-align: center;
+      position: relative;
+    }
+
+    .agent-card-accent {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+    }
+
+    .agent-icon {
+      font-size: 32px;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .agent-name {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .agent-desc {
+      font-size: 13px;
+      line-height: 1.55;
+      color: rgba(240,232,245,0.55);
+      font-weight: 300;
+    }
+
+    /* Feature grid */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 32px;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.6s ease 0.45s;
+    }
+
+    .fw-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 18px 20px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(168,85,247,0.1);
+    }
+
+    .fw-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+      padding-top: 2px;
+    }
+
+    .fw-text {
+      font-size: 14px;
+      line-height: 1.55;
+      color: rgba(240,232,245,0.6);
+      font-weight: 300;
+    }
+
+    .fw-text strong {
+      display: block;
+      color: var(--cream);
+      font-weight: 500;
+      font-size: 13px;
+      margin-bottom: 3px;
+    }
+
+    /* FODMAP visual */
+    .fodmap-visual {
+      margin-top: 32px;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.6s ease 0.5s;
+    }
+
+    .fodmap-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .fodmap-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(240,232,245,0.4);
+      width: 100px;
+      flex-shrink: 0;
+      text-align: right;
+    }
+
+    .fodmap-bar-wrap {
+      flex: 1;
+      height: 32px;
+      background: rgba(168,85,247,0.06);
+      border: 1px solid rgba(168,85,247,0.12);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .fodmap-bar {
+      height: 100%;
+      transition: width 1.2s ease 0.8s;
+    }
+
+    .fodmap-bar-label {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 1px;
+      color: rgba(168,85,247,0.7);
+    }
+
+    /* Gauge row */
+    .gauge-row {
+      display: flex;
+      gap: 32px;
+      align-items: center;
+      justify-content: center;
+      margin-top: 36px;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.6s ease 0.5s;
+    }
+
+    .gauge-item {
+      text-align: center;
+    }
+
+    .gauge-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(240,232,245,0.4);
+      margin-top: 10px;
+    }
+
+    /* Flow diagram */
+    .flow-diagram {
+      margin-top: 36px;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.6s ease 0.5s;
+      max-width: 780px;
+    }
+
+    .flow-row {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+    }
+
+    .flow-node {
+      flex: 1;
+      padding: 18px 14px;
+      text-align: center;
+      border: 1px solid rgba(168,85,247,0.15);
+      position: relative;
+    }
+
+    .flow-node:not(:last-child)::after {
+      content: '\2192';
+      position: absolute;
+      right: -14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(168,85,247,0.5);
+      font-size: 18px;
+      z-index: 2;
+      font-family: 'Space Mono', monospace;
+    }
+
+    .flow-node + .flow-node { margin-left: 16px; }
+
+    .flow-icon {
+      font-size: 24px;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .flow-node-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--purple);
+      margin-bottom: 6px;
+    }
+
+    .flow-node-text {
+      font-size: 12px;
+      line-height: 1.45;
+      color: rgba(240,232,245,0.5);
+      font-weight: 300;
+    }
+
+    .flow-highlight {
+      background: rgba(168,85,247,0.06);
+      border-color: rgba(168,85,247,0.3);
+    }
+
+    /* CTA slide */
+    .quote-mark {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 140px;
+      color: rgba(168,85,247,0.15);
+      line-height: 0.6;
+      margin-bottom: 24px;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.6s ease 0.1s;
+    }
+
+    .quote-text {
+      font-size: clamp(20px,2.8vw,34px);
+      font-weight: 700;
+      color: var(--cream);
+      line-height: 1.35;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.6s ease 0.3s;
+    }
+
+    .quote-text em {
+      font-style: normal;
+      color: rgba(240,232,245,0.45);
+      font-weight: 400;
+    }
+
+    .quote-attr {
+      margin-top: 2rem;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: rgba(240,232,245,0.35);
+      text-transform: uppercase;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: all 0.5s ease 0.55s;
+    }
+
+    .cta-block {
+      margin-top: 2.5rem;
+      opacity: 0;
+      transform: translateY(16px);
+      transition: all 0.5s ease 0.7s;
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .cta-btn {
+      display: inline-block;
+      padding: 0.8rem 2rem;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-decoration: none;
+      font-weight: 700;
+      border-radius: 2px;
+      transition: all 0.2s;
+    }
+
+    .cta-primary {
+      background: var(--purple);
+      color: #000;
+    }
+
+    .cta-primary:hover { background: var(--violet); }
+
+    .cta-secondary {
+      background: transparent;
+      color: var(--cream);
+      border: 2px solid rgba(168,85,247,0.3);
+    }
+
+    .cta-secondary:hover { border-color: var(--purple); }
+
+    /* Slide backgrounds */
+    #s1 { background: var(--dark); }
+    #s2 { background: var(--dark); }
+    #s3 { background: #080412; }
+    #s4 { background: var(--dark); }
+    #s5 { background: #0a0618; }
+    #s6 { background: var(--navy); }
+    #s7 { background: var(--dark); }
+
+    @media (max-width: 860px) {
+      .slide { padding: 60px 32px 120px; }
+      .agent-grid { grid-template-columns: 1fr; }
+      .feature-grid { grid-template-columns: 1fr; }
+      .flow-row { flex-direction: column; }
+      .flow-node:not(:last-child)::after { display: none; }
+      .flow-node + .flow-node { margin-left: 0; margin-top: 8px; }
+      .gauge-row { flex-direction: column; gap: 16px; }
+      #nav { padding: 28px 24px; }
+      #homeLink { left: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<a id="homeLink" href="/">&#8592; Home</a>
+
+<div id="stage">
+
+  <!-- SLIDE 1: Title -->
+  <div class="slide active" id="s1">
+    <div class="bg-word" style="right:-40px;bottom:40px;">FODMAP</div>
+    <div class="inner" style="max-width:900px;">
+      <div class="badge">
+        <div class="badge-dot"></div>
+        <span class="badge-label">Live Demo &middot; Multi-Agent AI &middot; 2025</span>
+      </div>
+      <div class="eyebrow">Dietary Intelligence</div>
+
+      <div class="help-target"
+           data-tip-title="What GutSense does"
+           data-tip-text="GutSense uses multiple AI agents (Claude and Gemini) running in parallel to analyze foods for FODMAP content, IBS trigger probability, allergens, and bioavailability. A synthesis step reconciles both analyses into a unified assessment. Available as an iOS app and web companion.">
+        <div class="help-title">
+          <div class="big-title">GUT<span>SENSE</span></div>
+          <span class="help-icon">?</span>
+        </div>
+      </div>
+
+      <div class="rule"></div>
+      <div class="body-text">Multi-agent AI system that analyzes foods for FODMAP content, IBS triggers, and dietary risk — using parallel Claude + Gemini analysis with synthesis reconciliation.</div>
+
+      <div style="margin-top:20px;">
+        <span class="pill">Claude</span>
+        <span class="pill">Gemini</span>
+        <span class="pill">FODMAP</span>
+        <span class="pill">IBS</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: The Problem -->
+  <div class="slide" id="s2">
+    <div class="bg-word" style="left:-30px;top:30px;">IBS</div>
+    <div class="inner" style="max-width:880px; width:100%;">
+      <div class="eyebrow">The Problem</div>
+
+      <div class="help-target"
+           data-tip-title="Why this matters"
+           data-tip-text="IBS affects 10-15% of the global population. FODMAP content varies by serving size, preparation method, and individual sensitivity. Existing tools use static databases that don't account for these variables or provide confidence levels.">
+        <div class="help-title">
+          <div class="big-title">FOOD IS<br><span class="amber">COMPLEX</span></div>
+          <span class="help-icon">?</span>
+        </div>
+      </div>
+
+      <div class="rule"></div>
+      <div class="body-text">IBS affects 10-15% of the global population. FODMAP sensitivity varies by serving size, preparation method, and individual triggers. Static food databases can't capture this complexity — <strong style="color:rgba(240,232,245,0.9);">you need reasoning, not just lookup.</strong></div>
+
+      <div class="fodmap-visual">
+        <div class="fodmap-row">
+          <div class="fodmap-label">Fructans</div>
+          <div class="fodmap-bar-wrap">
+            <div class="fodmap-bar" style="width:85%;background:linear-gradient(90deg,rgba(239,68,68,0.2),rgba(239,68,68,0.6));"></div>
+            <div class="fodmap-bar-label">High — garlic, onion, wheat</div>
+          </div>
+        </div>
+        <div class="fodmap-row">
+          <div class="fodmap-label">Lactose</div>
+          <div class="fodmap-bar-wrap">
+            <div class="fodmap-bar" style="width:55%;background:linear-gradient(90deg,rgba(245,158,11,0.2),rgba(245,158,11,0.5));"></div>
+            <div class="fodmap-bar-label">Moderate — soft cheese, milk</div>
+          </div>
+        </div>
+        <div class="fodmap-row">
+          <div class="fodmap-label">Polyols</div>
+          <div class="fodmap-bar-wrap">
+            <div class="fodmap-bar" style="width:40%;background:linear-gradient(90deg,rgba(168,85,247,0.2),rgba(168,85,247,0.5));"></div>
+            <div class="fodmap-bar-label">Variable — stone fruits, sweeteners</div>
+          </div>
+        </div>
+        <div class="fodmap-row">
+          <div class="fodmap-label">GOS</div>
+          <div class="fodmap-bar-wrap">
+            <div class="fodmap-bar" style="width:30%;background:linear-gradient(90deg,rgba(20,184,166,0.2),rgba(20,184,166,0.5));"></div>
+            <div class="fodmap-bar-label">Low-Moderate — legumes, nuts</div>
+          </div>
+        </div>
+        <div class="fodmap-row">
+          <div class="fodmap-label">Fructose</div>
+          <div class="fodmap-bar-wrap">
+            <div class="fodmap-bar" style="width:65%;background:linear-gradient(90deg,rgba(34,197,94,0.2),rgba(34,197,94,0.5));"></div>
+            <div class="fodmap-bar-label">Context-dependent — honey, mango, HFCS</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: The Agents -->
+  <div class="slide" id="s3">
+    <div class="inner" style="max-width:920px; width:100%;">
+      <div class="eyebrow">The Architecture</div>
+
+      <div class="help-target"
+           data-tip-title="Multi-agent analysis"
+           data-tip-text="Two frontier AI models analyze every query independently and in parallel. Claude (Anthropic) and Gemini (Google) each apply comprehensive FODMAP knowledge. A synthesis agent then reconciles any disagreements, producing a unified assessment with confidence tiers.">
+        <div class="help-title">
+          <div class="big-title">THREE<br><span>AGENTS</span><br>ONE <span class="teal">ANSWER</span></div>
+          <span class="help-icon">?</span>
+        </div>
+      </div>
+
+      <div class="rule"></div>
+
+      <div class="agent-grid">
+        <div class="agent-card">
+          <div class="agent-card-accent" style="background:linear-gradient(90deg,#d97706,#f59e0b);"></div>
+          <span class="agent-icon">&#x1F9E0;</span>
+          <div class="agent-name" style="color:#f59e0b;">Claude</div>
+          <div class="agent-desc">Anthropic's frontier model. Deep reasoning about ingredient interactions, serving-size FODMAP thresholds, and citation-backed risk assessment.</div>
+        </div>
+
+        <div class="agent-card">
+          <div class="agent-card-accent" style="background:linear-gradient(90deg,#2563eb,#60a5fa);"></div>
+          <span class="agent-icon">&#x1F52C;</span>
+          <div class="agent-name" style="color:#60a5fa;">Gemini</div>
+          <div class="agent-desc">Google's multimodal model. Independent FODMAP analysis with vision support for food photo identification and ingredient extraction.</div>
+        </div>
+
+        <div class="agent-card" style="border-color:rgba(168,85,247,0.3);">
+          <div class="agent-card-accent" style="background:linear-gradient(90deg,#7c3aed,#a855f7);"></div>
+          <span class="agent-icon">&#x2696;&#xFE0F;</span>
+          <div class="agent-name" style="color:#a855f7;">Synthesis</div>
+          <div class="agent-desc">Reconciliation engine. Compares both analyses, resolves disagreements, and produces a unified assessment with confidence tiers.</div>
+        </div>
+      </div>
+
+      <div style="margin-top:20px;">
+        <span class="pill">Parallel execution</span>
+        <span class="pill">Independent reasoning</span>
+        <span class="pill">Conflict resolution</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: The Pipeline -->
+  <div class="slide" id="s4">
+    <div class="bg-word" style="right:-30px;bottom:60px;">SYNTH</div>
+    <div class="inner" style="max-width:880px; width:100%;">
+      <div class="eyebrow">The Pipeline</div>
+
+      <div class="help-target"
+           data-tip-title="How analysis flows"
+           data-tip-text="The user submits text or a photo. Both Claude and Gemini receive the query simultaneously and analyze independently. Their results feed into the synthesis agent, which produces the final unified assessment with an IBS trigger probability score.">
+        <div class="help-title">
+          <div class="big-title">PARALLEL<br><span>ANALYSIS</span></div>
+          <span class="help-icon">?</span>
+        </div>
+      </div>
+
+      <div class="rule"></div>
+      <div class="body-text">Text or photo input fires to both agents simultaneously. Each applies comprehensive FODMAP knowledge independently. The synthesis agent reconciles both results into a single, unified dietary assessment.</div>
+
+      <div class="flow-diagram">
+        <div class="flow-row">
+          <div class="flow-node">
+            <span class="flow-icon">&#x1F4DD;</span>
+            <div class="flow-node-label">Input</div>
+            <div class="flow-node-text">Text query or food photo with serving size</div>
+          </div>
+          <div class="flow-node flow-highlight">
+            <span class="flow-icon">&#x26A1;</span>
+            <div class="flow-node-label">Parallel</div>
+            <div class="flow-node-text">Claude + Gemini fire simultaneously</div>
+          </div>
+          <div class="flow-node">
+            <span class="flow-icon">&#x2696;&#xFE0F;</span>
+            <div class="flow-node-label">Synthesize</div>
+            <div class="flow-node-text">Reconcile disagreements, unify FODMAP tiers</div>
+          </div>
+          <div class="flow-node flow-highlight">
+            <span class="flow-icon">&#x2705;</span>
+            <div class="flow-node-label">Result</div>
+            <div class="flow-node-text">Unified assessment with trigger probability</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: What You Get -->
+  <div class="slide" id="s5">
+    <div class="inner" style="max-width:920px; width:100%;">
+      <div class="eyebrow">The Output</div>
+
+      <div class="help-target"
+           data-tip-title="Analysis depth"
+           data-tip-text="Every analysis returns per-ingredient FODMAP breakdown with gram amounts, IBS trigger probability (0.0-1.0), safety flags, bioavailability data for raw vs. cooked, enzyme recommendations, and peer-reviewed citations with confidence tiers.">
+        <div class="help-title">
+          <div class="big-title">DEEP<br><span>ANALYSIS</span></div>
+          <span class="help-icon">?</span>
+        </div>
+      </div>
+
+      <div class="rule"></div>
+
+      <div class="feature-grid">
+        <div class="fw-item">
+          <div class="fw-icon">&#x1F4CA;</div>
+          <div class="fw-text"><strong>FODMAP Breakdown</strong>Per-ingredient classification (Low/Moderate/High) with gram amounts for fructans, GOS, lactose, fructose, and polyols</div>
+        </div>
+        <div class="fw-item">
+          <div class="fw-icon">&#x1F3AF;</div>
+          <div class="fw-text"><strong>Trigger Probability</strong>0.0–1.0 IBS trigger score with color-coded gauge — green (&lt;0.3), orange (0.3–0.6), red (&gt;0.6)</div>
+        </div>
+        <div class="fw-item">
+          <div class="fw-icon">&#x26A0;&#xFE0F;</div>
+          <div class="fw-text"><strong>Safety Flags</strong>Allergen warnings, drug interactions, and dietary contraindications with severity levels</div>
+        </div>
+        <div class="fw-item">
+          <div class="fw-icon">&#x1F52C;</div>
+          <div class="fw-text"><strong>Bioavailability</strong>Raw vs. cooked FODMAP absorption percentages — because preparation method changes everything</div>
+        </div>
+        <div class="fw-item">
+          <div class="fw-icon">&#x1F48A;</div>
+          <div class="fw-text"><strong>Enzyme Recommendations</strong>Targeted enzyme suggestions (e.g., alpha-galactosidase for GOS) with temperature warnings</div>
+        </div>
+        <div class="fw-item">
+          <div class="fw-icon">&#x1F4D1;</div>
+          <div class="fw-text"><strong>Cited Sources</strong>Peer-reviewed, clinical, and anecdotal confidence tiers for every recommendation</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: Platform -->
+  <div class="slide" id="s6">
+    <div class="inner" style="max-width:900px; width:100%;">
+      <div class="eyebrow">The Platform</div>
+
+      <div class="help-target"
+           data-tip-title="Cross-platform"
+           data-tip-text="GutSense runs as a native iOS app (SwiftUI) and a web companion (Next.js + FastAPI). The iOS app uses Apple Intelligence for on-device synthesis. The web version uses Claude for server-side synthesis. Both share the same backend analysis pipeline.">
+        <div class="help-title">
+          <div class="big-title">iOS +<br><span>WEB</span></div>
+          <span class="help-icon">?</span>
+        </div>
+      </div>
+
+      <div class="rule"></div>
+
+      <div class="agent-grid" style="grid-template-columns: 1fr 1fr;">
+        <div class="agent-card">
+          <div class="agent-card-accent" style="background:linear-gradient(90deg,#6366f1,#818cf8);"></div>
+          <span class="agent-icon">&#x1F4F1;</span>
+          <div class="agent-name" style="color:#818cf8;">iOS App</div>
+          <div class="agent-desc">Native SwiftUI app with Apple Intelligence on-device synthesis, Siri integration, and offline-capable analysis history.</div>
+        </div>
+        <div class="agent-card">
+          <div class="agent-card-accent" style="background:linear-gradient(90deg,#a855f7,#c084fc);"></div>
+          <span class="agent-icon">&#x1F310;</span>
+          <div class="agent-name" style="color:#c084fc;">Web App</div>
+          <div class="agent-desc">Next.js + FastAPI companion with three-pane results view, drag-and-drop photo analysis, and secure Keychain credential storage.</div>
+        </div>
+      </div>
+
+      <div style="margin-top:20px;">
+        <span class="pill">SwiftUI</span>
+        <span class="pill">Next.js</span>
+        <span class="pill">FastAPI</span>
+        <span class="pill">Keychain</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 7: CTA -->
+  <div class="slide" id="s7">
+    <div class="inner" style="max-width:820px; text-align:center;">
+      <div class="quote-mark">"</div>
+      <div class="quote-text">
+        What if your food could<br>
+        <em>talk back</em> — and tell you<br>
+        exactly what it would do<br>
+        to your gut?
+      </div>
+      <div class="quote-attr">— GutSense &middot; Multi-Agent Dietary Intelligence &middot; 2025</div>
+      <div class="cta-block">
+        <a href="/systems/gutsense" class="cta-btn cta-primary">&#8592; System Overview</a>
+        <a href="/decks" class="cta-btn cta-secondary">All Decks</a>
+        <a href="https://www.linkedin.com/in/zahirudeen-premji-5a7a553b1/" target="_blank" rel="noopener" class="cta-btn cta-secondary">Connect on LinkedIn</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div id="nav">
+  <button class="nav-btn" id="btnPrev">&#8592; PREV</button>
+  <button class="nav-btn" id="btnPause">PAUSE</button>
+  <button class="nav-btn" id="btnNext">NEXT &#8594;</button>
+  <div id="counter">01 / 07</div>
+</div>
+
+<div id="globalTooltip">
+  <div id="globalTooltipTitle"></div>
+  <div id="globalTooltipText"></div>
+</div>
+
+<script src="deck.js"></script>
+</body>
+</html>
