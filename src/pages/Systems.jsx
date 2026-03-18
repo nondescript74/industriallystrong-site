@@ -117,6 +117,7 @@ export default function Systems() {
                 subtitle="Research engine for hypothesis tracking and retrieval"
                 description="A research-oriented system connecting multi-hypothesis reasoning with high-dimensional retrieval. It serves as an evidence layer for the platform’s broader work in structured intelligence and strategy tracking."
                 evidence="Research engine supporting technical experimentation"
+                to="/decks/mht"
               />
             </div>
           </div>
