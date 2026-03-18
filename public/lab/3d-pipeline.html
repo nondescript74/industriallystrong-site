@@ -196,28 +196,75 @@ function buildPlatform() {
 function buildPackage() {
     var t = [];
     var pkgSize=P.package_mm;
+    // Package substrate
     t.push(box(0,0,0,pkgSize,pkgSize,2,"#ea580c","Package Substrate",
         "Silicon interposer + flip-chip bonding",0.4));
     var headSize=P.head_mm;
     var spacing=pkgSize/(P.head_rows+1);
+    // Head 1 position (top-left) — will show exploded cutaway
+    var h1x=-pkgSize/2+spacing, h1y=-pkgSize/2+spacing;
+    // All heads except Head 1
     for(var r=0;r<P.head_rows;r++){
         for(var c=0;c<P.head_cols;c++){
             var hx=-pkgSize/2+spacing*(c+1);
             var hy=-pkgSize/2+spacing*(r+1);
             var idx=r*P.head_cols+c;
+            if(idx===0) continue; // skip Head 1, drawn as exploded
             t.push(box(hx,hy,2,headSize,headSize,1.5,"#6366f1",
                 "Head "+(idx+1),"11-DOF writer head, ~2\u00d72mm die",0.8));
             t.push({type:"scatter3d",
                 x:[hx,hx],y:[hy,hy],z:[2,-25],
-                mode:"lines",line:{color:"rgba(139,92,246,0.5)",width:2},
+                mode:"lines",line:{color:"rgba(139,92,246,0.3)",width:1.5},
                 hoverinfo:"skip",showlegend:false});
             t.push({type:"scatter3d",
                 x:[hx],y:[hy],z:[-25],mode:"markers",
-                marker:{size:4,color:"#22c55e",symbol:"circle"},
+                marker:{size:3,color:"#22c55e",symbol:"circle"},
                 hovertext:"Exposure field, Head "+(idx+1),hoverinfo:"text",showlegend:false});
         }
     }
+    // --- Head 1: exploded 11-DOF cutaway ---
+    var eX=h1x, eY=h1y, eZ=3; // start above package
+    var layers = G.grouped_layers;
+    var scale=0.6; // scale down to fit on package
+    var lw=headSize*1.8, lh=headSize*1.8;
+    var gap=0.8;
+    var dofLabels = [
+        {color:"#64748b",dofs:"DOF 11: Thermal sensors\nDOF 6-7: Waveguide routing"},
+        {color:"#8b5cf6",dofs:"DOF 6: Polarization\nDOF 7: Phase modulation\nDOF 9: Wavelength (Bragg)"},
+        {color:"#f97316",dofs:"DOF 1-2: XY beam steering (MEMS)\nDOF 5: Focus drilling (piston)"},
+        {color:"#22c55e",dofs:"DOF 10: Dose integration\nDOF 3: Z structure\nDOF 4: Temporal dithering\nDOF 8: Coherent combination"}
+    ];
+    var ez=eZ;
+    for(var i=0;i<layers.length;i++){
+        var lt=layers[i].thickness*scale*0.03; // compressed thickness
+        t.push(box(eX,eY,ez,lw,lh,lt,layers[i].color,layers[i].name,
+            layers[i].desc+"\n"+dofLabels[i].dofs,0.75));
+        // Leader line from layer to DOF label on the right
+        var labelX=pkgSize/2+6;
+        t.push({type:"scatter3d",
+            x:[eX+lw/2,labelX-1],y:[eY,eY],z:[ez+lt/2,ez+lt/2],
+            mode:"lines",line:{color:layers[i].color,width:1.5,dash:"dot"},
+            hoverinfo:"skip",showlegend:false});
+        t.push({type:"scatter3d",x:[labelX],y:[eY],z:[ez+lt/2],mode:"text",
+            text:["<b>"+layers[i].name+"</b><br>"+dofLabels[i].dofs.replace(/\n/g,"<br>")],
+            textfont:{size:8,color:layers[i].color},textposition:"middle right",
+            hoverinfo:"skip",showlegend:false});
+        ez+=lt+gap;
+    }
+    // Beam from Head 1 exploded stack
+    t.push({type:"scatter3d",x:[eX,eX],y:[eY,eY],z:[ez+2,-25],
+        mode:"lines",line:{color:"#ef4444",width:3},
+        name:"Head 1 beam",hoverinfo:"name"});
+    t.push({type:"scatter3d",x:[eX],y:[eY],z:[-25],mode:"markers",
+        marker:{size:5,color:"#22c55e",symbol:"circle"},
+        hovertext:"Exposure field, Head 1",hoverinfo:"text",showlegend:false});
+    // "Head 1" label
+    t.push({type:"scatter3d",x:[eX],y:[eY-3],z:[ez+3],mode:"text",
+        text:["<b>Head 1 (exploded)</b><br>~2\u00d72 mm die<br>11 DOF per head"],
+        textfont:{size:9,color:"#6366f1"},hoverinfo:"skip",showlegend:false});
+    // Wafer
     t.push(disc(0,0,-26,pkgSize*0.6,"#22c55e","Wafer Surface"));
+    // Signal routing
     var routeX=[],routeY=[],routeZ=[];
     for(var r=0;r<P.head_rows;r++){
         var hy2=-pkgSize/2+spacing*(r+1);
@@ -227,13 +274,16 @@ function buildPackage() {
     }
     t.push({type:"scatter3d",x:routeX,y:routeY,z:routeZ,mode:"lines",
         line:{color:"#fbbf24",width:1.5},name:"Signal routing",hoverinfo:"name"});
-    t.push({type:"scatter3d",x:[pkgSize/2+8],y:[0],z:[2],mode:"text",
+    // Package label
+    t.push({type:"scatter3d",x:[-pkgSize/2-6],y:[0],z:[5],mode:"text",
         text:["<b>33\u00d733 mm Package</b><br>4\u00d74 = 16 writer heads<br>"+
-              "Flip-chip on Si interposer<br>Batch fabricated"],
-        textfont:{size:11,color:"#ea580c"},hoverinfo:"skip",showlegend:false});
+              "Flip-chip on Si interposer<br>~1,000 heads per fab run"],
+        textfont:{size:10,color:"#ea580c"},hoverinfo:"skip",showlegend:false});
+    // 11-DOF summary
     t.push({type:"scatter3d",x:[0],y:[0],z:[-32],mode:"text",
-        text:["<b>16 parallel beams</b><br>Each head: independent 11-DOF control"],
-        textfont:{size:10,color:"#6366f1"},hoverinfo:"skip",showlegend:false});
+        text:["<b>16 parallel beams \u2022 16 \u00d7 11 = 176 DOF per package</b><br>"+
+              "XY steering \u2022 Focus \u2022 Polarization \u2022 Phase \u2022 Wavelength \u2022 Dose \u2022 Thermal"],
+        textfont:{size:9,color:"#6366f1"},hoverinfo:"skip",showlegend:false});
     return t;
 }
 
@@ -319,14 +369,14 @@ var layouts = [
      legend:{x:0.01,y:0.99,bgcolor:"rgba(255,255,255,0.8)"},
      title:"Integrated Multi-Head Writer Platform (160 heads, desk-sized)",
      margin:{t:50,b:20,l:0,r:0}},
-    {scene:{xaxis:{title:"X (mm)",range:[-30,45],showgrid:true,gridcolor:"#eee"},
+    {scene:{xaxis:{title:"X (mm)",range:[-30,50],showgrid:true,gridcolor:"#eee"},
             yaxis:{title:"Y (mm)",range:[-25,25],showgrid:true,gridcolor:"#eee"},
-            zaxis:{title:"Z (mm)",range:[-35,15],showgrid:true,gridcolor:"#eee"},
-            aspectmode:"manual",aspectratio:{x:1.5,y:1.0,z:1.0},
+            zaxis:{title:"Z (mm)",range:[-35,18],showgrid:true,gridcolor:"#eee"},
+            aspectmode:"manual",aspectratio:{x:1.5,y:1.0,z:1.1},
             camera:cameras[1],bgcolor:"#fafafa"},
      height:780,width:1400,showlegend:true,
      legend:{x:0.01,y:0.99,bgcolor:"rgba(255,255,255,0.8)"},
-     title:"33\u00d733 mm Package \u2014 4\u00d74 Writer Head Array",
+     title:"33\u00d733 mm Package \u2014 4\u00d74 Writer Head Array (Head 1 exploded to show 11-DOF stack)",
      margin:{t:50,b:20,l:0,r:0}},
     {scene:{xaxis:{title:"X (\u00b5m)",range:[-50,80],showgrid:true,gridcolor:"#eee"},
             yaxis:{title:"Y (\u00b5m)",range:[-40,40],showgrid:true,gridcolor:"#eee"},
