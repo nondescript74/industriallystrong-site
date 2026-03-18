@@ -92,13 +92,47 @@ export default function QRLPhoenix() {
           border: "1px solid #1e293b",
           borderRadius: "14px",
           padding: "28px",
+          marginBottom: "32px",
         }}
       >
         <h2 style={{ marginTop: 0 }}>Status</h2>
         <p style={{ opacity: 0.88, maxWidth: "900px" }}>
-          QRLPhoenix currently exists as a private iOS application in tester
-          access, supported by a live backend and connected research systems.
+          QRLPhoenix is available as both a native iOS application and a web
+          platform, supported by a live backend and connected research systems.
         </p>
+      </section>
+
+      <section
+        style={{
+          border: "1px solid #B3905C",
+          borderRadius: "14px",
+          padding: "28px",
+          background: "rgba(179, 144, 92, 0.06)",
+        }}
+      >
+        <h2 style={{ marginTop: 0, color: "#B3905C" }}>Launch Phoenix Web</h2>
+        <p style={{ opacity: 0.88, maxWidth: "900px", marginBottom: "16px" }}>
+          Access the full QRL Phoenix platform in your browser — AI coaching,
+          strategy discovery, IASG CTA analysis, batch evaluation, and
+          blockchain-verified audit trails.
+        </p>
+        <a
+          href="https://qrl-phoenix-web.pages.dev"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: "inline-block",
+            background: "#B3905C",
+            color: "#001a36",
+            padding: "12px 28px",
+            borderRadius: "8px",
+            fontWeight: 700,
+            fontSize: "15px",
+            textDecoration: "none",
+          }}
+        >
+          Open Phoenix Web →
+        </a>
       </section>
     </PageShell>
   );
