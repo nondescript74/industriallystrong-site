@@ -2,7 +2,7 @@
 <html>
 <head>
     <script src="plotly.min.js"></script>
-    <title>Multi-Head Writer Array</title>
+    <title>Distributed Adaptive Writer Array</title>
     <style>
 * { box-sizing: border-box; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; background: #f8fafc; color: #1e293b; }
@@ -63,7 +63,7 @@ button:hover { background: #1d4ed8; }
     <a href="/api/visualize">2D Process Sim</a>
     <a href="/api/visualize-3d">3D Pipeline</a>
     <a href="fleet-economics.html">Platform Economics</a>
-    <a href="multihead.html" class="active">Multi-Head Array</a>
+    <a href="multihead.html" class="active">Adaptive Writer Array</a>
     <a href="psf-synthesis.html">PSF Synthesis</a>
     <a href="writer-head.html">11-DOF Head</a>
 </div>
@@ -112,9 +112,23 @@ button:hover { background: #1d4ed8; }
     </div>
 
     <div class="section">
+        <!-- Core Contrast — readable in 3 seconds -->
+        <div style="display:flex; gap:0; margin:0 0 24px 0; border-radius:10px; overflow:hidden; border:2px solid #e2e8f0;">
+            <div style="flex:1; background:#fef2f2; padding:18px 24px; border-right:2px solid #e2e8f0;">
+                <div style="font-size:10px; font-weight:700; color:#dc2626; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">Traditional Lithography</div>
+                <div style="font-size:16px; font-weight:800; color:#991b1b; line-height:1.3;">Enforce global precision upfront</div>
+                <div style="font-size:12px; color:#b91c1c; margin-top:4px;">Single source, uniform field, tight environmental control</div>
+            </div>
+            <div style="flex:1; background:#f0fdf4; padding:18px 24px;">
+                <div style="font-size:10px; font-weight:700; color:#16a34a; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">This System</div>
+                <div style="font-size:16px; font-weight:800; color:#166534; line-height:1.3;">Converge to precision locally, over time</div>
+                <div style="font-size:12px; color:#15803d; margin-top:4px;">Distributed emitters, per-zone feedback, adaptive dose correction</div>
+            </div>
+        </div>
+
         <h2>Architecture Selection</h2>
         <p style="font-size:13px; color:#64748b; margin:0 0 4px 0;">
-            Three wavelength regimes sharing a common tiled multi-head platform.
+            Three wavelength regimes sharing a common distributed adaptive writer platform.
             Click a card or use the dropdown above to switch.
         </p>
         <div class="arch-cards"><a href="/api/multihead?arch=A" class="arch-card selected" style="border-color: #e63946; text-decoration: none; color: inherit;">
@@ -237,19 +251,25 @@ button:hover { background: #1d4ed8; }
     </div>
 
     
-    <div style="background:linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%); color:#fff; padding:32px 40px; margin-top:24px;">
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- EXAMPLE IMPLEMENTATION SECTION                                     -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <div style="margin-top:40px; border-top:3px solid #2563eb; padding-top:0;">
+    <div style="background:linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%); color:#fff; padding:32px 40px;">
         <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
             <span style="font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px;
-                         background:#1e5f3a; color:#5be6a3; letter-spacing:0.5px;">USE CASE</span>
+                         background:#1e5f3a; color:#5be6a3; letter-spacing:0.5px;">EXAMPLE IMPLEMENTATION</span>
             <span style="font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px;
                          background:#5f4b1e; color:#e6c45b; letter-spacing:0.5px;">2D MATERIALS</span>
         </div>
-        <h2 style="margin:0 0 6px 0; font-size:26px; font-weight:800;">Lab 91 — MoS₂ RF Switch Fabrication</h2>
+        <h2 style="margin:0 0 6px 0; font-size:26px; font-weight:800;">MoS₂ ALD on Tier-1 Platforms</h2>
+        <p style="margin:0 0 16px 0; font-size:14px; color:#94a3b8; max-width:800px; line-height:1.6; font-style:italic;">
+            As 2D materials move toward foundry integration, the limiting factor shifts from material performance to process stability within fixed tool architectures.
+        </p>
         <p style="margin:0; font-size:15px; color:#94a3b8; max-width:800px; line-height:1.6;">
-            Automating transfer of 2D materials (MoS₂) from growth wafers to target wafers. Beachhead market: <b style="color:#fff;">RF switches for 6G</b>,
-            scaling to Transistors at sub-2nm nodes. Current process uses EBL (electron beam lithography)
-            with CVD MoS₂ on sapphire or glass — core challenge:
-            <b style="color:#fbbf24;">Clean contact formation — polymer residue degrades MoS₂ contacts</b>.
+            <b style="color:#fff;">Context:</b> MoS₂ RF switches for 6G — CVD monolayer transfer from growth wafers to target wafers using existing EBL tooling.<br>
+            <b style="color:#fbbf24;">Bottleneck:</b> Polymer residue from PMMA/EBL degrades MoS₂ contact interfaces. Serial EBL exposure damages monolayers via charging and radiolysis.<br>
+            <b style="color:#5be6a3;">Implication:</b> The patterning step must become an adaptive control layer — compensating for transfer-induced variability rather than enforcing static precision.
         </p>
     </div>
 
@@ -279,17 +299,47 @@ button:hover { background: #1d4ed8; }
         </div>
     </div>
 
-    <div class="section">
-        <div class="callout" style="background:#ede9fe; border-color:#8b5cf6; color:#4c1d95;">
-            <b>Core insight:</b> Patterning is no longer a static lithography step — it becomes a
-            <b>control layer</b> that compensates for transfer-induced material variability.
-            Per-zone dose feedback, real-time thickness sensing, and emitter-local power stabilization
-            turn the write head into an adaptive system that closes the loop on MoS₂ placement quality.
+    <!-- 3-Layer Constraint → Tool → Architecture Diagram -->
+    <div style="padding:24px 24px 0 24px;">
+        <div style="background:#fff; border:2px solid #e2e8f0; border-radius:12px; padding:28px 32px; max-width:900px;">
+            <div style="display:flex; align-items:stretch; gap:0; justify-content:center;">
+                <!-- Layer 1: Constraint -->
+                <div style="flex:1; max-width:240px; text-align:center;">
+                    <div style="background:#fef2f2; border:2px solid #fca5a5; border-radius:10px; padding:16px 12px;">
+                        <div style="font-size:10px; font-weight:700; color:#dc2626; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">Constraint</div>
+                        <div style="font-size:14px; font-weight:700; color:#991b1b; line-height:1.4;">Fixed tool architectures<br><span style="font-size:12px; font-weight:400; color:#b91c1c;">Chamber geometry, stage travel, vacuum envelope locked by Tier-1 vendor</span></div>
+                    </div>
+                </div>
+                <!-- Arrow 1 -->
+                <div style="display:flex; align-items:center; padding:0 8px;">
+                    <svg width="32" height="24" viewBox="0 0 32 24"><path d="M0 12 L24 12 M18 6 L24 12 L18 18" stroke="#94a3b8" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <!-- Layer 2: Tool Response -->
+                <div style="flex:1; max-width:240px; text-align:center;">
+                    <div style="background:#fefce8; border:2px solid #fde68a; border-radius:10px; padding:16px 12px;">
+                        <div style="font-size:10px; font-weight:700; color:#a16207; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">Tool Response</div>
+                        <div style="font-size:14px; font-weight:700; color:#854d0e; line-height:1.4;">Adaptive write head<br><span style="font-size:12px; font-weight:400; color:#a16207;">VCSEL array mounts in-situ — no new chambers, no vacuum breaks</span></div>
+                    </div>
+                </div>
+                <!-- Arrow 2 -->
+                <div style="display:flex; align-items:center; padding:0 8px;">
+                    <svg width="32" height="24" viewBox="0 0 32 24"><path d="M0 12 L24 12 M18 6 L24 12 L18 18" stroke="#94a3b8" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <!-- Layer 3: Architecture -->
+                <div style="flex:1; max-width:240px; text-align:center;">
+                    <div style="background:#f0fdf4; border:2px solid #86efac; border-radius:10px; padding:16px 12px;">
+                        <div style="font-size:10px; font-weight:700; color:#16a34a; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">Architecture</div>
+                        <div style="font-size:14px; font-weight:700; color:#166534; line-height:1.4;">Distributed adaptive control<br><span style="font-size:12px; font-weight:400; color:#15803d;">Per-emitter feedback converges to precision locally, not globally</span></div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <h2>Five Process Modifications for Lab 91</h2>
+    </div>
+
+    <div class="section">
+        <h2>Five Process Modifications</h2>
         <p style="font-size:13px; color:#64748b; margin:0 0 14px 0; line-height:1.5;">
-            Each modification replaces a step in Lab 91's current EBL-based MoS₂ RF switch
-            fabrication with a VCSEL multiwriter equivalent, addressing the core yield problem:
+            Each modification replaces an EBL step with a VCSEL multiwriter equivalent — eliminating
             polymer residue and electron damage at the MoS₂ contact interface.
         </p>
         
@@ -422,7 +472,7 @@ button:hover { background: #1d4ed8; }
     </div>
 
     <div class="section">
-        <h2>Lab 91 Throughput: Emitter Scaling</h2>
+        <h2>Throughput: Emitter Scaling</h2>
         <div class="callout">
             <b>Target:</b> 60+ wafers per hour on 300 mm wafers.
             At 12,000 emitters running at 30 GHz each,
@@ -435,13 +485,14 @@ button:hover { background: #1d4ed8; }
 
     <div class="section">
         <div class="callout" style="background:#fef3c7; border-color:#f59e0b; color:#92400e;">
-            <b>Transfer Integration:</b> The VCSEL write head mounts in-situ in Lab 91's transfer tool.
+            <b>Transfer Integration:</b> The VCSEL write head mounts in-situ in the transfer tool.
             MoS₂ monolayer placement → immediate resist exposure → no vacuum break,
             no atmospheric contamination, no resist spin, no EBL chamber.
             Per-zone VCSEL dose feedback compensates for MoS₂ thickness variation across
             grain boundaries in real time.
         </div>
     </div>
-    
+    </div><!-- end Example Implementation section -->
+
 </body>
 </html>
