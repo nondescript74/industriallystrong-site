@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MHT-FAISS — Continuous Evaluation Architecture</title>
+  <meta property="og:title" content="Where Conventional Systems Fail — And Why This Works Instead">
+  <meta property="og:description" content="Two systems, same signal. One commits early and flips. The other preserves competing hypotheses and adapts. Watch the difference.">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f5f7fa;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --text: #1a202c;
+      --muted: #64748b;
+      --navy: #002e5c;
+      --gold: #b38f5c;
+      --blue: #2563eb;
+      --green: #16a34a;
+      --red: #dc2626;
+      --orange: #ea580c;
+      --amber: #d97706;
+      --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      --mono: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      font-size: 15px;
+    }
+
+    /* ── Nav ──────────────────────────────────────────── */
+    .top-nav {
+      background: var(--navy);
+      padding: 14px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .top-nav-brand {
+      font-size: 13px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.85);
+      text-decoration: none;
+      letter-spacing: 0.5px;
+    }
+    .top-nav-links {
+      display: flex;
+      gap: 20px;
+    }
+    .top-nav-links a {
+      font-size: 12px;
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      letter-spacing: 0.5px;
+      transition: color 0.2s;
+    }
+    .top-nav-links a:hover { color: rgba(255,255,255,0.9); }
+
+    /* ── Container ────────────────────────────────────── */
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+    /* ── Orientation Frame (THE critical 5-second hook) ─ */
+    .orientation {
+      background: white;
+      border-bottom: 2px solid var(--border);
+      padding: 48px 24px 40px;
+    }
+    .orientation-inner {
+      max-width: 740px;
+      margin: 0 auto;
+    }
+    .orientation-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--navy);
+      margin-bottom: 12px;
+      opacity: 0.6;
+    }
+    .orientation h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.3;
+      margin-bottom: 20px;
+    }
+    .orientation-body {
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+    .orientation-instructions {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .watch-cue {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .watch-cue .cue-icon {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      margin-top: 1px;
+    }
+    .cue-left .cue-icon { background: #fef2f2; color: var(--red); }
+    .cue-right .cue-icon { background: #f0fdf4; color: var(--green); }
+
+    /* ── Side-by-Side Arena ───────────────────────────── */
+    .arena {
+      padding: 40px 0;
+    }
+    .arena-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    .arena-col {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    /* Column headers */
+    .col-header {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .col-header.left-header {
+      border-top: 3px solid #94a3b8;
+    }
+    .col-header.right-header {
+      border-top: 3px solid var(--blue);
+    }
+    .col-tag {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .left-header .col-tag { color: #94a3b8; }
+    .right-header .col-tag { color: var(--blue); }
+    .col-header h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .col-header p {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .col-body {
+      padding: 20px 24px 24px;
+    }
+
+    /* ── Cards inside columns ─────────────────────────── */
+    .inner-card {
+      padding: 16px;
+      margin-bottom: 16px;
+      border-radius: 8px;
+    }
+    .inner-card:last-child { margin-bottom: 0; }
+    .inner-card-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    /* LLM output display */
+    .llm-output-area {
+      background: #f8fafc;
+    }
+    .committed-decision {
+      display: inline-block;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      font-family: var(--mono);
+      margin-bottom: 8px;
+      transition: all 0.6s ease;
+    }
+    .committed-bullish { background: #dcfce7; color: var(--green); }
+    .committed-bearish { background: #fef2f2; color: var(--red); }
+    .committed-mixed { background: #fff7ed; color: var(--orange); }
+
+    .llm-caption {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* LLM timeline */
+    .timeline-area {
+      background: #f8fafc;
+    }
+    .timeline-track {
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      height: 48px;
+      margin-bottom: 8px;
+    }
+    .timeline-dot {
+      flex: 1;
+      border-radius: 3px 3px 0 0;
+      transition: all 0.4s ease;
+      min-width: 4px;
+      cursor: default;
+      position: relative;
+    }
+    .timeline-dot.bull { background: var(--green); }
+    .timeline-dot.bear { background: var(--red); }
+    .timeline-dot.mixed { background: var(--orange); }
+    .timeline-caption {
+      font-size: 11px;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    /* Failure callout on left */
+    .failure-callout {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-left: 3px solid var(--red);
+      border-radius: 0 8px 8px 0;
+      padding: 12px 14px;
+      margin-top: 16px;
+    }
+    .failure-callout .fc-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--red);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .failure-callout p {
+      font-size: 12px;
+      color: #991b1b;
+      line-height: 1.5;
+    }
+
+    /* ── Hypothesis bars (right side) ─────────────────── */
+    .hyp-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .hyp-label {
+      font-size: 12px;
+      color: var(--text);
+      width: 150px;
+      flex-shrink: 0;
+    }
+    .hyp-bar-track {
+      flex: 1;
+      height: 10px;
+      background: #f1f5f9;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+    .hyp-bar-fill {
+      height: 100%;
+      border-radius: 5px;
+      transition: width 1.2s ease;
+    }
+    .fill-blue { background: var(--blue); }
+    .fill-orange { background: var(--orange); }
+    .fill-green { background: var(--green); }
+    .hyp-pct {
+      font-size: 12px;
+      font-family: var(--mono);
+      font-weight: 600;
+      color: var(--muted);
+      width: 38px;
+      text-align: right;
+    }
+    .hyp-caption {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 8px;
+      line-height: 1.5;
+    }
+
+    /* Stability callout on right */
+    .stability-callout {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-left: 3px solid var(--green);
+      border-radius: 0 8px 8px 0;
+      padding: 12px 14px;
+      margin-top: 16px;
+    }
+    .stability-callout .sc-item {
+      font-size: 12px;
+      color: #166534;
+      padding: 2px 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .sc-check {
+      color: var(--green);
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    /* ── Interpretation Row ───────────────────────────── */
+    .interpretation-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: -8px;
+      margin-bottom: 32px;
+    }
+    .interp-cell {
+      text-align: center;
+      padding: 14px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .interp-left {
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+    .interp-right {
+      background: #f0fdf4;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+    .interp-cell strong {
+      display: block;
+      font-size: 20px;
+      font-family: var(--mono);
+      margin-bottom: 2px;
+    }
+    .interp-left strong { color: var(--red); }
+    .interp-right strong { color: var(--green); }
+
+    /* ── Expandable Sections ──────────────────────────── */
+    .expandable {
+      margin: 32px 0;
+    }
+    .expand-trigger {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--navy);
+      cursor: pointer;
+      width: 100%;
+      text-align: left;
+      transition: all 0.2s;
+      font-family: var(--font);
+    }
+    .expand-trigger:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+    }
+    .expand-trigger .arrow {
+      transition: transform 0.3s;
+      font-size: 10px;
+      color: var(--muted);
+    }
+    .expand-trigger.open .arrow {
+      transform: rotate(90deg);
+    }
+    .expand-content {
+      display: none;
+      padding: 20px 0 0;
+    }
+    .expand-content.open {
+      display: block;
+    }
+
+    /* Pipeline chips in expandable */
+    .pipeline-chips {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .p-chip {
+      font-size: 11px;
+      font-weight: 500;
+      padding: 5px 12px;
+      border-radius: 6px;
+      background: #f1f5f9;
+      color: var(--text);
+    }
+    .p-arrow { color: #cbd5e1; font-size: 12px; }
+    .p-chip.active-chip { background: var(--navy); color: white; }
+
+    /* Decision surface in expandable */
+    .decision-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 12px;
+      margin-bottom: 4px;
+      background: #f8fafc;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+    .decision-rank { font-weight: 700; color: var(--navy); }
+    .decision-score { font-family: var(--mono); font-weight: 700; color: var(--green); }
+
+    /* ── Why This Matters ─────────────────────────────── */
+    .why-section {
+      padding: 48px 0;
+      border-top: 2px solid var(--border);
+    }
+    .why-inner {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+    .why-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+    .why-inner h2 {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+    .why-inner p {
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.75;
+      margin-bottom: 16px;
+    }
+    .why-inner p:last-child { margin-bottom: 0; }
+    .why-callout {
+      background: white;
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--navy);
+      border-radius: 0 8px 8px 0;
+      padding: 16px 20px;
+      margin: 24px 0;
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    /* ── Domain Bridge ────────────────────────────────── */
+    .bridge-section {
+      padding: 40px 0 48px;
+      border-top: 1px solid var(--border);
+    }
+    .bridge-inner {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+    .bridge-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 12px;
+    }
+    .bridge-inner h3 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+    .bridge-inner p {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.75;
+      margin-bottom: 14px;
+    }
+    .bridge-inner p:last-child { margin-bottom: 0; }
+
+    /* ── CTA Evaluation Section ───────────────────────── */
+    .cta-section {
+      padding: 40px 0;
+      border-top: 2px solid var(--border);
+    }
+    .cta-section-header {
+      margin-bottom: 20px;
+    }
+    .cta-section-header h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .cta-section-header p {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    /* Regime row */
+    .regime-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 18px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .regime-badge {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 5px 14px;
+      border-radius: 6px;
+      background: #dcfce7;
+      color: var(--green);
+    }
+    .regime-text {
+      font-size: 13px;
+      color: var(--text);
+      flex: 1;
+      min-width: 200px;
+    }
+    .regime-conf {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .regime-conf strong {
+      color: var(--green);
+      font-family: var(--mono);
+    }
+
+    /* Candidates table */
+    .cand-table { width: 100%; border-collapse: collapse; background: white; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .cand-table th {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 2px solid var(--border);
+      background: #f8fafc;
+    }
+    .cand-table th.right { text-align: right; }
+    .cand-table td {
+      padding: 12px 12px;
+      border-bottom: 1px solid #f1f5f9;
+      vertical-align: top;
+      font-size: 13px;
+    }
+    .cand-table tr { transition: background 0.2s; }
+    .cand-table tr:hover { background: #f8fafc; }
+    .cand-table tr.anim-row {
+      animation: rowSlide 0.4s ease forwards;
+      opacity: 0;
+    }
+    @keyframes rowSlide {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .cta-name { font-weight: 600; color: var(--navy); }
+    .cta-program { font-size: 11px; color: var(--muted); }
+    .cta-type { font-size: 10px; color: var(--gold); font-weight: 500; margin-top: 2px; }
+
+    .d-badge {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+    .d-select { background: #dcfce7; color: var(--green); }
+    .d-reject { background: #fee2e2; color: var(--red); }
+    .d-watchlist { background: #fff7ed; color: var(--orange); }
+
+    .score-num { font-family: var(--mono); font-weight: 700; font-size: 15px; }
+    .score-hi { color: var(--green); }
+    .score-md { color: var(--orange); }
+    .score-lo { color: var(--red); }
+
+    .alloc-bar-bg {
+      display: inline-block;
+      width: 64px;
+      height: 7px;
+      background: #f1f5f9;
+      border-radius: 4px;
+      overflow: hidden;
+      vertical-align: middle;
+      margin-right: 5px;
+    }
+    .alloc-bar-fg {
+      height: 100%;
+      background: var(--navy);
+      border-radius: 4px;
+      transition: width 1.2s ease;
+    }
+    .alloc-num { font-size: 12px; font-family: var(--mono); font-weight: 600; color: var(--navy); }
+
+    .perf-pos { color: var(--green); font-weight: 600; font-family: var(--mono); }
+    .perf-neg { color: var(--red); font-weight: 600; font-family: var(--mono); }
+
+    .reason-btn {
+      font-size: 11px;
+      color: var(--blue);
+      cursor: pointer;
+      border: none;
+      background: none;
+      padding: 2px 0;
+      font-family: var(--font);
+    }
+    .reason-btn:hover { text-decoration: underline; }
+    .reason-body {
+      display: none;
+      padding: 10px 14px;
+      background: #f8fafc;
+      border-left: 3px solid var(--navy);
+      border-radius: 4px;
+      font-size: 12px;
+      color: var(--text);
+      line-height: 1.55;
+    }
+    .reason-body.open { display: block; }
+    .reason-risks { margin-top: 4px; font-size: 11px; color: var(--orange); }
+    .reason-src { margin-top: 4px; font-size: 10px; color: #94a3b8; }
+
+    .method-note {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 16px;
+      padding: 10px 14px;
+      background: #f8fafc;
+      border-radius: 6px;
+      border-left: 3px solid var(--gold);
+    }
+
+    /* Summary stats */
+    .sum-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .sum-stat {
+      text-align: center;
+      padding: 12px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    .sum-num {
+      font-size: 26px;
+      font-weight: 800;
+      font-family: var(--mono);
+      line-height: 1;
+    }
+    .sum-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+    .n-navy { color: var(--navy); }
+    .n-green { color: var(--green); }
+    .n-orange { color: var(--orange); }
+    .n-red { color: var(--red); }
+
+    /* ── Footer ───────────────────────────────────────── */
+    .page-footer {
+      text-align: center;
+      padding: 32px 24px;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .page-footer a {
+      color: var(--navy);
+      text-decoration: none;
+    }
+    .disclaimer {
+      text-align: center;
+      font-size: 10px;
+      color: #94a3b8;
+      padding: 16px;
+    }
+
+    /* ── Responsive ───────────────────────────────────── */
+    @media (max-width: 768px) {
+      .arena-grid { grid-template-columns: 1fr; }
+      .interpretation-row { grid-template-columns: 1fr; }
+      .orientation-instructions { flex-direction: column; }
+      .sum-grid { grid-template-columns: repeat(2, 1fr); }
+      .cand-table { font-size: 11px; }
+      .cand-table th, .cand-table td { padding: 8px 6px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     NAV
+     ═══════════════════════════════════════════════════════════ -->
+<nav class="top-nav">
+  <a href="https://industriallystrong.com" class="top-nav-brand">IndustriallyStrong</a>
+  <div class="top-nav-links">
+    <a href="https://industriallystrong.com/research">Research</a>
+    <a href="https://industriallystrong.com/decks/mht.html">Architecture Deck</a>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SECTION 0: ORIENTATION FRAME (5-second comprehension)
+     ═══════════════════════════════════════════════════════════ -->
+<div class="orientation">
+  <div class="orientation-inner">
+    <div class="orientation-label">What You Are Seeing</div>
+    <h1>One commits early. The other keeps multiple possibilities alive.</h1>
+    <p class="orientation-body">
+      Same signal. Two architectures. Watch how differently they behave when conditions shift.
+    </p>
+    <div class="orientation-instructions" style="margin-top:16px; opacity:0.75;">
+      <div class="watch-cue cue-left">
+        <div class="cue-icon">L</div>
+        <div>Watch the left flip between answers. No memory of prior uncertainty.</div>
+      </div>
+      <div class="watch-cue cue-right">
+        <div class="cue-icon">R</div>
+        <div>Watch the right reweight smoothly. Alternatives stay active.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SECTION 1: SIDE-BY-SIDE ARENA
+     ═══════════════════════════════════════════════════════════ -->
+<div class="container">
+  <div class="arena">
+    <div class="arena-grid">
+
+      <!-- ─── LEFT: Early Commitment Model ─── -->
+      <div class="arena-col">
+        <div class="col-header left-header">
+          <div class="col-tag">Left</div>
+          <h2>Early Commitment Model</h2>
+          <p>Single inference per tick. Uncertainty compressed into one output.</p>
+        </div>
+        <div class="col-body">
+
+          <!-- Current committed decision -->
+          <div class="inner-card llm-output-area">
+            <div class="inner-card-label">Committed Decision</div>
+            <div class="committed-decision committed-bullish" id="llmDecision">BULLISH</div>
+            <div class="llm-caption">The system compresses the entire signal stream into a single directional label. No alternatives are retained.</div>
+          </div>
+
+          <!-- Decision timeline -->
+          <div class="inner-card timeline-area">
+            <div class="inner-card-label">Decision History (last 20 evaluations)</div>
+            <div class="timeline-track" id="timelineTrack">
+              <!-- Populated by JS -->
+            </div>
+            <div class="timeline-caption">Each bar is a full recomputation. The system has no memory — only a new answer.</div>
+          </div>
+
+          <!-- Failure callout -->
+          <div class="failure-callout">
+            <div class="fc-title">When the signal shifts</div>
+            <p>The system flips decisions entirely. No memory of prior uncertainty. No smooth transition. Regime changes appear as abrupt answer reversals.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── RIGHT: Continuous Evaluation Model ─── -->
+      <div class="arena-col">
+        <div class="col-header right-header">
+          <div class="col-tag">Right</div>
+          <h2>Continuous Evaluation Model</h2>
+          <p>Competing hypotheses maintained, updated, and scored before commitment.</p>
+        </div>
+        <div class="col-body">
+
+          <!-- Competing explanations -->
+          <div class="inner-card" style="background: #f8fafc;">
+            <div class="inner-card-label">Competing Explanations</div>
+            <div class="hyp-row">
+              <div class="hyp-label">Trend continuation</div>
+              <div class="hyp-bar-track"><div class="hyp-bar-fill fill-blue" id="hyp0" style="width:55%"></div></div>
+              <div class="hyp-pct" id="hyp0v">55%</div>
+            </div>
+            <div class="hyp-row">
+              <div class="hyp-label">Volatility spike</div>
+              <div class="hyp-bar-track"><div class="hyp-bar-fill fill-orange" id="hyp1" style="width:28%"></div></div>
+              <div class="hyp-pct" id="hyp1v">28%</div>
+            </div>
+            <div class="hyp-row">
+              <div class="hyp-label">Mean reversion</div>
+              <div class="hyp-bar-track"><div class="hyp-bar-fill fill-green" id="hyp2" style="width:17%"></div></div>
+              <div class="hyp-pct" id="hyp2v">17%</div>
+            </div>
+            <div class="hyp-caption">Hypotheses are updated, not replaced. All alternatives remain active until evidence converges.</div>
+          </div>
+
+          <!-- Confidence over time -->
+          <div class="inner-card" style="background: #f8fafc;">
+            <div class="inner-card-label">Confidence Over Time</div>
+            <canvas id="confChart" width="460" height="120" style="width:100%; height:120px;"></canvas>
+            <div class="hyp-caption" style="margin-top:6px;">
+              <span style="color:var(--blue);">━</span> Trend
+              &nbsp;<span style="color:var(--orange);">━</span> Volatility
+              &nbsp;<span style="color:var(--green);">━</span> Reversion
+            </div>
+          </div>
+
+          <!-- Stability callout -->
+          <div class="stability-callout">
+            <div class="sc-item"><span class="sc-check">✓</span> Alternatives remain active</div>
+            <div class="sc-item"><span class="sc-check">✓</span> Confidence shifts smoothly instead of flipping</div>
+            <div class="sc-item"><span class="sc-check">✓</span> Regime changes detected through reweighting, not reversal</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- One-line interpretation per side -->
+    <div class="interpretation-row" style="margin-top:24px;">
+      <div class="interp-cell interp-left">
+        <strong>Flips</strong>
+        Commits early, reverses when wrong. No transition state.
+      </div>
+      <div class="interp-cell interp-right">
+        <strong>Adapts</strong>
+        Updates competing hypotheses. Transitions through reweighting.
+      </div>
+    </div>
+
+    <!-- ─── Expandable: Internal Mechanics ─── -->
+    <div class="expandable">
+      <button class="expand-trigger" id="mechTrigger" onclick="toggleExpand('mechTrigger','mechContent')">
+        <span class="arrow">▶</span> Show internal mechanics — pipeline stages, decision surface, tracked state
+      </button>
+      <div class="expand-content" id="mechContent">
+        <div class="arena-grid">
+          <!-- Left internals -->
+          <div style="background:white; border:1px solid var(--border); border-radius:10px; padding:20px;">
+            <div class="inner-card-label">Early Commitment Pipeline</div>
+            <div class="pipeline-chips">
+              <span class="p-chip">Signal</span>
+              <span class="p-arrow">→</span>
+              <span class="p-chip">Prompt</span>
+              <span class="p-arrow">→</span>
+              <span class="p-chip active-chip">Model</span>
+              <span class="p-arrow">→</span>
+              <span class="p-chip">Answer</span>
+            </div>
+            <div style="font-size:12px; color:var(--muted); line-height:1.6;">
+              Each tick: the entire signal context is compressed into a prompt, passed to a model, and a single answer is emitted. No state persists between ticks. No hypothesis is retained.
+            </div>
+          </div>
+          <!-- Right internals -->
+          <div style="background:white; border:1px solid var(--border); border-radius:10px; padding:20px;">
+            <div class="inner-card-label">Continuous Evaluation Pipeline</div>
+            <div class="pipeline-chips">
+              <span class="p-chip">Signal</span>
+              <span class="p-arrow">→</span>
+              <span class="p-chip">State Encoder</span>
+              <span class="p-arrow">→</span>
+              <span class="p-chip active-chip">FAISS Retrieval</span>
+              <span class="p-arrow">→</span>
+              <span class="p-chip">Hypothesis Update</span>
+              <span class="p-arrow">→</span>
+              <span class="p-chip">Decision Ranking</span>
+            </div>
+            <div style="font-size:12px; color:var(--muted); line-height:1.6; margin-bottom:14px;">
+              State persists. FAISS retrieves similar historical patterns in ~0.1ms. Hypotheses are updated probabilistically. Commitment happens only when evidence converges.
+            </div>
+            <div class="inner-card-label">Ranked Decision Surface</div>
+            <div class="decision-row"><div><span class="decision-rank">1.</span> LONG — trend following momentum</div><div class="decision-score">0.82</div></div>
+            <div class="decision-row"><div><span class="decision-rank">2.</span> FLAT — await confirmation</div><div class="decision-score">0.09</div></div>
+            <div class="decision-row"><div><span class="decision-rank">3.</span> SHORT — counter-trend entry</div><div class="decision-score">0.04</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       WHY THIS MATTERS (Failure framing)
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="why-section">
+    <div class="why-inner">
+      <div class="why-label">Why This Matters</div>
+      <h2>Early commitment looks correct — until it isn't.</h2>
+      <p>
+        In noisy environments, committing too early produces answers that feel confident. The system says "bullish" and it looks right — until the signal shifts and it says "bearish" with the same confidence. No transition. No warning. Just a flip.
+      </p>
+      <div class="why-callout">
+        Most systems collapse uncertainty into a single answer.<br>
+        When conditions shift, they flip.<br><br>
+        This system preserves competing hypotheses and updates them over time — so it adapts without losing context.
+      </div>
+      <p>
+        The difference isn't accuracy on any single tick. It's behavior over time. A system that preserves alternatives can detect regime changes through gradual reweighting. A system that commits early can only detect them through reversal — which is always late, and always lossy.
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       DOMAIN BRIDGE (Lithography)
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="bridge-section">
+    <div class="bridge-inner">
+      <div class="bridge-label">Cross-Domain</div>
+      <h3>This is not just a software problem.</h3>
+      <p>
+        In lithography, we see the same pattern: systems that collapse variability too early lose information and amplify error downstream. A process that commits to a single exposure parameter set — without preserving competing correction hypotheses — can't recover gracefully when conditions drift.
+      </p>
+      <p>
+        Preserving competing hypotheses is analogous to preserving signal under stochastic constraints. Whether the domain is financial regime detection or multi-head write optimization, the architecture is the same: maintain alternatives, update probabilistically, commit only when evidence converges.
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       CTA EVALUATION ENGINE (Practical Output)
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="expandable" style="padding-bottom: 8px; border-top: 2px solid var(--border); padding-top: 32px;">
+    <button class="expand-trigger" id="ctaTrigger" onclick="toggleExpand('ctaTrigger','ctaContent')" style="border-color:var(--navy);">
+      <span class="arrow">▶</span> Show practical output — CTA Evaluation Engine (live decision output)
+    </button>
+    <div class="expand-content" id="ctaContent">
+      <div class="cta-section" style="border-top:none; padding-top:0;">
+        <div class="cta-section-header">
+          <h2>CTA Evaluation Engine</h2>
+          <p>The continuous evaluation model applied to CTA portfolio construction. Ranked candidates, allocation weights, regime detection, and full reasoning traces.</p>
+        </div>
+
+        <!-- Regime -->
+        <div class="regime-row">
+          <span class="regime-badge" id="regimeLabel">Trending</span>
+          <span class="regime-text" id="regimeSignal">Strong directional moves across equities and commodities. Trend-following strategies well-positioned.</span>
+          <span class="regime-conf">Confidence: <strong id="regimeConf">78%</strong></span>
+        </div>
+
+        <!-- Candidates Table -->
+        <table class="cand-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>CTA / Program</th>
+              <th>Decision</th>
+              <th class="right">Score</th>
+              <th class="right">Allocation</th>
+              <th class="right">YTD</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="candBody"></tbody>
+        </table>
+
+        <div class="method-note">
+          Scored on YTD performance, track record depth, strategy diversification, and regime alignment. Allocation weights favor diversification and penalize track records &lt;3 years. Source: IASG CTA Index (iasg.com).
+        </div>
+
+        <div class="sum-grid">
+          <div class="sum-stat"><div class="sum-num n-navy">20</div><div class="sum-label">Evaluated</div></div>
+          <div class="sum-stat"><div class="sum-num n-green">5</div><div class="sum-label">Selected</div></div>
+          <div class="sum-stat"><div class="sum-num n-orange">7</div><div class="sum-label">Watchlist</div></div>
+          <div class="sum-stat"><div class="sum-num n-red">8</div><div class="sum-label">Rejected</div></div>
+        </div>
+
+        <div class="disclaimer">
+          Data sourced from IASG CTA Index (iasg.com) — publicly published rankings.<br>
+          AI-generated evaluation for demonstration purposes. Not investment advice.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<footer class="page-footer">
+  <a href="https://industriallystrong.com">IndustriallyStrong</a> · Continuous evaluation architecture
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════════
+     JAVASCRIPT
+     ═══════════════════════════════════════════════════════════ -->
+<script>
+// ── Expandable sections ─────────────────────────────────────
+function toggleExpand(triggerId, contentId) {
+  const trigger = document.getElementById(triggerId);
+  const content = document.getElementById(contentId);
+  trigger.classList.toggle('open');
+  content.classList.toggle('open');
+}
+
+function toggleReason(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+// ── LLM Timeline Animation ─────────────────────────────────
+const TIMELINE_SEQUENCE = [
+  {label:'bull',h:38},{label:'bull',h:42},{label:'bull',h:40},{label:'bull',h:44},
+  {label:'bull',h:36},{label:'mixed',h:20},{label:'bear',h:30},{label:'bear',h:35},
+  {label:'bear',h:38},{label:'bear',h:32},{label:'mixed',h:18},{label:'bull',h:28},
+  {label:'bull',h:34},{label:'bull',h:40},{label:'bull',h:42},{label:'mixed',h:22},
+  {label:'bear',h:32},{label:'bear',h:36},{label:'bear',h:40},{label:'bull',h:30}
+];
+
+function renderTimeline() {
+  const track = document.getElementById('timelineTrack');
+  track.innerHTML = '';
+  TIMELINE_SEQUENCE.forEach((t, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'timeline-dot ' + t.label;
+    dot.style.height = '0px';
+    dot.title = t.label === 'bull' ? 'BULLISH' : t.label === 'bear' ? 'BEARISH' : 'MIXED';
+    track.appendChild(dot);
+    setTimeout(() => { dot.style.height = t.h + 'px'; }, 100 + i * 120);
+  });
+}
+
+// ── Hypothesis Animation ────────────────────────────────────
+const HYP_FRAMES = [
+  [55,28,17],[58,26,16],[62,24,14],[65,22,13],[68,20,12],
+  [63,25,12],[55,32,13],[48,38,14],[42,40,18],[38,42,20],
+  [35,44,21],[40,38,22],[48,32,20],[55,28,17],[62,24,14],
+  [68,20,12],[72,18,10],[70,19,11],[65,22,13],[60,25,15]
+];
+
+let hypFrame = 0;
+function animateHyps() {
+  const f = HYP_FRAMES[hypFrame % HYP_FRAMES.length];
+  document.getElementById('hyp0').style.width = f[0] + '%';
+  document.getElementById('hyp0v').textContent = f[0] + '%';
+  document.getElementById('hyp1').style.width = f[1] + '%';
+  document.getElementById('hyp1v').textContent = f[1] + '%';
+  document.getElementById('hyp2').style.width = f[2] + '%';
+  document.getElementById('hyp2v').textContent = f[2] + '%';
+
+  // Update LLM side based on dominant hypothesis to show the flip
+  const dec = document.getElementById('llmDecision');
+  if (f[0] > 50) {
+    dec.textContent = 'BULLISH';
+    dec.className = 'committed-decision committed-bullish';
+  } else if (f[1] > f[0]) {
+    dec.textContent = 'BEARISH';
+    dec.className = 'committed-decision committed-bearish';
+  } else {
+    dec.textContent = 'MIXED';
+    dec.className = 'committed-decision committed-mixed';
+  }
+
+  hypFrame++;
+}
+
+// ── Confidence Chart (Canvas) ───────────────────────────────
+function drawConfChart() {
+  const canvas = document.getElementById('confChart');
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.scale(dpr, dpr);
+  const w = rect.width;
+  const h = rect.height;
+
+  ctx.clearRect(0, 0, w, h);
+
+  // Grid
+  ctx.strokeStyle = '#e2e8f0';
+  ctx.lineWidth = 0.5;
+  for (let y = 0; y < h; y += h / 4) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(w, y);
+    ctx.stroke();
+  }
+
+  const colors = ['#2563eb', '#ea580c', '#16a34a'];
+  const data = HYP_FRAMES;
+  const step = w / (data.length - 1);
+
+  for (let c = 0; c < 3; c++) {
+    ctx.beginPath();
+    ctx.strokeStyle = colors[c];
+    ctx.lineWidth = 2;
+    data.forEach((f, i) => {
+      const x = i * step;
+      const y = h - (f[c] / 100) * h;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+  }
+}
+
+// ── CTA Candidates ──────────────────────────────────────────
+const CANDIDATES = [
+  {rank:1,group:"Superfund Group",program:"Superfund Green SILVER SICAV",perf:28.60,score:0.85,alloc:22,decision:"select",type:"Trend Following",reasoning:"Strongest YTD at +28.60% with 8-year track record. Trend-following strategy aligns with current trending regime.",risks:["Single manager concentration if over-allocated"],sources:["IASG public rankings"]},
+  {rank:2,group:"Mulvaney Capital",program:"Global Markets Fund",perf:20.38,score:0.88,alloc:25,decision:"select",type:"Systematic Macro",reasoning:"26-year track record — exceptional vintage. +20.38% YTD. Highest confidence due to track record depth.",risks:["Higher minimum investment"],sources:["IASG public rankings"]},
+  {rank:3,group:"Purple Valley Capital",program:"Diversified Trend 1",perf:18.86,score:0.79,alloc:20,decision:"select",type:"Trend Following",reasoning:"+18.86% with 17-year track record through multiple cycles.",risks:["Overlap with Superfund in trend-following bucket"],sources:["IASG public rankings"]},
+  {rank:4,group:"AIS Capital Mgmt",program:"MAAP (3x-6x) Composite",perf:13.08,score:0.76,alloc:18,decision:"select",type:"Multi-Strategy",reasoning:"33-year track record — deepest vintage. Leveraged (3x-6x) warrants monitoring.",risks:["Leveraged structure increases drawdown risk"],sources:["IASG public rankings"]},
+  {rank:5,group:"Ditsch Trading",program:"Agricultural Trading",perf:9.04,score:0.71,alloc:15,decision:"select",type:"Discretionary",reasoning:"Agricultural focus provides sector diversification absent elsewhere. 14-year track.",risks:["Sector concentration","Lower absolute return"],sources:["IASG public rankings"]},
+  {rank:6,group:"Superfund Group",program:"Superfund Green Master",perf:9.50,score:0.62,alloc:0,decision:"watchlist",type:"Trend Following",reasoning:"Solid track record but duplicates SILVER exposure. Manager concentration risk.",risks:["Redundant with SILVER"],sources:["IASG public rankings"]},
+  {rank:7,group:"AIS Capital Mgmt",program:"MAAP (2x-4x) Composite",perf:9.35,score:0.60,alloc:0,decision:"watchlist",type:"Multi-Strategy",reasoning:"Lower leverage variant. No new diversification vs 3x-6x already selected.",risks:["Redundant with MAAP 3x-6x"],sources:["IASG public rankings"]},
+  {rank:8,group:"White River Group",program:"Institutional Options",perf:7.94,score:0.48,alloc:0,decision:"reject",type:"Volatility",reasoning:"5-year track record only. Trending regime unfavorable for options strategies.",risks:["Short track record","Regime misalignment"],sources:["IASG public rankings"]}
+];
+
+function renderCandidates() {
+  const tbody = document.getElementById('candBody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  CANDIDATES.forEach((c, i) => {
+    const tr = document.createElement('tr');
+    tr.className = 'anim-row';
+    tr.style.animationDelay = i * 0.1 + 's';
+    const dCls = c.decision === 'select' ? 'd-select' : c.decision === 'reject' ? 'd-reject' : 'd-watchlist';
+    const sCls = c.score >= 0.75 ? 'score-hi' : c.score >= 0.5 ? 'score-md' : 'score-lo';
+    const pCls = c.perf >= 0 ? 'perf-pos' : 'perf-neg';
+    const rid = 'r' + i;
+    tr.innerHTML = `
+      <td style="font-weight:700;color:var(--navy);font-family:var(--mono)">${c.rank}</td>
+      <td><div class="cta-name">${c.group}</div><div class="cta-program">${c.program}</div><div class="cta-type">${c.type}</div></td>
+      <td><span class="d-badge ${dCls}">${c.decision.toUpperCase()}</span></td>
+      <td class="right"><span class="score-num ${sCls}">${Math.round(c.score*100)}</span></td>
+      <td class="right">${c.alloc > 0 ? `<span class="alloc-bar-bg"><span class="alloc-bar-fg" style="width:${c.alloc}%"></span></span><span class="alloc-num">${c.alloc}%</span>` : '<span style="color:#94a3b8">—</span>'}</td>
+      <td class="right"><span class="${pCls}">${c.perf >= 0 ? '+' : ''}${c.perf.toFixed(2)}%</span></td>
+      <td><button class="reason-btn" onclick="toggleReason('${rid}')">why?</button></td>`;
+    tbody.appendChild(tr);
+    const rtr = document.createElement('tr');
+    rtr.innerHTML = `<td colspan="7" style="padding:0"><div class="reason-body" id="${rid}">${c.reasoning}${c.risks.length ? `<div class="reason-risks">⚠ ${c.risks.join(' · ')}</div>` : ''}<div class="reason-src">Sources: ${c.sources.join(', ')}</div></div></td>`;
+    tbody.appendChild(rtr);
+  });
+}
+
+// ── Init ─────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  renderTimeline();
+  drawConfChart();
+  renderCandidates();
+  setInterval(animateHyps, 2400);
+});
+
+window.addEventListener('resize', drawConfChart);
+</script>
+
+</body>
+</html>

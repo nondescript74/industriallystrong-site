@@ -3,6 +3,9 @@
 <head>
     <script src="plotly.min.js"></script>
     <title>Distributed Adaptive Writer Array</title>
+    <meta name="description" content="The Distributed Adaptive Writer Array reclassifies advanced lithography as a distributed control system problem. Parallel writers introduce control instability that only local feedback can resolve. This architecture replaces monolithic optical projection with semiconductor-replicated writer heads under closed-loop correction.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://industriallystrong.com/lab/multihead.html">
     <style>
 * { box-sizing: border-box; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; background: #f8fafc; color: #1e293b; }
@@ -114,6 +117,12 @@ button:hover { background: #1d4ed8; }
         <p>Advanced lithography is a distributed control system problem, not an optics problem.</p>
     </div>
 </div>
+
+    <article style="max-width:900px; margin:0 auto; padding:20px 40px 0;">
+        <p style="font-size:15px; color:#475569; line-height:1.7; margin:0 0 8px 0;">The Distributed Adaptive Writer Array is a parallelized beam-writing architecture that treats lithography as a distributed control problem. Instead of enforcing global precision through a single monolithic optical column, it converges to precision locally through independent writer heads with per-zone feedback.</p>
+        <p style="font-size:14px; color:#64748b; line-height:1.6; margin:0 0 8px 0;">This is novel because it eliminates the fundamental scaling bottleneck of conventional lithography — the assumption that a single source must uniformly illuminate the entire field. By distributing writing across semiconductor-replicated heads, throughput scales with parallelism rather than source power.</p>
+        <p style="font-size:14px; color:#64748b; line-height:1.6; margin:0;">This architecture unlocks: sub-wavelength patterning without EUV-class optics, desktop-scale lithography platforms at orders-of-magnitude lower cost and power, and a path to semiconductor-economics scaling for advanced patterning tools.</p>
+    </article>
 
     <form class="controls" method="get" action="multihead.html">
         <div class="control-group">

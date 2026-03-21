@@ -4,6 +4,9 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Closed-Loop Control for Distributed Lithography</title>
+<meta name="description" content="The Phoenix engine provides closed-loop control for distributed lithography systems. It maintains competing causal hypotheses for process drift, updates weights from in-situ sensor data, and derives real-time correction factors that prevent parallel writers from diverging.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://industriallystrong.com/lab/phoenix-state.html">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0b1120; color: #e2e8f0; }
@@ -106,6 +109,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 <div class="page">
   <h1 class="page-title">Closed-Loop Control for Distributed Lithography</h1>
   <p class="page-sub">Once lithography becomes distributed, writers diverge without local feedback. The Phoenix engine is the control loop required to prevent that — maintaining competing causal hypotheses for process drift, updating weights from in-situ sensor data, and deriving real-time correction factors that keep parallel writers converged.</p>
+
+  <article style="margin-bottom:24px;">
+      <p style="font-size:14px; color:#94a3b8; line-height:1.7; margin:0 0 8px 0;">The Phoenix Adaptive Gating Engine is a multi-hypothesis state estimator designed for real-time process control in distributed lithography. It simultaneously tracks competing explanations for observed process variation — nominal operation, thermal drift, and source aging — and weights them against live sensor data.</p>
+      <p style="font-size:13px; color:#64748b; line-height:1.6; margin:0 0 8px 0;">This is novel because conventional lithography assumes static process conditions and corrects via offline metrology. Phoenix operates in-situ, deriving correction factors within the exposure loop itself. Without this, multi-writer systems accumulate uncorrelated drift across heads.</p>
+      <p style="font-size:13px; color:#64748b; line-height:1.6; margin:0;">This control layer unlocks: real-time dose compensation across distributed writer arrays, graceful degradation under partial sensor failure, and the ability to maintain convergence as writer count scales.</p>
+  </article>
 
   <div class="grid">
 

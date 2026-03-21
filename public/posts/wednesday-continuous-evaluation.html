@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>From Analyst Workflows to Continuous Evaluation Systems</title>
+<meta name="description" content="Why the shift from sequential analyst workflows to event-driven, continuous evaluation systems is inevitable — and what the architecture looks like.">
+<meta property="og:title" content="From Analyst Workflows to Continuous Evaluation Systems">
+<meta property="og:description" content="Detection → Classification → Action, collapsed into a single continuous loop.">
+<meta property="og:type" content="article">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-primary: #0a0e17;
+    --bg-card: #111827;
+    --bg-elevated: #1e293b;
+    --border: #1e293b;
+    --border-light: #334155;
+    --text-primary: #f0f4f8;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --accent-blue: #3b82f6;
+    --accent-blue-light: #60a5fa;
+    --accent-green: #22c55e;
+    --accent-amber: #f59e0b;
+    --accent-red: #ef4444;
+  }
+
+  body {
+    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-secondary);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Navigation */
+  .nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: rgba(10, 14, 23, 0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 40px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .nav-brand {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent-blue-light);
+    letter-spacing: -0.3px;
+    text-decoration: none;
+  }
+  .nav-meta {
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .nav-tag {
+    padding: 3px 10px;
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: 4px;
+    font-size: 11px;
+    color: var(--accent-blue-light);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* Container */
+  .container {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 100px 24px 80px;
+  }
+
+  /* Hero */
+  .hero {
+    margin-bottom: 64px;
+  }
+  .hero-label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--accent-blue-light);
+    margin-bottom: 16px;
+  }
+  .hero h1 {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.25;
+    letter-spacing: -0.5px;
+    margin-bottom: 20px;
+  }
+  .hero-subtitle {
+    font-size: 17px;
+    color: var(--text-secondary);
+    line-height: 1.65;
+    max-width: 620px;
+  }
+  .hero-date {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* Sections */
+  .section {
+    margin-bottom: 56px;
+  }
+  .section-number {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+  .section h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 20px;
+    letter-spacing: -0.3px;
+  }
+  .section p {
+    font-size: 15.5px;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+    line-height: 1.75;
+  }
+  .section p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Highlight blocks */
+  .highlight-block {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent-blue);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin: 24px 0;
+  }
+  .highlight-block p {
+    font-size: 14.5px;
+    color: var(--text-secondary);
+    margin-bottom: 0;
+  }
+  .highlight-block strong {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  .problem-block {
+    border-left-color: var(--accent-red);
+  }
+  .transition-block {
+    border-left-color: var(--accent-amber);
+  }
+  .architecture-block {
+    border-left-color: var(--accent-green);
+  }
+
+  /* ─── Diagram ─── */
+  .diagram-container {
+    margin: 48px 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 40px 32px 36px;
+    overflow: hidden;
+  }
+  .diagram-title {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .diagram-panels {
+    display: grid;
+    grid-template-columns: 1fr 48px 1fr;
+    align-items: start;
+    gap: 0;
+  }
+  .diagram-panel {
+    padding: 24px;
+    border-radius: 12px;
+  }
+  .diagram-panel.old {
+    background: rgba(100, 116, 139, 0.08);
+    border: 1px solid rgba(100, 116, 139, 0.2);
+  }
+  .diagram-panel.new {
+    background: rgba(59, 130, 246, 0.06);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+  }
+  .panel-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  .diagram-panel.old .panel-label { color: #94a3b8; }
+  .diagram-panel.new .panel-label { color: var(--accent-blue-light); }
+
+  /* Flow nodes */
+  .flow-chain {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+  .flow-node {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    text-align: center;
+    width: 100%;
+    max-width: 220px;
+  }
+  .diagram-panel.old .flow-node {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-light);
+    color: #cbd5e1;
+  }
+  .diagram-panel.new .flow-node {
+    background: rgba(59, 130, 246, 0.12);
+    border: 1px solid rgba(59, 130, 246, 0.25);
+    color: var(--accent-blue-light);
+  }
+  .flow-node.human-role {
+    background: rgba(59, 130, 246, 0.06);
+    border: 1px dashed rgba(59, 130, 246, 0.2);
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+
+  .flow-arrow-down {
+    width: 2px;
+    height: 20px;
+    position: relative;
+    margin: 0 auto;
+  }
+  .diagram-panel.old .flow-arrow-down { background: #475569; }
+  .diagram-panel.new .flow-arrow-down { background: var(--accent-blue); }
+  .flow-arrow-down::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+  }
+  .diagram-panel.old .flow-arrow-down::after { border-top: 5px solid #475569; }
+  .diagram-panel.new .flow-arrow-down::after { border-top: 5px solid var(--accent-blue); }
+
+  /* Continuous loop indicator */
+  .loop-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .loop-line {
+    height: 1px;
+    width: 40px;
+    background: var(--accent-blue);
+    opacity: 0.4;
+  }
+  .loop-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--accent-blue-light);
+    opacity: 0.7;
+    white-space: nowrap;
+  }
+
+  /* Loop SVG */
+  .loop-svg-wrap {
+    display: flex;
+    justify-content: center;
+    margin: -4px 0 4px;
+  }
+
+  /* Arrow separator */
+  .diagram-separator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 60px;
+  }
+  .diagram-separator svg {
+    opacity: 0.3;
+  }
+
+  /* Timing callout */
+  .timing-row {
+    display: grid;
+    grid-template-columns: 1fr 48px 1fr;
+    margin-top: 24px;
+  }
+  .timing-cell {
+    text-align: center;
+    font-size: 12px;
+    padding: 10px 8px;
+    border-radius: 6px;
+  }
+  .timing-cell.old-time {
+    color: var(--text-muted);
+    background: rgba(100, 116, 139, 0.06);
+  }
+  .timing-cell.new-time {
+    color: var(--accent-green);
+    background: rgba(34, 197, 94, 0.06);
+  }
+  .timing-value {
+    font-weight: 700;
+    font-size: 18px;
+    display: block;
+    margin-bottom: 2px;
+  }
+  .timing-cell.old-time .timing-value { color: #94a3b8; }
+  .timing-cell.new-time .timing-value { color: var(--accent-green); }
+
+  /* Demo link section */
+  .demo-section {
+    margin-top: 56px;
+    padding: 28px 32px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .demo-text {
+    flex: 1;
+  }
+  .demo-text p {
+    font-size: 14.5px;
+    color: var(--text-secondary);
+    margin-bottom: 0;
+    line-height: 1.6;
+  }
+  .demo-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.25);
+    border-radius: 8px;
+    color: var(--accent-blue-light);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+  }
+  .demo-link:hover {
+    background: rgba(59, 130, 246, 0.18);
+    border-color: rgba(59, 130, 246, 0.4);
+  }
+  .demo-link svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Divider */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 56px 0;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 40px 24px;
+    border-top: 1px solid var(--border);
+  }
+  .footer p {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .footer a {
+    color: var(--accent-blue-light);
+    text-decoration: none;
+  }
+
+  /* Responsive */
+  @media (max-width: 680px) {
+    .container { padding: 80px 16px 60px; }
+    .hero h1 { font-size: 28px; }
+    .diagram-panels { grid-template-columns: 1fr; gap: 24px; }
+    .diagram-separator { display: none; }
+    .timing-row { grid-template-columns: 1fr 1fr; }
+    .timing-row > :nth-child(2) { display: none; }
+    .demo-section { flex-direction: column; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="nav">
+  <a href="https://demomhtFAISS.industriallystrong.com" class="nav-brand">IndustriallyStrong</a>
+  <div class="nav-meta">
+    <span class="nav-tag">Systems Architecture</span>
+    <span>March 2026</span>
+  </div>
+</nav>
+
+<!-- Content -->
+<div class="container">
+
+  <!-- Hero -->
+  <header class="hero">
+    <div class="hero-label">Wednesday — Build This</div>
+    <h1>From Analyst Workflows to Continuous Evaluation Systems</h1>
+    <p class="hero-subtitle">
+      The bottleneck in most evaluation pipelines isn't the data, the model, or the infrastructure. It's the assumption that a human needs to be in the loop for every decision. That assumption is breaking.
+    </p>
+    <div class="hero-date">March 25, 2026 · 4 min read</div>
+  </header>
+
+  <!-- Section 1: Problem -->
+  <section class="section">
+    <div class="section-number">01 — The Problem</div>
+    <h2>Analyst workflows weren't designed for this volume</h2>
+    <p>
+      Most evaluation systems still follow a pattern established when data arrived in batches and decisions could wait until Monday morning. An analyst pulls a report, reviews the numbers, flags anomalies, writes a recommendation, routes it for approval. Each step introduces latency — hours, sometimes days — while the underlying conditions continue to shift.
+    </p>
+    <p>
+      The result is a system that's always evaluating yesterday's state. Fragmented tooling makes it worse: one dashboard for detection, another for classification, a spreadsheet for tracking, an email thread for decisions. Each handoff is a delay. Each delay is a compounding risk.
+    </p>
+    <div class="highlight-block problem-block">
+      <p>
+        <strong>Human latency</strong> isn't a flaw in execution — it's a structural constraint of sequential workflows. When evaluation, classification, and action exist as separate stages with human gates between them, the system's throughput is bounded by the slowest handoff.
+      </p>
+    </div>
+  </section>
+
+  <!-- Section 2: Transition -->
+  <section class="section">
+    <div class="section-number">02 — The Transition</div>
+    <h2>Moving from sequential to event-driven</h2>
+    <p>
+      The shift isn't about removing humans. It's about moving them from the critical path to the exception path. Event-driven architectures do this naturally: when a signal arrives, the system evaluates it immediately against current context, classifies it, and either acts or escalates — without waiting for a scheduled review cycle.
+    </p>
+    <p>
+      Continuous evaluation loops replace the pull-based model (analyst checks dashboard) with a push-based model (system surfaces what matters). The machine-first decision layer handles the volume; the human handles the judgment calls that actually require judgment.
+    </p>
+    <div class="highlight-block transition-block">
+      <p>
+        <strong>Event-driven evaluation</strong> means the system doesn't wait to be asked. It evaluates continuously, classifies in context, and only interrupts a human when the confidence threshold demands it.
+      </p>
+    </div>
+  </section>
+
+  <!-- Section 3: Architecture Shift -->
+  <section class="section">
+    <div class="section-number">03 — The Architecture Shift</div>
+    <h2>Detection, classification, and action — collapsed</h2>
+    <p>
+      In the old model, detection, classification, and action are three separate stages with queues between them. A signal is detected, then routed to an analyst for classification, then routed again for a decision on action. Each queue adds latency. Each routing adds context loss.
+    </p>
+    <p>
+      In the new model, these stages collapse into a single continuous process. FAISS-backed vector search enables sub-millisecond similarity matching against known patterns. Classification happens at detection time, not after it. Actions execute within the same evaluation cycle. Feedback from each action refines the next detection — a genuine closed loop, operating in real time.
+    </p>
+    <div class="highlight-block architecture-block">
+      <p>
+        <strong>Feedback loops in real time</strong> mean the system learns from its own actions within the same operational cycle. Detection accuracy improves with every classification. Classification improves with every action outcome. The system doesn't wait for a retrospective.
+      </p>
+    </div>
+  </section>
+
+  <!-- ─── DIAGRAM ─── -->
+  <div class="diagram-container">
+    <div class="diagram-title">Architecture Comparison</div>
+    <div class="diagram-panels">
+
+      <!-- Old model -->
+      <div class="diagram-panel old">
+        <div class="panel-label">Sequential Model</div>
+        <div class="flow-chain">
+          <div class="flow-node">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" style="display:inline-block;vertical-align:-2px;margin-right:6px"><circle cx="12" cy="8" r="4"/><path d="M6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg>
+            Human Observes
+          </div>
+          <div class="flow-arrow-down"></div>
+          <div class="flow-node">Analyze Data</div>
+          <div class="flow-arrow-down"></div>
+          <div class="flow-node">Classify &amp; Decide</div>
+          <div class="flow-arrow-down"></div>
+          <div class="flow-node">Route for Approval</div>
+          <div class="flow-arrow-down"></div>
+          <div class="flow-node">Execute Action</div>
+        </div>
+      </div>
+
+      <!-- Arrow -->
+      <div class="diagram-separator">
+        <svg width="32" height="24" viewBox="0 0 32 24" fill="none">
+          <path d="M4 12h20m0 0l-6-6m6 6l-6 6" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      <!-- New model -->
+      <div class="diagram-panel new">
+        <div class="panel-label">Continuous Evaluation</div>
+        <div class="flow-chain">
+          <div class="flow-node">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2" style="display:inline-block;vertical-align:-2px;margin-right:6px"><circle cx="12" cy="12" r="3"/><path d="M12 1v2m0 18v2m-9-11h2m18 0h2m-3.6-7.4l-1.4 1.4M6 18l-1.4 1.4M18 18l1.4 1.4M6 6L4.6 4.6"/></svg>
+            Signal Detected
+          </div>
+          <div class="flow-arrow-down"></div>
+          <div class="flow-node">
+            Evaluate + Classify
+          </div>
+          <div class="flow-arrow-down"></div>
+          <div class="flow-node">Execute Action</div>
+          <div class="flow-arrow-down"></div>
+          <div class="flow-node" style="position:relative;">
+            Feedback → Refine
+          </div>
+          <!-- Loop-back visual -->
+          <div class="loop-svg-wrap">
+            <svg width="200" height="40" viewBox="0 0 200 40" fill="none">
+              <path d="M100 4 C 180 4, 190 20, 180 32 L 120 32" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.5"/>
+              <path d="M124 28l-6 4 6 4" stroke="#3b82f6" stroke-width="1.5" fill="none" opacity="0.5"/>
+              <path d="M100 4 C 20 4, 10 20, 20 32 L 80 32" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.5"/>
+              <path d="M76 28l6 4-6 4" stroke="#3b82f6" stroke-width="1.5" fill="none" opacity="0.5"/>
+            </svg>
+          </div>
+          <div class="loop-indicator">
+            <div class="loop-line"></div>
+            <span class="loop-label">Continuous Loop</span>
+            <div class="loop-line"></div>
+          </div>
+          <div style="height: 12px;"></div>
+          <div class="flow-node human-role">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" style="display:inline-block;vertical-align:-2px;margin-right:6px"><circle cx="12" cy="8" r="4"/><path d="M6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg>
+            Human → Exception Handling
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timing row -->
+    <div class="timing-row">
+      <div class="timing-cell old-time">
+        <span class="timing-value">Hours–Days</span>
+        per evaluation cycle
+      </div>
+      <div></div>
+      <div class="timing-cell new-time">
+        <span class="timing-value">Milliseconds</span>
+        per evaluation cycle
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 4: Your System -->
+  <section class="section">
+    <div class="section-number">04 — Early Implementation</div>
+    <h2>What this looks like in practice</h2>
+    <p>
+      This isn't theoretical architecture. The pattern described above — detection collapsing into classification collapsing into action, with real-time feedback — is operational in early form. The system uses FAISS-backed vector similarity for sub-millisecond pattern matching against known signal types, with continuous re-evaluation as new data arrives.
+    </p>
+    <p>
+      It's early. The scope is deliberately narrow. But the core loop — detect, evaluate, classify, act, learn, repeat — runs continuously without human gates between stages. Humans review exceptions and edge cases, which is where human judgment actually adds value.
+    </p>
+  </section>
+
+  <!-- Demo link -->
+  <div class="demo-section">
+    <div class="demo-text">
+      <p>An early implementation of this continuous evaluation model, built on FAISS-backed vector search with real-time feedback loops.</p>
+    </div>
+    <a href="https://demomhtFAISS.industriallystrong.com" class="demo-link" target="_blank" rel="noopener">
+      View the system
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M7 17L17 7M17 7H7M17 7v10"/>
+      </svg>
+    </a>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Closing -->
+  <section class="section" style="margin-bottom: 0;">
+    <p style="color: var(--text-muted); font-size: 14px;">
+      The shift from analyst workflows to continuous evaluation systems isn't a technology upgrade. It's an architectural change in where decisions happen and who — or what — makes them. The organizations that figure this out first will operate on a fundamentally different time scale than those that don't.
+    </p>
+  </section>
+
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+  <p><a href="https://industriallystrong.com">IndustriallyStrong</a> · Systems that evaluate continuously</p>
+</footer>
+
+</body>
+</html>
