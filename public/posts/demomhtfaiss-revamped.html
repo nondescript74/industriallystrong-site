@@ -237,6 +237,23 @@
     .timeline-dot.bull { background: var(--green); }
     .timeline-dot.bear { background: var(--red); }
     .timeline-dot.mixed { background: var(--orange); }
+    .timeline-dot.shift-marker {
+      background: transparent !important;
+      border: 2px dashed var(--red);
+      position: relative;
+    }
+    .timeline-dot.shift-marker::after {
+      content: 'SHIFT';
+      position: absolute;
+      top: -18px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--red);
+      white-space: nowrap;
+    }
     .timeline-caption {
       font-size: 11px;
       color: var(--muted);
@@ -330,6 +347,78 @@
       color: var(--green);
       font-weight: 700;
       font-size: 14px;
+    }
+
+    /* ── Stress Event Banner ─────────────────────────── */
+    .stress-banner {
+      margin: -8px 0 20px;
+      border-radius: 10px;
+      overflow: hidden;
+      opacity: 0;
+      max-height: 0;
+      transition: opacity 0.8s ease, max-height 0.8s ease;
+    }
+    .stress-banner.visible {
+      opacity: 1;
+      max-height: 300px;
+    }
+    .stress-title {
+      text-align: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      padding: 16px 16px 12px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-bottom: none;
+      border-radius: 10px 10px 0 0;
+    }
+    .stress-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border: 1px solid var(--border);
+      border-radius: 0 0 10px 10px;
+    }
+    .stress-cell {
+      padding: 14px 18px;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    .stress-cell-left {
+      background: #fef2f2;
+      border-right: 1px solid var(--border);
+      border-radius: 0 0 0 10px;
+    }
+    .stress-cell-right {
+      background: #f0fdf4;
+      border-radius: 0 0 10px 0;
+    }
+    .stress-cell .stress-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .stress-cell-left .stress-label { color: var(--red); }
+    .stress-cell-right .stress-label { color: var(--green); }
+    .stress-cell-left p { color: #991b1b; }
+    .stress-cell-right p { color: #166534; }
+
+    /* Snap transition for left pill during stress */
+    .committed-decision.snap-flip {
+      transition: none !important;
+      animation: hardFlip 0.15s ease;
+    }
+    @keyframes hardFlip {
+      0% { transform: scale(1); }
+      50% { transform: scale(0.92); opacity: 0.5; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Smooth glow for right side during stress */
+    .hyp-bar-fill.smooth-shift {
+      transition: width 2.4s cubic-bezier(0.25, 0.1, 0.25, 1) !important;
     }
 
     /* ── Interpretation Row ───────────────────────────── */
@@ -800,7 +889,7 @@
             <div class="timeline-track" id="timelineTrack">
               <!-- Populated by JS -->
             </div>
-            <div class="timeline-caption">Each bar is a full recomputation. The system has no memory — only a new answer.</div>
+            <div class="timeline-caption">Each bar is a new answer. The system does not remember it was uncertain.</div>
           </div>
 
           <!-- Failure callout -->
@@ -858,6 +947,21 @@
             <div class="sc-item"><span class="sc-check">✓</span> Confidence shifts smoothly instead of flipping</div>
             <div class="sc-item"><span class="sc-check">✓</span> Regime changes detected through reweighting, not reversal</div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stress Event Banner (appears during regime shift) -->
+    <div class="stress-banner" id="stressBanner">
+      <div class="stress-title">When conditions change</div>
+      <div class="stress-grid">
+        <div class="stress-cell stress-cell-left">
+          <div class="stress-label">Early Commitment Model</div>
+          <p>Replaces its answer. No memory of prior uncertainty.</p>
+        </div>
+        <div class="stress-cell stress-cell-right">
+          <div class="stress-label">Continuous Evaluation Model</div>
+          <p>Updates confidence. Alternatives remain active.</p>
         </div>
       </div>
     </div>
@@ -1040,12 +1144,13 @@ function toggleReason(id) {
 }
 
 // ── LLM Timeline Animation ─────────────────────────────────
+// Timeline with a clear regime shift at t=12
 const TIMELINE_SEQUENCE = [
   {label:'bull',h:38},{label:'bull',h:42},{label:'bull',h:40},{label:'bull',h:44},
-  {label:'bull',h:36},{label:'mixed',h:20},{label:'bear',h:30},{label:'bear',h:35},
-  {label:'bear',h:38},{label:'bear',h:32},{label:'mixed',h:18},{label:'bull',h:28},
-  {label:'bull',h:34},{label:'bull',h:40},{label:'bull',h:42},{label:'mixed',h:22},
-  {label:'bear',h:32},{label:'bear',h:36},{label:'bear',h:40},{label:'bull',h:30}
+  {label:'bull',h:36},{label:'bull',h:40},{label:'bull',h:38},{label:'bull',h:42},
+  {label:'bull',h:44},{label:'bull',h:40},{label:'bull',h:38},{label:'mixed',h:18},
+  {label:'shift',h:46},{label:'bear',h:38},{label:'bear',h:42},{label:'bear',h:40},
+  {label:'bear',h:44},{label:'bear',h:36},{label:'bear',h:40},{label:'bear',h:38}
 ];
 
 function renderTimeline() {
@@ -1053,43 +1158,89 @@ function renderTimeline() {
   track.innerHTML = '';
   TIMELINE_SEQUENCE.forEach((t, i) => {
     const dot = document.createElement('div');
-    dot.className = 'timeline-dot ' + t.label;
+    if (t.label === 'shift') {
+      dot.className = 'timeline-dot shift-marker';
+    } else {
+      dot.className = 'timeline-dot ' + t.label;
+    }
     dot.style.height = '0px';
-    dot.title = t.label === 'bull' ? 'BULLISH' : t.label === 'bear' ? 'BEARISH' : 'MIXED';
+    dot.title = t.label === 'bull' ? 'BULLISH' : t.label === 'bear' ? 'BEARISH' : t.label === 'shift' ? 'SIGNAL SHIFT' : 'MIXED';
     track.appendChild(dot);
     setTimeout(() => { dot.style.height = t.h + 'px'; }, 100 + i * 120);
   });
 }
 
-// ── Hypothesis Animation ────────────────────────────────────
+// ── Hypothesis Animation with Stress Event ──────────────────
+// Phase 1 (frames 0-7): Stable trending — trend dominant
+// Phase 2 (frames 8-11): STRESS EVENT — regime shift
+// Phase 3 (frames 12-19): New equilibrium — reversion leads
 const HYP_FRAMES = [
-  [55,28,17],[58,26,16],[62,24,14],[65,22,13],[68,20,12],
-  [63,25,12],[55,32,13],[48,38,14],[42,40,18],[38,42,20],
-  [35,44,21],[40,38,22],[48,32,20],[55,28,17],[62,24,14],
-  [68,20,12],[72,18,10],[70,19,11],[65,22,13],[60,25,15]
+  // Phase 1: Stable (trend dominant)
+  [68,18,14],[70,17,13],[72,16,12],[73,16,11],
+  [72,17,11],[71,18,11],[70,18,12],[69,19,12],
+  // Phase 2: STRESS — shift happens here (frames 8-11)
+  [58,26,16],[48,32,20],[40,36,24],[35,38,27],
+  // Phase 3: New equilibrium (reversion now competitive)
+  [32,28,40],[34,26,40],[36,25,39],[38,24,38],
+  [40,24,36],[42,25,33],[48,26,26],[58,24,18]
 ];
+
+// Track which phase we're in for stress event display
+const STRESS_START = 8;
+const STRESS_END = 12;
+let stressBannerShown = false;
 
 let hypFrame = 0;
 function animateHyps() {
-  const f = HYP_FRAMES[hypFrame % HYP_FRAMES.length];
-  document.getElementById('hyp0').style.width = f[0] + '%';
+  const frameIdx = hypFrame % HYP_FRAMES.length;
+  const f = HYP_FRAMES[frameIdx];
+  const isStress = frameIdx >= STRESS_START && frameIdx < STRESS_END;
+  const dec = document.getElementById('llmDecision');
+  const banner = document.getElementById('stressBanner');
+
+  // ── RIGHT SIDE: Smooth interpolation (always) ──
+  const fills = [
+    document.getElementById('hyp0'),
+    document.getElementById('hyp1'),
+    document.getElementById('hyp2')
+  ];
+  fills.forEach((el, c) => {
+    if (isStress) el.classList.add('smooth-shift');
+    else el.classList.remove('smooth-shift');
+    el.style.width = f[c] + '%';
+  });
   document.getElementById('hyp0v').textContent = f[0] + '%';
-  document.getElementById('hyp1').style.width = f[1] + '%';
   document.getElementById('hyp1v').textContent = f[1] + '%';
-  document.getElementById('hyp2').style.width = f[2] + '%';
   document.getElementById('hyp2v').textContent = f[2] + '%';
 
-  // Update LLM side based on dominant hypothesis to show the flip
-  const dec = document.getElementById('llmDecision');
+  // ── LEFT SIDE: LLM decision ──
+  const prevFrame = HYP_FRAMES[(frameIdx - 1 + HYP_FRAMES.length) % HYP_FRAMES.length];
+  const prevDecision = prevFrame[0] > 50 ? 'bull' : prevFrame[2] > prevFrame[0] ? 'reversion' : 'bear';
+  const currDecision = f[0] > 50 ? 'bull' : f[2] > f[0] ? 'reversion' : 'bear';
+  const flipped = prevDecision !== currDecision && hypFrame > 0;
+
   if (f[0] > 50) {
     dec.textContent = 'BULLISH';
-    dec.className = 'committed-decision committed-bullish';
-  } else if (f[1] > f[0]) {
-    dec.textContent = 'BEARISH';
-    dec.className = 'committed-decision committed-bearish';
+    dec.className = 'committed-decision committed-bullish' + (flipped ? ' snap-flip' : '');
+  } else if (f[2] > f[0]) {
+    dec.textContent = 'MEAN REVERSION';
+    dec.className = 'committed-decision committed-bearish' + (flipped ? ' snap-flip' : '');
   } else {
-    dec.textContent = 'MIXED';
-    dec.className = 'committed-decision committed-mixed';
+    dec.textContent = 'BEARISH';
+    dec.className = 'committed-decision committed-mixed' + (flipped ? ' snap-flip' : '');
+  }
+
+  // ── STRESS BANNER: Show during regime shift ──
+  if (isStress && !stressBannerShown) {
+    banner.classList.add('visible');
+    stressBannerShown = true;
+  } else if (!isStress && frameIdx < STRESS_START) {
+    banner.classList.remove('visible');
+    stressBannerShown = false;
+  }
+  // Fade after stress passes
+  if (frameIdx === STRESS_END + 3) {
+    banner.classList.remove('visible');
   }
 
   hypFrame++;
@@ -1122,6 +1273,26 @@ function drawConfChart() {
   const colors = ['#2563eb', '#ea580c', '#16a34a'];
   const data = HYP_FRAMES;
   const step = w / (data.length - 1);
+
+  // Stress zone shading
+  const stressX0 = STRESS_START * step;
+  const stressX1 = STRESS_END * step;
+  ctx.fillStyle = 'rgba(220, 38, 38, 0.06)';
+  ctx.fillRect(stressX0, 0, stressX1 - stressX0, h);
+  ctx.strokeStyle = 'rgba(220, 38, 38, 0.25)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 3]);
+  ctx.beginPath();
+  ctx.moveTo(stressX0, 0);
+  ctx.lineTo(stressX0, h);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Stress label
+  ctx.fillStyle = '#dc2626';
+  ctx.font = '600 9px system-ui';
+  ctx.textAlign = 'center';
+  ctx.fillText('SHIFT', (stressX0 + stressX1) / 2, 12);
 
   for (let c = 0; c < 3; c++) {
     ctx.beginPath();
