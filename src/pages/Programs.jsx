@@ -91,7 +91,7 @@ export default function Programs() {
             <ul style={{ opacity: 0.82, lineHeight: 1.8, paddingLeft: "18px" }}>
               <li>Strategy intelligence systems</li>
               <li>Agent-assisted evaluation workflows</li>
-              <li>MHT-FAISS research infrastructure</li>
+              <li>State resolution research infrastructure</li>
               <li>Deployable product-oriented architecture</li>
             </ul>
           </div>

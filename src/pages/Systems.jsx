@@ -117,9 +117,9 @@ export default function Systems() {
               />
 
               <SystemCard
-                title="MHT-FAISS Engine"
-                subtitle="Research engine for hypothesis tracking and retrieval"
-                description="A research-oriented system connecting multi-hypothesis reasoning with high-dimensional retrieval. It serves as an evidence layer for the platform’s broader work in structured intelligence and strategy tracking."
+                title="State Resolution Engine"
+                subtitle="Research engine for candidate state tracking and retrieval"
+                description="A research-oriented system connecting multi-state reasoning with high-dimensional retrieval. It serves as an evidence layer for the platform’s broader work in structured intelligence and strategy tracking."
                 evidence="Research engine supporting technical experimentation"
                 href="/decks/mht"
               />

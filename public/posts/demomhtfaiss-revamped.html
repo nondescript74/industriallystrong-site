@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MHT-FAISS — Continuous Evaluation Architecture</title>
-  <meta property="og:title" content="Where Conventional Systems Fail — And Why This Works Instead">
-  <meta property="og:description" content="Two systems, same signal. One commits early and flips. The other preserves competing hypotheses and adapts. Watch the difference.">
+  <title>Decision Pipeline — State Resolution Architecture</title>
+  <meta property="og:title" content="Most decision systems resolve to a single state too early.">
+  <meta property="og:description" content="Two pipelines, identical inputs. One resolves state early and loses optionality. The other maintains multiple candidate states through the pipeline and resolves only at execution.">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -842,19 +842,22 @@
      ═══════════════════════════════════════════════════════════ -->
 <div class="orientation">
   <div class="orientation-inner">
-    <div class="orientation-label">What You Are Seeing</div>
-    <h1>One commits early. The other keeps multiple possibilities alive.</h1>
+    <div class="orientation-label">Decision Pipeline Architecture</div>
+    <h1>Most decision systems resolve to a single state too early.</h1>
     <p class="orientation-body">
-      Same signal. Two architectures. Watch how differently they behave when conditions shift.
+      This system maintains multiple candidate states through the pipeline and resolves only at execution.
+    </p>
+    <p class="orientation-body" style="font-size:13px; font-style:italic; margin-top:-10px;">
+      Think: state persistence across a decision pipeline, not a single-path model.
     </p>
     <div class="orientation-instructions" style="margin-top:16px; opacity:0.75;">
       <div class="watch-cue cue-left">
         <div class="cue-icon">L</div>
-        <div>Watch the left flip between answers. No memory of prior uncertainty.</div>
+        <div>Single-State Pipeline (Early Resolution): collapses to one state per tick. No memory of prior states.</div>
       </div>
       <div class="watch-cue cue-right">
         <div class="cue-icon">R</div>
-        <div>Watch the right reweight smoothly. Alternatives stay active.</div>
+        <div>Multi-State Pipeline (Deferred Resolution): reweights candidate states smoothly. All states remain active.</div>
       </div>
     </div>
   </div>
@@ -871,31 +874,31 @@
       <div class="arena-col">
         <div class="col-header left-header">
           <div class="col-tag">Left</div>
-          <h2>Early Commitment Model</h2>
-          <p>Single inference per tick. Uncertainty compressed into one output.</p>
+          <h2>Single-State Pipeline (Early Resolution)</h2>
+          <p>One state per tick. Uncertainty compressed into a single output.</p>
         </div>
         <div class="col-body">
 
           <!-- Current committed decision -->
           <div class="inner-card llm-output-area">
-            <div class="inner-card-label">Committed Decision</div>
+            <div class="inner-card-label">Resolved State</div>
             <div class="committed-decision committed-bullish" id="llmDecision">BULLISH</div>
-            <div class="llm-caption">One answer. No alternatives retained. When conditions change, this label flips — with no transition state.</div>
+            <div class="llm-caption">One state. No alternatives retained. When conditions change, the resolved state flips — with no transition.</div>
           </div>
 
           <!-- Decision timeline -->
           <div class="inner-card timeline-area">
-            <div class="inner-card-label">Decision History (last 20 evaluations)</div>
+            <div class="inner-card-label">State History (last 20 resolution cycles)</div>
             <div class="timeline-track" id="timelineTrack">
               <!-- Populated by JS -->
             </div>
-            <div class="timeline-caption">Each bar is a new answer. The system does not remember it was uncertain.</div>
+            <div class="timeline-caption">Each bar is a new resolved state. The system does not retain prior candidate states.</div>
           </div>
 
           <!-- Failure callout -->
           <div class="failure-callout">
-            <div class="fc-title">When the signal shifts</div>
-            <p>The system flips decisions entirely. No memory of prior uncertainty. No smooth transition. Regime changes appear as abrupt answer reversals.</p>
+            <div class="fc-title">Failure Mode: Early State Collapse</div>
+            <p>When the system resolves too early, it commits to a path before sufficient information is available. Under regime change, this produces irreversible error.</p>
           </div>
         </div>
       </div>
@@ -904,14 +907,14 @@
       <div class="arena-col">
         <div class="col-header right-header">
           <div class="col-tag">Right</div>
-          <h2>Continuous Evaluation Model</h2>
-          <p>Competing hypotheses maintained, updated, and scored before commitment.</p>
+          <h2>Multi-State Pipeline (Deferred Resolution)</h2>
+          <p>Multiple candidate states maintained, updated, and scored before resolution.</p>
         </div>
         <div class="col-body">
 
           <!-- Competing explanations -->
           <div class="inner-card" style="background: #f8fafc;">
-            <div class="inner-card-label">Competing Explanations</div>
+            <div class="inner-card-label">Candidate States</div>
             <div class="hyp-row">
               <div class="hyp-label">Trend continuation</div>
               <div class="hyp-bar-track"><div class="hyp-bar-fill fill-blue" id="hyp0" style="width:55%"></div></div>
@@ -927,7 +930,7 @@
               <div class="hyp-bar-track"><div class="hyp-bar-fill fill-green" id="hyp2" style="width:17%"></div></div>
               <div class="hyp-pct" id="hyp2v">17%</div>
             </div>
-            <div class="hyp-caption">Hypotheses are updated, not replaced. All alternatives remain active until evidence converges.</div>
+            <div class="hyp-caption">Multiple candidate states persist concurrently instead of being pruned early.</div>
           </div>
 
           <!-- Confidence over time -->
@@ -943,9 +946,9 @@
 
           <!-- Stability callout -->
           <div class="stability-callout">
-            <div class="sc-item"><span class="sc-check">✓</span> Alternatives remain active</div>
-            <div class="sc-item"><span class="sc-check">✓</span> Confidence shifts smoothly instead of flipping</div>
-            <div class="sc-item"><span class="sc-check">✓</span> Regime changes detected through reweighting, not reversal</div>
+            <div class="sc-item"><span class="sc-check">✓</span> Candidate states remain active through the pipeline</div>
+            <div class="sc-item"><span class="sc-check">✓</span> State weights shift smoothly instead of collapsing</div>
+            <div class="sc-item"><span class="sc-check">✓</span> Regime changes detected through reweighting, not abrupt state reversal</div>
           </div>
         </div>
       </div>
@@ -953,15 +956,15 @@
 
     <!-- Stress Event Banner (appears during regime shift) -->
     <div class="stress-banner" id="stressBanner">
-      <div class="stress-title">When conditions change</div>
+      <div class="stress-title">Both systems receive identical inputs. Only the state-resolution policy differs.</div>
       <div class="stress-grid">
         <div class="stress-cell stress-cell-left">
-          <div class="stress-label">Early Commitment Model</div>
-          <p>Replaces its answer. No memory of prior uncertainty.</p>
+          <div class="stress-label">Single-State Pipeline</div>
+          <p>Standard systems collapse to one state before sufficient information is available.</p>
         </div>
         <div class="stress-cell stress-cell-right">
-          <div class="stress-label">Continuous Evaluation Model</div>
-          <p>Updates confidence. Alternatives remain active.</p>
+          <div class="stress-label">Multi-State Pipeline</div>
+          <p>Maintaining multiple states allows the system to adapt as new information arrives.</p>
         </div>
       </div>
     </div>
@@ -969,54 +972,54 @@
     <!-- One-line interpretation per side -->
     <div class="interpretation-row" style="margin-top:24px;">
       <div class="interp-cell interp-left">
-        <strong>Flips</strong>
-        Commits early, reverses when wrong. No transition state.
+        <strong>Collapses</strong>
+        Resolves to a single state early. Reverses when wrong. No transition.
       </div>
       <div class="interp-cell interp-right">
-        <strong>Adapts</strong>
-        Updates competing hypotheses. Transitions through reweighting.
+        <strong>Defers</strong>
+        Maintains candidate states. Resolves only at execution.
       </div>
     </div>
 
     <!-- ─── Expandable: Internal Mechanics ─── -->
     <div class="expandable">
       <button class="expand-trigger" id="mechTrigger" onclick="toggleExpand('mechTrigger','mechContent')">
-        <span class="arrow">▶</span> Show internal mechanics — pipeline stages, decision surface, tracked state
+        <span class="arrow">▶</span> Show pipeline behavior — state flow, resolution timing, decision surface
       </button>
       <div class="expand-content" id="mechContent">
         <div class="arena-grid">
           <!-- Left internals -->
           <div style="background:white; border:1px solid var(--border); border-radius:10px; padding:20px;">
-            <div class="inner-card-label">Early Commitment Pipeline</div>
+            <div class="inner-card-label">Single-State Pipeline</div>
             <div class="pipeline-chips">
+              <span class="p-chip">Input</span>
+              <span class="p-arrow">→</span>
               <span class="p-chip">Signal</span>
               <span class="p-arrow">→</span>
-              <span class="p-chip">Prompt</span>
+              <span class="p-chip active-chip">Resolve</span>
               <span class="p-arrow">→</span>
-              <span class="p-chip active-chip">Model</span>
-              <span class="p-arrow">→</span>
-              <span class="p-chip">Answer</span>
+              <span class="p-chip">Execute</span>
             </div>
             <div style="font-size:12px; color:var(--muted); line-height:1.6;">
-              Each tick: the entire signal context is compressed into a prompt, passed to a model, and a single answer is emitted. No state persists between ticks. No hypothesis is retained.
+              Standard systems collapse to one state before sufficient information is available. No state persists between cycles. No candidate is retained.
             </div>
           </div>
           <!-- Right internals -->
           <div style="background:white; border:1px solid var(--border); border-radius:10px; padding:20px;">
-            <div class="inner-card-label">Continuous Evaluation Pipeline</div>
+            <div class="inner-card-label">Multi-State Pipeline</div>
             <div class="pipeline-chips">
+              <span class="p-chip">Input</span>
+              <span class="p-arrow">→</span>
               <span class="p-chip">Signal</span>
               <span class="p-arrow">→</span>
-              <span class="p-chip">State Encoder</span>
+              <span class="p-chip active-chip">Maintain States</span>
               <span class="p-arrow">→</span>
-              <span class="p-chip active-chip">FAISS Retrieval</span>
+              <span class="p-chip">Resolve</span>
               <span class="p-arrow">→</span>
-              <span class="p-chip">Hypothesis Update</span>
-              <span class="p-arrow">→</span>
-              <span class="p-chip">Decision Ranking</span>
+              <span class="p-chip">Execute</span>
             </div>
             <div style="font-size:12px; color:var(--muted); line-height:1.6; margin-bottom:14px;">
-              State persists. FAISS retrieves similar historical patterns in ~0.1ms. Hypotheses are updated probabilistically. Commitment happens only when evidence converges.
+              State persists across pipeline stages. Candidate states are updated probabilistically. Resolution happens only when evidence converges at execution.
             </div>
             <div class="inner-card-label">Ranked Decision Surface</div>
             <div class="decision-row"><div><span class="decision-rank">1.</span> LONG — trend following momentum</div><div class="decision-score">0.82</div></div>
@@ -1033,18 +1036,17 @@
        ═══════════════════════════════════════════════════════════ -->
   <div class="why-section">
     <div class="why-inner">
-      <div class="why-label">Why This Matters</div>
-      <h2>Early commitment looks correct — until it isn't.</h2>
+      <div class="why-label">Pipeline Behavior</div>
+      <h2>Failure Mode: Early State Collapse</h2>
       <p>
-        In noisy environments, committing too early produces answers that feel confident. The system says "bullish" and it looks right — until the signal shifts and it says "bearish" with the same confidence. No transition. No warning. Just a flip.
+        When the system resolves too early, it commits to a path before sufficient information is available. Under regime change, this produces irreversible error.
       </p>
       <div class="why-callout">
-        Most systems collapse uncertainty into a single answer.<br>
-        When conditions shift, they flip.<br><br>
-        This system preserves competing hypotheses and updates them over time — so it adapts without losing context.
+        This is equivalent to delaying state collapse in a distributed decision system to preserve optionality under changing conditions.
       </div>
+      <h2 style="font-size:18px; margin-top:24px;">Behavior: Deferred Resolution</h2>
       <p>
-        The difference isn't accuracy on any single tick. It's behavior over time. A system that preserves alternatives can detect regime changes through gradual reweighting. A system that commits early can only detect them through reversal — which is always late, and always lossy.
+        Maintaining multiple states allows the system to adapt as new information arrives. The difference is not accuracy on any single cycle — it is behavior over time. A pipeline that preserves candidate states detects regime changes through gradual reweighting. A pipeline that resolves early detects them only through reversal — which is always late, and always lossy.
       </p>
     </div>
   </div>
@@ -1054,13 +1056,13 @@
        ═══════════════════════════════════════════════════════════ -->
   <div class="bridge-section">
     <div class="bridge-inner">
-      <div class="bridge-label">Cross-Domain</div>
-      <h3>This is not just a software problem.</h3>
+      <div class="bridge-label">Generalization</div>
+      <h3>Applies to any system where portfolio, risk, and execution decisions are derived from shared state.</h3>
       <p>
-        In lithography, we see the same pattern: systems that collapse variability too early lose information and amplify error downstream. A process that commits to a single exposure parameter set — without preserving competing correction hypotheses — can't recover gracefully when conditions drift.
+        In any domain where decisions are derived from shared state under changing conditions, systems that collapse variability too early lose information and amplify error downstream. A pipeline that commits to a single state — without preserving competing candidates — cannot recover gracefully when conditions drift.
       </p>
       <p>
-        Preserving competing hypotheses is analogous to preserving signal under stochastic constraints. Whether the domain is financial regime detection or multi-head write optimization, the architecture is the same: maintain alternatives, update probabilistically, commit only when evidence converges.
+        Preserving candidate states is equivalent to preserving optionality under stochastic constraints. Whether the domain is financial regime detection, process control, or resource allocation, the architecture is the same: maintain candidate states, update probabilistically, resolve only when evidence converges at execution.
       </p>
     </div>
   </div>
@@ -1070,13 +1072,13 @@
        ═══════════════════════════════════════════════════════════ -->
   <div class="expandable" style="padding-bottom: 8px; border-top: 2px solid var(--border); padding-top: 32px;">
     <button class="expand-trigger" id="ctaTrigger" onclick="toggleExpand('ctaTrigger','ctaContent')" style="border-color:var(--navy);">
-      <span class="arrow">▶</span> Show practical output — CTA Evaluation Engine (live decision output)
+      <span class="arrow">▶</span> Show practical output — Candidate States applied to CTA evaluation
     </button>
     <div class="expand-content" id="ctaContent">
       <div class="cta-section" style="border-top:none; padding-top:0;">
         <div class="cta-section-header">
-          <h2>CTA Evaluation Engine</h2>
-          <p>The continuous evaluation model applied to CTA portfolio construction. Ranked candidates, allocation weights, regime detection, and full reasoning traces.</p>
+          <h2>Candidate States — CTA Evaluation</h2>
+          <p>The multi-state pipeline applied to CTA portfolio construction. Candidate states ranked, weighted, and resolved at execution.</p>
         </div>
 
         <!-- Regime -->
@@ -1115,7 +1117,7 @@
 
         <div class="disclaimer">
           Data sourced from IASG CTA Index (iasg.com) — publicly published rankings.<br>
-          AI-generated evaluation for demonstration purposes. Not investment advice.
+          Decision-system architecture demonstration. Not investment advice.
         </div>
       </div>
     </div>
@@ -1124,7 +1126,7 @@
 
 <!-- ═══════════════════════════════════════════════════════════ -->
 <footer class="page-footer">
-  <a href="https://industriallystrong.com">IndustriallyStrong</a> · Continuous evaluation architecture
+  <a href="https://industriallystrong.com">IndustriallyStrong</a> · Decision pipeline — state resolution architecture
 </footer>
 
 <!-- ═══════════════════════════════════════════════════════════

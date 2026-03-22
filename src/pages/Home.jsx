@@ -109,9 +109,9 @@ export default function Home() {
 
           <div className="flow-card">
             <div className="flow-card__label">Research Engine</div>
-            <h3>MHT-FAISS Core</h3>
+            <h3>State Resolution Core</h3>
             <p>
-              High-dimensional search, ranking, and multiple-hypothesis
+              High-dimensional search, ranking, and multi-state
               tracking across large candidate populations.
             </p>
           </div>
@@ -143,7 +143,7 @@ export default function Home() {
               <h3>Research</h3>
               <p>
                 Foundational work on high-dimensional signal processing,
-                hypothesis tracking, and associative retrieval methods.
+                candidate state tracking, and associative retrieval methods.
               </p>
 
               <a
@@ -210,10 +210,10 @@ export default function Home() {
             style={{ textDecoration: "none", color: "inherit" }}
           >
             <div className="structure-card">
-              <h3>MHT-FAISS Demo</h3>
+              <h3>State Resolution Demo</h3>
               <p style={{ margin: 0 }}>
                 Interactive research surface exploring strategy candidate
-                populations using vector search and hypothesis tracking.
+                populations using vector search and state tracking.
               </p>
             </div>
           </a>
@@ -266,7 +266,7 @@ export default function Home() {
             </p>
           </CardLink>
 
-          <CardLink to="/research" title="MHT-FAISS Engine">
+          <CardLink to="/research" title="State Resolution Engine">
             <p style={{ margin: 0 }}>
               Research infrastructure for exploring large candidate strategy
               populations.

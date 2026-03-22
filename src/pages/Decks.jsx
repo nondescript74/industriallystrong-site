@@ -107,7 +107,7 @@ export default function Decks() {
               </h3>
 
               <p style={{ opacity: 0.82, margin: 0 }}>
-                AI-powered IBS and FODMAP food analysis using Claude + Gemini
+                Multi-agent IBS and FODMAP food analysis using Claude + Gemini
                 agents with synthesis reconciliation. Web companion to the iOS app.
               </p>
             </div>
@@ -116,14 +116,14 @@ export default function Decks() {
           <CardLink to="/architecture" title="Architecture Overview">
             <p style={{ margin: 0 }}>
               System-level view of how applications, agent analysis, and the
-              MHT-FAISS research engine connect into one platform.
+              state resolution engine connect into one platform.
             </p>
           </CardLink>
 
           <CardLink to="/research" title="Research Surface">
             <p style={{ margin: 0 }}>
               Research explanations, technical framing, and live demo access for
-              the current MHT-FAISS system.
+              the current state resolution system.
             </p>
           </CardLink>
         </div>

@@ -378,7 +378,7 @@ export default function Lab() {
         <SectionTitle n={1}>Core System: Parallel State Evolution</SectionTitle>
 
         <p style={{ fontSize: 15, color: T.textDim, lineHeight: 1.7, maxWidth: 700, margin: "0 0 28px" }}>
-          Competing hypotheses evolve in parallel. States are created, evaluated,
+          Candidate states evolve in parallel. States are created, evaluated,
           merged when similar, and retired when confidence drops. No single state
           is committed to prematurely.
         </p>
@@ -386,13 +386,13 @@ export default function Lab() {
         {/* Two-column compare cards */}
         <div style={{ display: "flex", gap: 16, marginBottom: 28, flexWrap: "wrap" }}>
           <CompareCard title="Early Commitment" color={T.red} items={[
-            "One hypothesis selected at ingestion",
+            "One state selected at ingestion",
             "Commits before uncertainty resolves",
             "Vulnerable to regime change",
             "No mechanism to detect disagreement",
           ]} />
           <CompareCard title="Parallel Persistence" color={T.blue} items={[
-            "Preserves competing hypotheses",
+            "Preserves competing candidate states",
             "Measures divergence explicitly",
             "Tolerates ambiguity through transitions",
             "Resolves after evidence accumulates",
@@ -428,7 +428,7 @@ export default function Lab() {
             </table>
           </div>
           {showEvidence && (
-            <EvidenceBox mechanism="Parallel state persistence" controlledVar="Number of concurrent hypotheses"
+            <EvidenceBox mechanism="Parallel state persistence" controlledVar="Number of concurrent candidate states"
               measuredOutput="Individual state survival duration and confidence trajectory"
               significance="Maintaining multiple states prevents premature commitment to a single interpretation" />
           )}
@@ -527,7 +527,7 @@ export default function Lab() {
             "Recovery requires full re-estimation",
           ]} />
           <CompareCard title="Parallel Persistence" color={T.blue} items={[
-            "Maintains competing hypotheses",
+            "Maintains competing candidate states",
             "Best survivor adapts through shift",
             "Latency reduced",
           ]} />
@@ -592,7 +592,7 @@ export default function Lab() {
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 20 }}>
             <CompareCard title="Baseline" color={T.red} items={["Single strategy", "No regime detection", "Full drawdown exposure"]} />
             <CompareCard title="Multi (no persist)" color={T.amber} items={["Multiple strategies", "Reactive switching", "Latency on shift"]} />
-            <CompareCard title="Persistent System" color={T.blue} items={["Parallel hypotheses", "Pre-positioned", "Reduced recovery time"]} />
+            <CompareCard title="Persistent System" color={T.blue} items={["Parallel candidate states", "Pre-positioned", "Reduced recovery time"]} />
           </div>
 
           <Divider />
@@ -702,10 +702,10 @@ export default function Lab() {
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 12 }}>
           {[
-            { href: "/lab/phoenix-state.html", title: "Closed-Loop Control", desc: "Live state tracking with competing causal hypotheses." },
+            { href: "/lab/phoenix-state.html", title: "Closed-Loop Control", desc: "Live state tracking with competing causal candidate states." },
             { href: "/lab/multihead.html", title: "Distributed Writer Array", desc: "Parallel control architecture demonstration." },
             { href: "/lab/psf-synthesis.html", title: "PSF Physics", desc: "Coupled spatial-temporal optimization." },
-            { href: "/lab/cta-evaluation.html", title: "CTA Evaluation Engine", desc: "Multi-hypothesis decision architecture." },
+            { href: "/lab/cta-evaluation.html", title: "CTA Evaluation Engine", desc: "Multi-state decision architecture." },
           ].map(card => (
             <a key={card.href} href={card.href} target="_blank" rel="noreferrer" style={{ textDecoration: "none", color: "inherit" }}>
               <div style={{

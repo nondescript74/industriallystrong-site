@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CTA Evaluation Engine — MHT-FAISS Decision Architecture</title>
+  <title>CTA Evaluation Engine — State Resolution Architecture</title>
   <meta property="og:title" content="CTA Evaluation Engine — Live Decision Output">
-  <meta property="og:description" content="AI-powered CTA portfolio evaluation: ranked candidates, allocation weights, regime detection, and reasoning traces. Built on MHT-FAISS decision architecture.">
+  <meta property="og:description" content="Pipeline-based CTA portfolio evaluation: ranked candidates, allocation weights, regime detection, and reasoning traces. Built on state resolution architecture.">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -371,7 +371,7 @@
 
 <header class="page-header">
   <h1>CTA Evaluation Engine</h1>
-  <div class="subtitle">AI-powered portfolio evaluation with decision architecture — not just insights, <strong>decisions</strong></div>
+  <div class="subtitle">Pipeline-based portfolio evaluation with decision architecture — not just insights, <strong>decisions</strong></div>
   <div class="header-badges">
     <span class="badge badge-live" id="liveBadge">● LOADING</span>
     <span class="badge badge-regime" id="regimeBadge">REGIME: —</span>
@@ -479,7 +479,7 @@
         <div class="ba-item">Normalized IASG data, single pipeline</div>
         <div class="ba-item">AI regime detection with confidence scores</div>
         <div class="ba-item">Allocation weights summing to 100%</div>
-        <div class="ba-item">Full reasoning + MHT hypothesis trail on every candidate</div>
+        <div class="ba-item">Full reasoning + state resolution trail on every candidate</div>
       </div>
     </div>
   </div>
@@ -550,24 +550,24 @@
 <div class="divider-label"><span>UNDERLYING ARCHITECTURE</span></div>
 
 <!-- ═══════════════════════════════════════════════════════════════════════
-     MHT-FAISS ARCHITECTURE COMPARISON
+     STATE RESOLUTION ARCHITECTURE COMPARISON
      ═══════════════════════════════════════════════════════════════════════ -->
 <div class="mht-section">
   <div class="mht-header">
-    <h2>MHT-FAISS Decision Architecture</h2>
-    <p>Two systems processing the same asynchronous signal stream — one collapses uncertainty, the other preserves competing hypotheses until evidence converges.</p>
+    <h2>State Resolution Architecture</h2>
+    <p>Two systems processing the same asynchronous signal stream — one collapses uncertainty, the other preserves competing candidate states until evidence converges.</p>
   </div>
 
   <div class="card" style="margin-bottom: 20px;">
     <div class="card-header">Why This Matters for CTA Allocation</div>
     <div style="font-size: 13px; color: var(--text);">
-      In the fog of noise, systems that commit too early misread regime changes. The evaluation engine above uses <strong>tracked hypothesis testing</strong> (MHT) to surface contradictions per candidate and <strong>vector similarity</strong> (FAISS-concept) to detect concentration risk — producing decisions, not just insights. The architecture comparison below shows why this matters.
+      In the fog of noise, systems that commit too early misread regime changes. The evaluation engine above uses <strong>tracked state resolution</strong> to surface contradictions per candidate and <strong>vector similarity</strong> to detect concentration risk — producing decisions, not just insights. The architecture comparison below shows why this matters.
     </div>
   </div>
 
   <div class="mht-container">
     <div>
-      <div class="mht-col-name">LLM-Only System</div>
+      <div class="mht-col-name">Single-State Pipeline (Early Resolution)</div>
       <div class="mht-col-desc">Single inference per tick. Uncertainty is compressed into one output.</div>
       <div class="card">
         <div class="card-header">Pipeline Stages</div>
@@ -579,29 +579,29 @@
       <div class="card">
         <div class="card-header">Current LLM Output</div>
         <div class="answer-pill">BULLISH TREND</div>
-        <div class="answer-sub">The LLM compresses the stream into one dominant directional label. No competing hypotheses. No contradiction detection.</div>
+        <div class="answer-sub">The pipeline compresses the stream into one dominant directional label. No competing candidate states. No contradiction detection.</div>
       </div>
       <div class="card">
         <div class="card-header">Failure Modes</div>
         <div class="fail-item">Prompt context limits — can't hold full CTA history</div>
-        <div class="fail-item">No explicit competing hypotheses per candidate</div>
+        <div class="fail-item">No explicit competing candidate states per candidate</div>
         <div class="fail-item">No persistent probabilistic state across evaluations</div>
         <div class="fail-item">Regime shifts appear as abrupt answer flips</div>
       </div>
     </div>
     <div>
       <div class="mht-col-name">Decision Architecture (This Engine)</div>
-      <div class="mht-col-desc">Competing hypotheses maintained, updated, and scored before commitment.</div>
+      <div class="mht-col-desc">Candidate states maintained, updated, and scored before commitment.</div>
       <div class="card">
         <div class="card-header">Pipeline Stages</div>
         <span class="signal-chip">OHLCV Data</span>
         <span class="signal-chip">Regime Detection</span>
-        <span class="signal-chip">MHT Testing</span>
+        <span class="signal-chip">State Resolution</span>
         <span class="signal-chip">Similarity Clustering</span>
         <span class="signal-chip">Decision Ranking</span>
       </div>
       <div class="card">
-        <div class="card-header">Live Hypothesis Weights (from regime analysis)</div>
+        <div class="card-header">Candidate State Weights (from regime analysis)</div>
         <div class="hyp-row"><div class="hyp-name">Trend continuation</div><div class="hyp-track"><div class="hyp-fill" id="hypFill0" style="width:0%;background:var(--blue)"></div></div><div class="hyp-val" id="hypVal0">—</div></div>
         <div class="hyp-row"><div class="hyp-name">Volatility spike</div><div class="hyp-track"><div class="hyp-fill" id="hypFill1" style="width:0%;background:var(--orange)"></div></div><div class="hyp-val" id="hypVal1">—</div></div>
         <div class="hyp-row"><div class="hyp-name">Mean reversion</div><div class="hyp-track"><div class="hyp-fill" id="hypFill2" style="width:0%;background:var(--green)"></div></div><div class="hyp-val" id="hypVal2">—</div></div>
@@ -609,7 +609,7 @@
       </div>
       <div class="card">
         <div class="card-header">Resilient Properties</div>
-        <div class="prop-item">Explicit competing hypotheses with evidence per candidate</div>
+        <div class="prop-item">Explicit competing candidate states with evidence per candidate</div>
         <div class="prop-item">Data-driven regime from OHLCV — not LLM inference</div>
         <div class="prop-item">Contradictions surfaced, not hidden ("we model uncertainty")</div>
         <div class="prop-item">Similarity clustering detects concentration risk before allocation</div>

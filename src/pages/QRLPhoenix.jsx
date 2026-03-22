@@ -30,7 +30,7 @@ export default function QRLPhoenix() {
           <li>AI-assisted strategy discovery</li>
           <li>Structured analysis of candidate strategies</li>
           <li>iOS delivery surface for strategy intelligence</li>
-          <li>Research integration with MHT-FAISS workflows</li>
+          <li>Research integration with state resolution workflows</li>
         </ul>
       </section>
 
@@ -81,7 +81,7 @@ export default function QRLPhoenix() {
           <div style={{ border: "1px solid #243041", borderRadius: "12px", padding: "18px" }}>
             <strong>Research layer</strong>
             <p style={{ opacity: 0.8, marginBottom: 0 }}>
-              MHT-FAISS workflows support deeper exploration and ranking.
+              State resolution workflows support deeper exploration and ranking.
             </p>
           </div>
         </div>

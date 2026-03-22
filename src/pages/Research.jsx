@@ -20,13 +20,13 @@ export default function Research() {
           marginBottom: "40px",
         }}
       >
-        <h2 style={{ marginTop: 0 }}>MHT-FAISS Strategy Engine</h2>
+        <h2 style={{ marginTop: 0 }}>State Resolution Engine</h2>
 
         <p style={{ opacity: 0.88, maxWidth: "900px" }}>
           A real-time research engine for exploring large candidate populations
-          of financial strategies using Multiple Hypothesis Tracking and
+          of financial strategies using multi-state tracking and
           FAISS-based vector search. The system supports interactive analysis of
-          strategies that have already been filtered or evaluated by AI agents.
+          strategies that have already been filtered or evaluated by pipeline agents.
         </p>
 
         <div
@@ -51,7 +51,7 @@ export default function Research() {
               background: "#111827",
             }}
           >
-            View live MHT-FAISS demo
+            View live state resolution demo
           </a>
 
           <a
@@ -137,9 +137,9 @@ export default function Research() {
               padding: "18px",
             }}
           >
-            <strong>Hypothesis tracking</strong>
+            <strong>State tracking</strong>
             <p style={{ opacity: 0.8, marginBottom: 0 }}>
-              MHT evolves and prunes competing paths over time.
+              Candidate states evolve and are pruned as evidence accumulates.
             </p>
           </div>
 

@@ -90,7 +90,7 @@ export default function About() {
               <FocusCard title="Strategy Discovery Platforms">
                 Research into automated discovery and evaluation of complex
                 strategies using statistical signal processing and
-                multi-hypothesis frameworks.
+                multi-state resolution frameworks.
               </FocusCard>
 
               <FocusCard title="Multi-Agent Systems">
@@ -156,9 +156,9 @@ export default function About() {
                 Multi-agent dietary intelligence system.
               </SystemCard>
 
-              <SystemCard title="MHT-FAISS Engine">
-                Research platform for strategy tracking using multi-hypothesis
-                frameworks and vector retrieval.
+              <SystemCard title="State Resolution Engine">
+                Research platform for strategy tracking using multi-state
+                resolution frameworks and vector retrieval.
               </SystemCard>
             </div>
           </div>
