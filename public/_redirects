@@ -1,5 +1,7 @@
-# Serve static lab pages directly
-/lab/*  /lab/:splat  200
+# Serve static lab sub-pages directly (HTML files only)
+/lab/*.html  /lab/:splat  200
+
+# /lab itself is handled by React Router (SPA catch-all below)
 
 # Phoenix Web redirect
 /phoenix  https://qrl-phoenix-web.pages.dev  301
