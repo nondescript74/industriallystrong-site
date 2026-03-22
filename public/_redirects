@@ -1,7 +1,14 @@
+# /lab → SPA (React Router handles it)
+/lab  /index.html  200
+
 # Serve static lab sub-pages directly (HTML files only)
 /lab/*.html  /lab/:splat  200
 
-# /lab itself is handled by React Router (SPA catch-all below)
+# Static lab assets (JS, CSS, images)
+/lab/*.js  /lab/:splat  200
+/lab/*.css  /lab/:splat  200
+/lab/*.svg  /lab/:splat  200
+/lab/*.png  /lab/:splat  200
 
 # Phoenix Web redirect
 /phoenix  https://qrl-phoenix-web.pages.dev  301
