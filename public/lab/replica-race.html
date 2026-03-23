@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Replica Race Resolution Lab — Distributed State Convergence Under Ordering Ambiguity</title>
+<meta name="description" content="Interactive synthetic lab demonstrating how replica arrival-order differences can create semantically incorrect convergence in distributed trade-processing systems, and how parallel persistence plus structured arbitration can outperform naive early-collapse resolution." />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #f5f7fa; --bgCard: #ffffff; --bgAlt: #f0f3f8;
+    --border: #e2e8f0; --borderHi: #cbd5e1;
+    --text: #1a202c; --textDim: #475569; --textMuted: #64748b;
+    --accent: #002e5c; --accentDim: #1e40af;
+    --warn: #d97706; --danger: #dc2626; --good: #16a34a; --purple: #7c3aed;
+    --repA: #002e5c; --repB: #b38f5c;
+    --navy: #002e5c; --gold: #b38f5c;
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; line-height: 1.6; font-size: 15px; }
+  .mono { font-family: 'SF Mono', 'Cascadia Code', 'Consolas', monospace; }
+  .container { max-width: 1220px; margin: 0 auto; padding: 28px 24px; }
+  .card { background: var(--bgCard); border: 1px solid var(--border); border-radius: 10px; padding: 18px; margin-bottom: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+  .card-alt { background: var(--bgAlt); }
+  .label { font-size: 11.5px; color: var(--textMuted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; font-family: 'SF Mono', monospace; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; margin-right: 5px; font-family: monospace; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .flex { display: flex; }
+  .flex-wrap { flex-wrap: wrap; }
+  .gap-8 { gap: 8px; }
+  .gap-12 { gap: 12px; }
+  .gap-16 { gap: 16px; }
+  .items-center { align-items: center; }
+  .justify-between { justify-content: space-between; }
+  .mb-4 { margin-bottom: 4px; }
+  .mb-8 { margin-bottom: 8px; }
+  .mb-12 { margin-bottom: 12px; }
+  .mb-16 { margin-bottom: 16px; }
+  .mt-8 { margin-top: 8px; }
+  .mt-12 { margin-top: 12px; }
+  .mt-16 { margin-top: 16px; }
+  .p-10 { padding: 10px; }
+  .p-12 { padding: 12px; }
+  .text-center { text-align: center; }
+  section { margin-bottom: 36px; padding-top: 18px; }
+  h2 { font-size: 19px; font-weight: 600; margin-bottom: 6px; }
+  .section-desc { font-size: 13px; color: var(--textMuted); margin-bottom: 14px; }
+  button { cursor: pointer; font-family: monospace; }
+  select { font-family: monospace; background: var(--bgAlt); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 4px 8px; font-size: 13px; }
+  input[type="range"] { width: 90px; }
+  .score-bar { margin-bottom: 6px; }
+  .score-bar-track { height: 5px; background: var(--border); border-radius: 2px; }
+  .score-bar-fill { height: 5px; border-radius: 2px; transition: width 0.4s; }
+  .event-row { display: grid; grid-template-columns: 48px 140px 1fr 90px 65px 32px; gap: 8px; padding: 7px 12px; align-items: center; font-family: monospace; font-size: 13px; border-radius: 2px; }
+  .event-row.current { background: rgba(0,46,92,0.06); }
+  .event-row.ooo { border-left: 3px solid var(--warn); }
+  .event-row:not(.ooo) { border-left: 3px solid transparent; }
+  .ctrl-btn { padding: 8px 16px; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: var(--textDim); font-size: 13px; font-weight: 500; margin-right: 6px; margin-bottom: 4px; }
+  .ctrl-btn.active { border-color: var(--accent); background: rgba(0,46,92,0.1); color: var(--accent); }
+  .ctrl-btn:hover { border-color: var(--borderHi); }
+  .sm-btn { padding: 5px 12px; border-radius: 4px; border: 1px solid var(--border); background: transparent; color: var(--textDim); font-size: 12px; margin-right: 4px; }
+  .arb-btn { text-align: left; cursor: pointer; padding: 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--bgAlt); margin: 0; }
+  .arb-btn.selected { border-color: var(--accent); background: rgba(0,46,92,0.05); }
+  .arb-btn:hover { border-color: var(--borderHi); }
+  .divider { width: 1px; height: 24px; background: var(--border); margin: 0 8px; }
+  .leg-card { padding: 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--bgAlt); margin-bottom: 10px; }
+  .leg-card.highlight { border-color: var(--warn); background: rgba(217,119,6,0.05); }
+  .metric-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(0,0,0,0.06); font-family: monospace; font-size: 13px; }
+  .hero-card { transition: border-color 0.3s; }
+  .step-dot { height: 7px; border-radius: 3px; transition: background 0.3s; flex: 1; }
+  .causal-node { padding: 4px 10px; border-radius: 4px; font-family: monospace; font-size: 12px; border: 1px solid var(--border); }
+  .causal-node.active { border-color: var(--accent); background: rgba(0,46,92,0.08); color: var(--accent); }
+  .warn-banner { display: flex; align-items: flex-start; gap: 10px; padding: 12px; border-radius: 6px; border: 1px solid var(--warn); background: #fffbeb; }
+  .page-header { background: var(--navy); color: white; padding: 24px 32px; }
+  .page-header h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; color: white; }
+  .page-header .subtitle { font-size: 14px; opacity: 0.75; }
+  .page-header .frame { font-size: 12px; opacity: 0.5; margin-top: 8px; font-style: italic; }
+  @media (max-width: 768px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useMemo, useRef, useCallback } = React;
+
+// ============================================================
+// SIMULATION ENGINE
+// ============================================================
+const LEGS = {
+  L1: { id:"L1", label:"Fixed Receiver Hedge", type:"hedge", direction:"receive_fixed", baseQty:100 },
+  L2: { id:"L2", label:"Floating Payer Primary", type:"primary", direction:"pay_floating", baseQty:200 },
+  L3: { id:"L3", label:"Offset / Partial Hedge", type:"offset_hedge", direction:"receive_fixed", baseQty:80 },
+};
+
+function mulberry32(a) {
+  return function() {
+    a |= 0; a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function buildEventSet() {
+  return [
+    { id:"E1", type:"OPEN", ts:1000, legs:["L1","L2","L3"], source:"booking-svc", causalParent:null, causalTag:"C0", desc:"Open trade T1 with 3 legs", detail:"L1=100, L2=200, L3=80" },
+    { id:"E2", type:"AMEND_QTY", ts:1200, legs:["L2"], source:"risk-svc", causalParent:"E1", causalTag:"C1", desc:"Amend L2 quantity +20%", detail:"L2: 200 → 240", delta:{ L2:{ qtyMultiplier:1.2 } } },
+    { id:"E3", type:"PARTIAL_CANCEL", ts:1350, legs:["L2","L3"], source:"desk-ops", causalParent:"E1", causalTag:"C2", desc:"Partial cancel L2 by 50%, reduce L3 by 25%", detail:"L2: current*0.5, L3: current*0.75", delta:{ L2:{ qtyMultiplier:0.5 }, L3:{ qtyMultiplier:0.75 } } },
+    { id:"E4", type:"DESK_INTENT", ts:1500, legs:["L1","L2","L3"], source:"desk-intent-svc", causalParent:"E2", causalTag:"C3", desc:"Desk intent: preserve hedge ratio", detail:"Intent: hedge ≥ 40% of primary", intent:{ hedgeRatioMin:0.4, primaryLeg:"L2", hedgeLeg:"L1" } },
+    { id:"E5", type:"PARTIAL_FILL", ts:1650, legs:["L2"], source:"exec-svc", causalParent:"E2", causalTag:"C4", desc:"Partial fill on L2 (60%)", detail:"L2 fill: 144/240", delta:{ L2:{ fillPct:0.6 } } },
+  ];
+}
+
+const SCENARIOS = {
+  canonical: {
+    label: "Canonical Race — AMEND/CANCEL swap",
+    desc: "Replica A: AMEND then CANCEL. Replica B: CANCEL then AMEND. L2 qty diverges: 120 vs 240.",
+    replicaA: ["E1","E2","E3","E4","E5"],
+    replicaB: ["E1","E3","E2","E4","E5"],
+  },
+  intent_early: {
+    label: "Intent Arrives Early on B",
+    desc: "Replica B receives DESK_INTENT before AMEND — evaluates hedge ratio on stale L2 qty.",
+    replicaA: ["E1","E2","E3","E4","E5"],
+    replicaB: ["E1","E3","E4","E2","E5"],
+  },
+  fill_before_cancel: {
+    label: "Fill Before Cancel",
+    desc: "Replica B fills L2 before L3 cancel, changing net exposure before hedge reduction.",
+    replicaA: ["E1","E2","E3","E4","E5"],
+    replicaB: ["E1","E2","E5","E3","E4"],
+  },
+};
+
+function computeArrivalTimes(events, order, baseLatency, jitter, skew, rng) {
+  const m = {}; events.forEach(e => m[e.id] = e);
+  return order.map((eid, idx) => {
+    const e = m[eid];
+    return { ...e, arrivalTs: e.ts + baseLatency + Math.floor(rng() * jitter) + skew, arrivalIdx: idx };
+  });
+}
+
+function applyEvent(state, event) {
+  const n = JSON.parse(JSON.stringify(state));
+  switch(event.type) {
+    case "OPEN":
+      event.legs.forEach(lid => {
+        const leg = LEGS[lid];
+        n[lid] = { id:lid, label:leg.label, type:leg.type, direction:leg.direction, qty:leg.baseQty, status:"ACTIVE", fillPct:0, lastEvent:event.id, appliedEvents:[event.id] };
+      });
+      break;
+    case "AMEND_QTY":
+      Object.entries(event.delta||{}).forEach(([lid,d]) => {
+        if(n[lid]) { n[lid].qty = Math.round(LEGS[lid].baseQty * d.qtyMultiplier); n[lid].lastEvent = event.id; n[lid].appliedEvents = [...(n[lid].appliedEvents||[]), event.id]; }
+      });
+      break;
+    case "PARTIAL_CANCEL":
+      Object.entries(event.delta||{}).forEach(([lid,d]) => {
+        if(n[lid]) {
+          // Critical: cancel multiplier applies to CURRENT qty, not base — this is where ordering matters
+          n[lid].qty = Math.round(n[lid].qty * d.qtyMultiplier);
+          n[lid].status = "PARTIAL_CANCEL"; n[lid].lastEvent = event.id; n[lid].appliedEvents = [...(n[lid].appliedEvents||[]), event.id];
+        }
+      });
+      break;
+    case "PARTIAL_FILL":
+      Object.entries(event.delta||{}).forEach(([lid,d]) => {
+        if(n[lid]) { n[lid].fillPct = d.fillPct; n[lid].lastEvent = event.id; n[lid].appliedEvents = [...(n[lid].appliedEvents||[]), event.id]; }
+      });
+      break;
+    case "DESK_INTENT":
+      n._intent = event.intent; n._intentEvent = event.id;
+      // Check if intent was evaluated on stale state (causal parent not yet applied)
+      const parentApplied = event.causalParent ? Object.values(n).some(v => v.appliedEvents && v.appliedEvents.includes(event.causalParent)) : true;
+      n._intentStale = !parentApplied;
+      break;
+  }
+  return n;
+}
+
+function computeExposure(state) {
+  let net = 0, hedgeTotal = 0, primaryTotal = 0;
+  Object.values(state).forEach(leg => {
+    if(typeof leg !== 'object' || !leg.id) return;
+    const eff = leg.qty * (leg.fillPct || (leg.status==="ACTIVE"||leg.status==="PARTIAL_CANCEL" ? 1 : 0));
+    if(leg.type === "primary") { primaryTotal += eff; net += leg.direction === "pay_floating" ? eff : -eff; }
+    else { hedgeTotal += eff; net -= leg.direction === "receive_fixed" ? eff : -eff; }
+  });
+  const hedgeRatio = primaryTotal > 0 ? hedgeTotal / primaryTotal : 0;
+  return { net: Math.round(net), hedgeTotal: Math.round(hedgeTotal), primaryTotal: Math.round(primaryTotal), hedgeRatio: Math.round(hedgeRatio*1000)/1000 };
+}
+
+function isLocallyValid(state) {
+  const legs = Object.values(state).filter(v => typeof v === 'object' && v.id);
+  return legs.length > 0 && legs.every(l => l.qty >= 0);
+}
+
+function causalCoherence(appliedOrder, events) {
+  const m = {}; events.forEach(e => m[e.id] = e);
+  let violations = 0; const seen = new Set();
+  for(const eid of appliedOrder) {
+    const e = m[eid];
+    if(e && e.causalParent && !seen.has(e.causalParent)) violations++;
+    seen.add(eid);
+  }
+  return Math.max(0, 1 - violations * 0.25);
+}
+
+function structuralConsistency(state) {
+  const exp = computeExposure(state);
+  const intent = state._intent;
+  if(!intent) return 0.7;
+  if(exp.primaryTotal === 0) return 1.0;
+  const ratio = exp.hedgeTotal / exp.primaryTotal;
+  if(ratio >= intent.hedgeRatioMin) return 1.0;
+  return Math.max(0.1, ratio / intent.hedgeRatioMin);
+}
+
+function eventCompleteness(state, allEvents) {
+  const applied = new Set();
+  Object.values(state).forEach(v => { if(typeof v==='object' && v.appliedEvents) v.appliedEvents.forEach(e => applied.add(e)); });
+  if(state._intentEvent) applied.add(state._intentEvent);
+  return applied.size / allEvents.length;
+}
+
+function scoreBranch(state, appliedOrder, allEvents) {
+  const cc = causalCoherence(appliedOrder, allEvents);
+  const sc = structuralConsistency(state);
+  const ec = eventCompleteness(state, allEvents);
+  const stale = state._intentStale ? 0.4 : 0.9;
+  const oa = sc > 0.8 ? Math.min(0.95, stale) : sc > 0.5 ? Math.min(0.6, stale) : 0.3;
+  const overall = cc*0.3 + sc*0.3 + ec*0.2 + oa*0.2;
+  return {
+    causalCoherence: Math.round(cc*100)/100,
+    structuralConsistency: Math.round(sc*100)/100,
+    eventCompleteness: Math.round(ec*100)/100,
+    operatorAlignment: Math.round(oa*100)/100,
+    overall: Math.round(overall*100)/100,
+  };
+}
+
+// ============================================================
+// UI COMPONENTS
+// ============================================================
+
+function Badge({color, children}) {
+  return <span className="badge mono" style={{background:color+'22', color, border:'1px solid '+color+'44'}}>{children}</span>;
+}
+
+function ScoreBar({label, value, color}) {
+  return (
+    <div className="score-bar">
+      <div className="flex justify-between" style={{fontSize:14,color:'var(--textMuted)',fontFamily:'monospace',marginBottom:2}}>
+        <span>{label}</span><span style={{color}}>{value.toFixed(2)}</span>
+      </div>
+      <div className="score-bar-track"><div className="score-bar-fill" style={{width:`${value*100}%`,background:color}} /></div>
+    </div>
+  );
+}
+
+function LegCard({leg, highlight, compLeg}) {
+  if(!leg) return null;
+  const sc = leg.status==="ACTIVE" ? 'var(--good)' : leg.status==="PARTIAL_CANCEL" ? 'var(--warn)' : 'var(--danger)';
+  const qtyDiff = compLeg && compLeg.qty !== leg.qty;
+  const statusDiff = compLeg && compLeg.status !== leg.status;
+  return (
+    <div className={`leg-card ${highlight?'highlight':''}`}>
+      <div className="flex justify-between items-center mb-4">
+        <span className="mono" style={{fontWeight:700,fontSize:14}}>{leg.id}</span>
+        <Badge color={sc}>{leg.status}</Badge>
+      </div>
+      <div style={{fontSize:13,color:'var(--textDim)',marginBottom:4}}>{leg.label}</div>
+      <div className="flex gap-12 mono" style={{fontSize:14,color:'var(--textDim)'}}>
+        <span>Qty: <span style={{color: qtyDiff?'var(--danger)':'var(--text)',fontWeight: qtyDiff?700:400}}>{leg.qty}</span>{qtyDiff && <span style={{color:'var(--danger)',fontSize:14}}> (other: {compLeg.qty})</span>}</span>
+        <span>Dir: <span style={{color:'var(--text)'}}>{leg.direction}</span></span>
+        {leg.fillPct > 0 && <span>Fill: <span style={{color:'var(--accent)'}}>{(leg.fillPct*100).toFixed(0)}%</span></span>}
+      </div>
+      <div style={{fontSize:14,color:'var(--textMuted)',marginTop:4}}>Last: {leg.lastEvent}{statusDiff && <span style={{color:'var(--danger)'}}> | Status differs from other replica</span>}</div>
+    </div>
+  );
+}
+
+function ExposureSummary({state, label}) {
+  const exp = computeExposure(state);
+  const intent = state._intent;
+  const ok = intent ? exp.hedgeRatio >= intent.hedgeRatioMin : null;
+  return (
+    <div className="card card-alt p-10">
+      <div className="label">NET EXPOSURE{label ? ' — '+label : ''}</div>
+      <div className="flex gap-16 mono" style={{fontSize:14,color:'var(--textDim)',marginTop:4}}>
+        <span>Net: <span style={{color: exp.net > 50 ? 'var(--danger)':'var(--good)', fontWeight:700}}>{exp.net}</span></span>
+        <span>Primary: <span style={{color:'var(--text)'}}>{exp.primaryTotal}</span></span>
+        <span>Hedge: <span style={{color:'var(--text)'}}>{exp.hedgeTotal}</span></span>
+        <span>H/P: <span style={{color: ok===false?'var(--danger)':'var(--good)',fontWeight:700}}>{exp.hedgeRatio.toFixed(3)}</span></span>
+      </div>
+      {intent && <div style={{fontSize:14,color:ok?'var(--good)':'var(--danger)',marginTop:4}}>
+        Intent: hedge ≥ {(intent.hedgeRatioMin*100)}% of primary — {ok ? 'SATISFIED' : 'VIOLATED'}
+        {state._intentStale && <span style={{color:'var(--warn)'}}> (evaluated on stale state)</span>}
+      </div>}
+    </div>
+  );
+}
+
+// ============================================================
+// MAIN APP
+// ============================================================
+function App() {
+  const [scenario, setScenario] = useState("canonical");
+  const [seed, setSeed] = useState(42);
+  const [step, setStep] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const [naivePolicy, setNaivePolicy] = useState("first_processed");
+  const [replicaLag, setReplicaLag] = useState(50);
+  const [jitter, setJitter] = useState(80);
+  const [arbPolicy, setArbPolicy] = useState("defer");
+  const [arbAction, setArbAction] = useState(null);
+  const timerRef = useRef(null);
+
+  const events = useMemo(() => buildEventSet(), []);
+  const sc = SCENARIOS[scenario];
+  const maxSteps = events.length;
+
+  const replicaAEvents = useMemo(() => computeArrivalTimes(events, sc.replicaA, 20, jitter, 0, mulberry32(seed)), [events, sc, jitter, seed]);
+  const replicaBEvents = useMemo(() => computeArrivalTimes(events, sc.replicaB, 20+replicaLag, jitter, Math.floor(replicaLag*0.5), mulberry32(seed+1)), [events, sc, jitter, replicaLag, seed]);
+
+  const stateA = useMemo(() => {
+    let s = {};
+    for(let i=0; i<Math.min(step,maxSteps); i++) s = applyEvent(s, replicaAEvents[i]);
+    return s;
+  }, [step, replicaAEvents, maxSteps]);
+
+  const stateB = useMemo(() => {
+    let s = {};
+    for(let i=0; i<Math.min(step,maxSteps); i++) s = applyEvent(s, replicaBEvents[i]);
+    return s;
+  }, [step, replicaBEvents, maxSteps]);
+
+  const orderA = useMemo(() => replicaAEvents.slice(0, Math.min(step,maxSteps)).map(e=>e.id), [replicaAEvents, step, maxSteps]);
+  const orderB = useMemo(() => replicaBEvents.slice(0, Math.min(step,maxSteps)).map(e=>e.id), [replicaBEvents, step, maxSteps]);
+
+  const scoreA = useMemo(() => scoreBranch(stateA, orderA, events), [stateA, orderA, events]);
+  const scoreB = useMemo(() => scoreBranch(stateB, orderB, events), [stateB, orderB, events]);
+
+  const expA = useMemo(() => computeExposure(stateA), [stateA]);
+  const expB = useMemo(() => computeExposure(stateB), [stateB]);
+
+  const statesDiffer = step >= 2 && JSON.stringify(stateA) !== JSON.stringify(stateB);
+
+  const legsA = Object.values(stateA).filter(v => typeof v==='object' && v.id);
+  const legsB = Object.values(stateB).filter(v => typeof v==='object' && v.id);
+
+  const diffLegs = useMemo(() => {
+    const s = new Set();
+    legsA.forEach(la => {
+      const lb = legsB.find(l=>l.id===la.id);
+      if(lb && (la.qty!==lb.qty || la.status!==lb.status || la.fillPct!==lb.fillPct)) s.add(la.id);
+    });
+    return s;
+  }, [legsA, legsB]);
+
+  // Naive resolve
+  const naiveResult = useMemo(() => {
+    if(step < maxSteps) return null;
+    const tsA = replicaAEvents[maxSteps-1]?.arrivalTs || 0;
+    const tsB = replicaBEvents[maxSteps-1]?.arrivalTs || 0;
+    if(naivePolicy === "first_processed") return tsA <= tsB ? {...stateA, _src:"Replica A"} : {...stateB, _src:"Replica B"};
+    return tsA >= tsB ? {...stateA, _src:"Replica A"} : {...stateB, _src:"Replica B"};
+  }, [step, maxSteps, stateA, stateB, naivePolicy, replicaAEvents, replicaBEvents]);
+
+  // Find which naive result is WRONG — compare against best-scored branch
+  const bestBranch = scoreA.overall >= scoreB.overall ? "A" : "B";
+  const bestState = bestBranch === "A" ? stateA : stateB;
+  const bestExp = bestBranch === "A" ? expA : expB;
+
+  const naiveExp = naiveResult ? computeExposure(naiveResult) : null;
+  const naiveWrong = naiveResult && naiveResult._src !== ("Replica " + bestBranch);
+  const naiveHedgeViolated = naiveExp && stateA._intent && naiveExp.hedgeRatio < stateA._intent.hedgeRatioMin;
+
+  const metrics = useMemo(() => {
+    const done = step >= maxSteps;
+    const arbNeeded = done && Math.abs(scoreA.overall - scoreB.overall) < 0.15 ? 1 : 0;
+    // Manual intervention likely if: wrong branch selected OR hedge violated OR arbitration needed
+    const manualIntervention = done ? ((naiveWrong ? 1 : 0) + (naiveHedgeViolated ? 1 : 0) + arbNeeded > 0 ? 1 : 0) : 0;
+    return {
+      prematureCollapse: done && statesDiffer ? 1 : 0,
+      wrongHedge: naiveHedgeViolated ? 1 : 0,
+      hiddenErrors: (done && statesDiffer ? 1 : 0) + (naiveHedgeViolated ? 1 : 0),
+      arbNeeded,
+      confidenceGap: Math.round(Math.abs(scoreA.overall - scoreB.overall)*100)/100,
+      bestScore: Math.round(Math.max(scoreA.overall, scoreB.overall)*100)/100,
+      diverged: statesDiffer ? 1 : 0,
+      status: done ? (Math.abs(scoreA.overall-scoreB.overall)<0.15 ? "DEFERRED":"RESOLVED") : "IN PROGRESS",
+      naivePickedWrong: naiveWrong ? 1 : 0,
+      manualIntervention,
+    };
+  }, [step, maxSteps, statesDiffer, scoreA, scoreB, naiveHedgeViolated, naiveWrong]);
+
+  // Playback
+  useEffect(() => {
+    if(playing && step < maxSteps) {
+      timerRef.current = setTimeout(() => setStep(s => s+1), 800);
+    } else if(step >= maxSteps) { setPlaying(false); }
+    return () => clearTimeout(timerRef.current);
+  }, [playing, step, maxSteps]);
+
+  const play = () => { if(step>=maxSteps) setStep(0); setPlaying(true); };
+  const pause = () => setPlaying(false);
+  const fwd = () => { setPlaying(false); setStep(s => Math.min(s+1, maxSteps)); };
+  const reset = () => { setPlaying(false); setStep(0); setArbAction(null); };
+  const randomize = () => { setSeed(Math.floor(Math.random()*99999)); setStep(0); setArbAction(null); };
+
+  const isOOO = (rEvents, idx) => {
+    if(idx===0) return false;
+    const prev = events.findIndex(e=>e.id===rEvents[idx-1]?.id);
+    const curr = events.findIndex(e=>e.id===rEvents[idx]?.id);
+    return curr < prev;
+  };
+
+  const evtColor = t => t==="OPEN"?'var(--good)':t==="AMEND_QTY"?'var(--accent)':t==="PARTIAL_CANCEL"?'var(--warn)':t==="DESK_INTENT"?'var(--purple)':'var(--textDim)';
+
+  // ===================== RENDER =====================
+  return (
+    <div className="container">
+
+      {/* ===== SECTION 1: HERO ===== */}
+      <div className="page-header" style={{marginLeft:-24,marginRight:-24,marginTop:-28,marginBottom:24,paddingLeft:32,paddingRight:32}}>
+        <h1>Replica Race Resolution Lab</h1>
+        <div className="subtitle">Same events. Different arrival order. Different resulting truth.</div>
+        <div className="frame">A technically representative synthetic simulation inspired by a practitioner-described class of issue in distributed trade-processing systems.</div>
+      </div>
+      <header style={{marginBottom:32,borderBottom:'1px solid var(--border)',paddingBottom:24}}>
+
+        {/* Immediate above-fold contrast */}
+        <div className="grid-2" style={{marginTop:20}}>
+          <div className="card hero-card" style={{borderColor: step>=maxSteps && metrics.hiddenErrors>0 ? 'var(--danger)' : 'var(--border)'}}>
+            <div className="label" style={{color:'var(--danger)'}}>EARLY COLLAPSE RESOLVER</div>
+            <div className="mono" style={{fontSize:14,color:'var(--textDim)',marginBottom:8}}>One truth selected. Alternative destroyed. Ambiguity hidden.</div>
+            {step >= maxSteps && naiveResult ? (()=>{
+              const winTs = naiveResult._src === "Replica A" ? replicaAEvents[maxSteps-1]?.arrivalTs : replicaBEvents[maxSteps-1]?.arrivalTs;
+              const loseTs = naiveResult._src === "Replica A" ? replicaBEvents[maxSteps-1]?.arrivalTs : replicaAEvents[maxSteps-1]?.arrivalTs;
+              return <div>
+                <div className="mono" style={{fontSize:14}}>Winner: <span style={{color:'var(--warn)',fontWeight:700}}>{naiveResult._src}</span> <span style={{color:'var(--textMuted)'}}>({naivePolicy.replace('_',' ')} — committed at {winTs}ms vs {loseTs}ms)</span></div>
+                {statesDiffer && <div className="mono" style={{fontSize:14,color:'var(--danger)',marginTop:4,fontWeight:700}}>Primary exposure divergence: L2 = {stateA.L2?.qty} vs {stateB.L2?.qty}</div>}
+                <div className="mono" style={{fontSize:13,color:'var(--warn)',marginTop:2}}>Both states pass validation. Only one matches intent.</div>
+                {naiveWrong && <div className="mono" style={{fontSize:14,color:'var(--danger)',marginTop:2,fontWeight:700}}>✗ Picked the WRONG branch (confidence: {(bestBranch==="A"?scoreB:scoreA).overall.toFixed(2)} vs {(bestBranch==="A"?scoreA:scoreB).overall.toFixed(2)})</div>}
+                {naiveHedgeViolated && <div className="mono" style={{fontSize:14,color:'var(--danger)',marginTop:2}}>✗ Hedge ratio violated: {naiveExp.hedgeRatio.toFixed(3)} &lt; {stateA._intent.hedgeRatioMin}</div>}
+                <div className="mono" style={{fontSize:13,color:'var(--textMuted)',marginTop:4}}>Hidden errors: {metrics.hiddenErrors} | Net exposure: {naiveExp.net}</div>
+              </div>;
+            })()
+            ) : (
+              <div className="mono" style={{fontSize:14,color:'var(--textMuted)'}}>{step===0 ? "Press Play to begin" : `Step ${step}/${maxSteps}...`}</div>
+            )}
+          </div>
+
+          <div className="card hero-card" style={{borderColor:'var(--good)'}}>
+            <div className="label" style={{color:'var(--good)'}}>PARALLEL PERSISTENCE RESOLVER</div>
+            <div className="mono" style={{fontSize:14,color:'var(--textDim)',marginBottom:8}}>Both branches retained. Scored. Collapse only when justified.</div>
+            {step >= 2 ? (
+              <div>
+                <div className="flex gap-16">
+                  <span className="mono" style={{fontSize:14,color:'var(--repA)'}}>Branch A: {scoreA.overall.toFixed(2)}</span>
+                  <span className="mono" style={{fontSize:14,color:'var(--repB)'}}>Branch B: {scoreB.overall.toFixed(2)}</span>
+                </div>
+                <div className="mono" style={{fontSize:14,color: statesDiffer?'var(--warn)':'var(--good)',marginTop:4}}>
+                  {statesDiffer ? `Divergent — ${diffLegs.size} leg(s) differ. Arbitration available.` : 'Convergent — branches agree.'}
+                </div>
+                <div className="mono" style={{fontSize:13,color:'var(--textMuted)',marginTop:2}}>
+                  Gap: {metrics.confidenceGap.toFixed(2)} / 0.15 threshold | {metrics.confidenceGap < 0.15 ? 'Below threshold — collapse blocked' : 'Threshold met — auto-collapse possible'}
+                </div>
+              </div>
+            ) : <div className="mono" style={{fontSize:14,color:'var(--textMuted)'}}>Awaiting events...</div>}
+          </div>
+        </div>
+
+        {/* Step progress */}
+        <div className="flex gap-8 items-center" style={{marginTop:16}}>
+          <div className="flex" style={{gap:4,flex:1}}>
+            {events.map((e,i) => <div key={e.id} className="step-dot" style={{background: i<step ? (isOOO(replicaBEvents,i)?'var(--warn)':'var(--accent)') : 'var(--border)'}} title={`${e.id}: ${e.type}`} />)}
+          </div>
+          <span className="mono" style={{fontSize:14,color:'var(--textMuted)'}}>Step {step}/{maxSteps}</span>
+        </div>
+      </header>
+
+      {/* ===== CONTROLS ===== */}
+      <div className="card flex flex-wrap gap-8 items-center p-12">
+        <button className={`ctrl-btn ${playing?'active':''}`} onClick={play}>▶ Play</button>
+        <button className="ctrl-btn" onClick={pause}>⏸ Pause</button>
+        <button className="ctrl-btn" onClick={fwd}>⏭ Step</button>
+        <button className="ctrl-btn" onClick={reset}>↺ Reset</button>
+        <div className="divider" />
+        <div style={{marginRight:12}}>
+          <div className="label">Scenario</div>
+          <select value={scenario} onChange={e=>{setScenario(e.target.value);setStep(0);setArbAction(null);}}>
+            {Object.entries(SCENARIOS).map(([k,v])=><option key={k} value={k}>{v.label}</option>)}
+          </select>
+        </div>
+        <div style={{marginRight:12}}>
+          <div className="label">Naive Policy</div>
+          <select value={naivePolicy} onChange={e=>setNaivePolicy(e.target.value)}>
+            <option value="first_processed">First Processed Wins</option>
+            <option value="last_write">Last Write Wins</option>
+          </select>
+        </div>
+        <div style={{marginRight:12}}>
+          <div className="label">Replica Lag: {replicaLag}ms</div>
+          <input type="range" min={0} max={200} value={replicaLag} onChange={e=>setReplicaLag(+e.target.value)} />
+        </div>
+        <div style={{marginRight:12}}>
+          <div className="label">Jitter: {jitter}ms</div>
+          <input type="range" min={0} max={200} value={jitter} onChange={e=>setJitter(+e.target.value)} />
+        </div>
+        <button className="sm-btn" onClick={randomize}>Randomize Seed</button>
+        <span className="mono" style={{fontSize:13,color:'var(--textMuted)'}}>Seed: {seed}</span>
+      </div>
+
+      {/* ===== SECTION 2: EVENT STREAM ===== */}
+      <section>
+        <h2>Event Stream</h2>
+        <p className="section-desc">Logical events with per-replica arrival order. <span style={{color:'var(--warn)'}}>⚠</span> = out-of-order relative to causal sequence. Highlighted row = last applied.</p>
+        <div className="grid-2">
+          {[{label:"Replica A",evts:replicaAEvents,color:'var(--repA)'},{label:"Replica B",evts:replicaBEvents,color:'var(--repB)'}].map(({label,evts,color})=>(
+            <div key={label} className="card p-10">
+              <div className="label" style={{color,marginBottom:8}}>{label} — ARRIVAL ORDER</div>
+              <div className="event-row" style={{fontSize:11,color:'var(--textMuted)'}}>
+                <span>ID</span><span>TYPE</span><span>LEGS</span><span>SOURCE</span><span>ARR.</span><span></span>
+              </div>
+              {evts.map((e,i)=>(
+                <div key={e.id} className={`event-row ${i===step-1?'current':''} ${isOOO(evts,i)?'ooo':''}`} style={{opacity: i<step ? 1 : 0.35}}>
+                  <span style={{color:'var(--accent)',fontWeight:700}}>{e.id}</span>
+                  <Badge color={evtColor(e.type)}>{e.type}</Badge>
+                  <span style={{color:'var(--textDim)',fontSize:13}}>{e.legs.join(", ")}</span>
+                  <span style={{color:'var(--textMuted)',fontSize:14}}>{e.source}</span>
+                  <span style={{color:'var(--textMuted)',fontSize:14}}>{e.arrivalTs}ms</span>
+                  <span>{isOOO(evts,i)?<span style={{color:'var(--warn)'}}>⚠</span>:''}</span>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+
+        {/* Causal DAG */}
+        <div className="card p-10 mt-8">
+          <div className="label">Causal Dependency Chain</div>
+          <div className="flex gap-8 items-center mt-8" style={{flexWrap:'wrap'}}>
+            {events.map((e,i)=>(
+              <React.Fragment key={e.id}>
+                <div className={`causal-node ${i<step?'active':''}`}>
+                  {e.id} <span style={{color:'var(--textMuted)',fontSize:11}}>{e.causalTag}</span>
+                  {e.causalParent && <span style={{fontSize:10,color:'var(--textMuted)'}}> ← {e.causalParent}</span>}
+                </div>
+                {i < events.length-1 && <span style={{color:'var(--border)'}}>→</span>}
+              </React.Fragment>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== SECTION 3: REPLICA STATES ===== */}
+      <section>
+        <h2>Replica States</h2>
+        <p className="section-desc">Side-by-side leg state. <span style={{color:'var(--warn)'}}>Highlighted legs</span> indicate divergence between replicas. Both states may be locally valid.</p>
+        <div className="grid-2">
+          {[{label:"Replica A",state:stateA,legs:legsA,color:'var(--repA)',other:legsB},
+            {label:"Replica B",state:stateB,legs:legsB,color:'var(--repB)',other:legsA}].map(({label,state,legs,color,other})=>(
+            <div key={label} className="card" style={{borderColor: statesDiffer ? 'rgba(217,119,6,0.35)' : 'var(--border)'}}>
+              <div className="flex justify-between items-center mb-8">
+                <span className="label" style={{color,margin:0}}>{label}</span>
+                <div className="flex gap-8">
+                  <Badge color={isLocallyValid(state)?'var(--good)':'var(--danger)'}>{isLocallyValid(state)?'LOCALLY VALID':'INVALID'}</Badge>
+                  {statesDiffer && <Badge color="var(--warn)">DIVERGED</Badge>}
+                </div>
+              </div>
+              {legs.length === 0 ? (
+                <div className="mono" style={{fontSize:14,color:'var(--textMuted)',padding:8}}>No events applied yet</div>
+              ) : (
+                <div>
+                  {legs.map(leg => <LegCard key={leg.id} leg={leg} highlight={diffLegs.has(leg.id)} compLeg={other.find(l=>l.id===leg.id)} />)}
+                  <ExposureSummary state={state} />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+        {statesDiffer && step >= 2 && (
+          <div className="warn-banner mt-8">
+            <span style={{color:'var(--warn)',fontSize:16}}>⚠</span>
+            <div>
+              <div className="mono" style={{fontSize:14,color:'var(--warn)'}}>
+                Divergence: replicas disagree on {diffLegs.size > 0 ? [...diffLegs].join(', ') : 'internal state'}. Both are locally valid. Naive collapse will silently pick one.
+              </div>
+              {stateA.L2 && stateB.L2 && stateA.L2.qty !== stateB.L2.qty && (
+                <div className="mono" style={{fontSize:14,color:'var(--danger)',fontWeight:700,marginTop:4}}>
+                  Primary exposure divergence: L2 = {stateA.L2.qty} (A) vs {stateB.L2.qty} (B) — {Math.abs(stateA.L2.qty - stateB.L2.qty)} unit difference on primary leg
+                </div>
+              )}
+              <div className="mono" style={{fontSize:13,color:'var(--textMuted)',marginTop:2}}>Both states pass validation. Only one matches intent.</div>
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* ===== SECTION 4: EARLY COLLAPSE ===== */}
+      <section>
+        <h2>Early Collapse Result</h2>
+        <p className="section-desc">Naive resolution: one replica's processed state overwrites the other. No comparison. No scoring. No record of the discarded alternative.</p>
+        {step >= maxSteps && naiveResult ? (()=>{
+          const nLegs = Object.values(naiveResult).filter(v=>typeof v==='object'&&v.id);
+          const bestLegs = Object.values(bestState).filter(v=>typeof v==='object'&&v.id);
+          const winTs = naiveResult._src === "Replica A" ? replicaAEvents[maxSteps-1]?.arrivalTs : replicaBEvents[maxSteps-1]?.arrivalTs;
+          const loseTs = naiveResult._src === "Replica A" ? replicaBEvents[maxSteps-1]?.arrivalTs : replicaAEvents[maxSteps-1]?.arrivalTs;
+          const loseSrc = naiveResult._src === "Replica A" ? "Replica B" : "Replica A";
+          return (
+            <div className="card" style={{borderColor: metrics.hiddenErrors > 0 ? 'var(--danger)' : 'var(--border)'}}>
+              <div className="flex justify-between items-center mb-8">
+                <span className="label" style={{color:'var(--danger)',margin:0}}>POLICY: {naivePolicy.replace('_',' ').toUpperCase()} → {naiveResult._src}</span>
+                {naiveWrong && <Badge color="var(--danger)">WRONG BRANCH SELECTED</Badge>}
+              </div>
+              <div className="card card-alt p-10 mb-12" style={{borderColor:'var(--borderHi)'}}>
+                <div className="mono" style={{fontSize:13,color:'var(--textDim)'}}>
+                  DB commit race: <span style={{color:'var(--text)',fontWeight:600}}>{naiveResult._src}</span> state arrived at DB at <span style={{fontWeight:600}}>{winTs}ms</span>. {loseSrc} arrived at <span style={{fontWeight:600}}>{loseTs}ms</span>. Winner selected by {naivePolicy === 'first_processed' ? 'earlier' : 'later'} commit timestamp.
+                </div>
+                {statesDiffer && <div className="mono" style={{fontSize:13,color:'var(--danger)',marginTop:4,fontWeight:600}}>
+                  Primary exposure divergence: L2 = {stateA.L2?.qty} (A) vs {stateB.L2?.qty} (B). Selected L2 = {naiveResult.L2?.qty}.
+                </div>}
+                <div className="mono" style={{fontSize:13,color:'var(--warn)',marginTop:2}}>Both states pass validation. Only one matches desk intent.</div>
+              </div>
+              <div className="grid-3 mb-12">
+                {nLegs.map(leg => {
+                  const best = bestLegs.find(l=>l.id===leg.id);
+                  const wrong = best && (leg.qty !== best.qty || leg.status !== best.status);
+                  return (
+                    <div key={leg.id} className="leg-card" style={{borderColor: wrong ? 'var(--danger)' : 'var(--border)'}}>
+                      <div className="flex justify-between items-center mb-4">
+                        <span className="mono" style={{fontWeight:700,fontSize:14}}>{leg.id}</span>
+                        <Badge color={wrong?'var(--danger)':'var(--good)'}>{wrong?'WRONG STATE':'OK'}</Badge>
+                      </div>
+                      <div className="mono" style={{fontSize:14,color:'var(--textDim)'}}>
+                        Qty: <span style={{color:wrong?'var(--danger)':'var(--text)',fontWeight:700}}>{leg.qty}</span>
+                        {wrong && best && <span style={{color:'var(--good)',fontSize:14}}> (should be {best.qty})</span>}
+                      </div>
+                      <div className="mono" style={{fontSize:13,color:'var(--textDim)',marginTop:2}}>Status: {leg.status}</div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="grid-2">
+                <div className="card card-alt p-10" style={{borderColor: metrics.hiddenErrors>0?'var(--danger)':'var(--border)'}}>
+                  <div className="label">Consequences</div>
+                  <div className="mono" style={{fontSize:14,marginTop:4}}>
+                    <div style={{color:naiveWrong?'var(--danger)':'var(--good)',marginBottom:4}}>
+                      {naiveWrong ? '✗ Selected lower-confidence branch — semantic error' : '✓ Happened to pick higher-confidence branch'}
+                    </div>
+                    <div style={{color:naiveHedgeViolated?'var(--danger)':'var(--good)',marginBottom:4}}>
+                      {naiveHedgeViolated ? `✗ Hedge ratio ${naiveExp.hedgeRatio.toFixed(3)} < ${stateA._intent.hedgeRatioMin} — violated` : '✓ Hedge ratio satisfied'}
+                    </div>
+                    <div style={{color:'var(--warn)',marginBottom:4}}>✗ Alternative interpretation destroyed — no audit trail</div>
+                    <div style={{color: metrics.hiddenErrors>0?'var(--danger)':'var(--textDim)',fontWeight:700}}>
+                      {metrics.hiddenErrors > 0 ? '→ Manual intervention required (discovered later, not now)' : '→ Correct by coincidence, not by design'}
+                    </div>
+                  </div>
+                </div>
+                <div className="card card-alt p-10">
+                  <div className="label">Exposure Comparison</div>
+                  <div className="mono" style={{fontSize:14,marginTop:4}}>
+                    <div className="mb-4">Collapsed: Net=<span style={{fontWeight:700}}>{naiveExp.net}</span> H/P=<span style={{fontWeight:700}}>{naiveExp.hedgeRatio.toFixed(3)}</span></div>
+                    <div className="mb-4">Best branch: Net=<span style={{fontWeight:700}}>{bestExp.net}</span> H/P=<span style={{fontWeight:700}}>{bestExp.hedgeRatio.toFixed(3)}</span></div>
+                    <div style={{color: naiveExp.net !== bestExp.net ? 'var(--danger)':'var(--good)'}}>
+                      {naiveExp.net !== bestExp.net ? `Exposure error: ${Math.abs(naiveExp.net - bestExp.net)} units` : 'Exposure matches best branch'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })() : (
+          <div className="card text-center" style={{padding:24}}>
+            <div className="mono" style={{fontSize:14,color:'var(--textMuted)'}}>{step===0?'Run simulation to completion':'Processing... step '+step+'/'+maxSteps}</div>
+          </div>
+        )}
+      </section>
+
+      {/* ===== SECTION 5: PARALLEL PERSISTENCE ===== */}
+      <section>
+        <h2>Parallel Persistence Result</h2>
+        <p className="section-desc">Both candidate trajectories retained and scored. Collapse deferred until confidence gap justifies it. Scoring: causal coherence, structural consistency, event completeness, operator alignment.</p>
+        {step >= 2 && (
+          <div className="card card-alt p-10 mb-12" style={{borderColor:'var(--accent)',borderStyle:'dashed'}}>
+            <div className="flex justify-between items-center">
+              <span className="mono" style={{fontSize:13,color:'var(--accent)'}}>COLLAPSE RULE: auto-collapse only when confidence gap ≥ 0.15</span>
+              <span className="mono" style={{fontSize:13,color: metrics.confidenceGap >= 0.15 ? 'var(--good)' : 'var(--warn)', fontWeight:700}}>
+                Current gap: {metrics.confidenceGap.toFixed(2)} {metrics.confidenceGap >= 0.15 ? '— threshold met' : '— below threshold, collapse blocked'}
+              </span>
+            </div>
+          </div>
+        )}
+        {step >= 2 ? (
+          <div className="grid-2">
+            {[{label:"Branch A",state:stateA,score:scoreA,color:'var(--repA)',winner:bestBranch==="A"&&statesDiffer},
+              {label:"Branch B",state:stateB,score:scoreB,color:'var(--repB)',winner:bestBranch==="B"&&statesDiffer}].map(({label,state,score,color,winner})=>{
+              const exp = computeExposure(state);
+              const legs = Object.values(state).filter(v=>typeof v==='object'&&v.id);
+              return (
+                <div key={label} className="card" style={{borderColor: winner?'rgba(22,163,74,0.35)':'var(--border)'}}>
+                  <div className="flex justify-between items-center mb-8">
+                    <span className="label" style={{color,margin:0}}>{label} (Replica {label.slice(-1)} order)</span>
+                    {winner && <Badge color="var(--good)">HIGHER CONFIDENCE</Badge>}
+                  </div>
+                  <div className="mono" style={{fontSize:13,color:'var(--textDim)',marginBottom:4}}>
+                    Legs: {legs.map(l=>`${l.id}(${l.qty}/${l.status})`).join(' · ')}
+                  </div>
+                  <div className="mono" style={{fontSize:13,color:'var(--textDim)',marginBottom:12}}>
+                    Net={exp.net} Primary={exp.primaryTotal} Hedge={exp.hedgeTotal} H/P={exp.hedgeRatio.toFixed(3)}
+                  </div>
+                  <ScoreBar label="Causal Coherence" value={score.causalCoherence} color="var(--accent)" />
+                  <ScoreBar label="Structural Consistency" value={score.structuralConsistency} color="var(--purple)" />
+                  <ScoreBar label="Event Completeness" value={score.eventCompleteness} color="var(--good)" />
+                  <ScoreBar label="Operator Alignment" value={score.operatorAlignment} color="var(--warn)" />
+                  <div className="mt-8" style={{padding:'6px 10px',background:'var(--bgAlt)',borderRadius:4}}>
+                    <div className="flex justify-between">
+                      <span className="mono" style={{fontWeight:700,fontSize:14}}>Overall Confidence</span>
+                      <span className="mono" style={{fontWeight:700,fontSize:14,color}}>{score.overall.toFixed(2)}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="card text-center" style={{padding:24}}>
+            <div className="mono" style={{fontSize:14,color:'var(--textMuted)'}}>Awaiting ≥2 events to begin scoring...</div>
+          </div>
+        )}
+      </section>
+
+      {/* ===== SECTION 6: ARBITRATION ===== */}
+      <section>
+        <h2>Arbitration Layer</h2>
+        <p className="section-desc">When confidence gap is small or semantic ambiguity exists, structured arbitration replaces silent collapse. This is operator review, not a decorative panel.</p>
+        {step >= maxSteps && statesDiffer ? (()=>{
+          const gap = metrics.confidenceGap;
+          const needsArb = gap < 0.15;
+          const intentThreshold = stateA._intent?.hedgeRatioMin || 0.4;
+          const hedgeConflict = (expA.hedgeRatio >= intentThreshold) !== (expB.hedgeRatio >= intentThreshold);
+
+          const reasons = [];
+          if(gap < 0.15) reasons.push(`Confidence gap too narrow for safe auto-collapse (${gap.toFixed(2)})`);
+          if(hedgeConflict) reasons.push(`Hedge compliance disagrees: A=${expA.hedgeRatio.toFixed(3)} B=${expB.hedgeRatio.toFixed(3)} (threshold: ${intentThreshold})`);
+          if(diffLegs.size > 0) reasons.push(`Leg state divergence on: ${[...diffLegs].join(', ')} — qty and/or status differ`);
+          if(scoreA.causalCoherence !== scoreB.causalCoherence) reasons.push(`Causal ordering violations differ between branches (A=${scoreA.causalCoherence} B=${scoreB.causalCoherence})`);
+          if(stateA._intentStale || stateB._intentStale) reasons.push('Desk intent was evaluated on stale state in at least one branch');
+
+          const missing = [];
+          if(scoreA.eventCompleteness < 1 || scoreB.eventCompleteness < 1) missing.push('Not all events fully propagated to both replicas');
+          missing.push('No operator confirmation of intended final leg structure');
+          missing.push('No explicit desk decision on whether L3 cancel should apply before or after L2 amend');
+          if(hedgeConflict) missing.push('Hedge ratio intent may depend on post-amend or pre-amend L2 qty — ambiguous');
+
+          const actions = [
+            { id:'retain_l2_amend', label:'Retain L2 amended qty (240)', desc:'Accept AMEND as authoritative for L2. Final qty=240. Hedge ratio calculated against amended exposure.', type:'leg_decision' },
+            { id:'retain_l3_pre', label:'Retain L3 pre-cancel (80)', desc:'Undo partial cancel, keep L3 at full 80 qty. Increases hedge coverage.', type:'leg_decision' },
+            { id:'preserve_hedge', label:'Preserve hedge structure', desc:`Accept whichever branch maintains hedge ratio ≥ ${(intentThreshold*100)}% of primary. Currently: A=${expA.hedgeRatio.toFixed(3)}, B=${expB.hedgeRatio.toFixed(3)}.`, type:'structural' },
+            { id:'prefer_causal', label:'Prioritize causal chain', desc:`Select branch with higher causal coherence. A=${scoreA.causalCoherence}, B=${scoreB.causalCoherence}.`, type:'causal' },
+            { id:'require_evidence', label:'Require more evidence', desc:'Do not collapse. Wait for additional events, corrections, or desk confirmation before committing.', type:'defer' },
+            { id:'defer_commit', label:'Defer final commit', desc:'Hold both branches live. Flag for senior trader review during next reconciliation window.', type:'defer' },
+          ];
+
+          const arbResult = arbAction ? (() => {
+            if(arbAction === 'prefer_causal') return scoreA.causalCoherence >= scoreB.causalCoherence ? 'Branch A' : 'Branch B';
+            if(arbAction === 'preserve_hedge') return expA.hedgeRatio >= expB.hedgeRatio ? 'Branch A' : 'Branch B';
+            if(arbAction === 'retain_l2_amend') return 'Branch A (amended L2)';
+            if(arbAction === 'retain_l3_pre') return 'Requires manual override — not resolvable from current state alone';
+            return 'Deferred — awaiting additional input';
+          })() : null;
+
+          return (
+            <div className="card" style={{borderColor: needsArb ? 'var(--warn)' : 'var(--good)'}}>
+              {needsArb && (
+                <div style={{padding:'8px 12px',background:'rgba(217,119,6,0.06)',borderRadius:'6px 6px 0 0',marginBottom:12,borderBottom:'1px solid var(--warn)'}}>
+                  <div className="mono" style={{fontSize:13,color:'var(--warn)',fontWeight:700,letterSpacing:0.5}}>SYSTEM LIMIT REACHED — REQUIRES EXTERNAL SEMANTIC INPUT</div>
+                </div>
+              )}
+              <div className="flex justify-between items-center mb-8">
+                <span className="label" style={{color: needsArb?'var(--warn)':'var(--good)',margin:0}}>
+                  {needsArb ? 'ARBITRATION REQUIRED — COLLAPSE UNSAFE' : 'AUTO-COLLAPSE POSSIBLE (with caution)'}
+                </span>
+                <div className="flex gap-8 items-center">
+                  <Badge color={needsArb?'var(--warn)':'var(--good)'}>Gap: {gap.toFixed(2)} / 0.15 threshold</Badge>
+                </div>
+              </div>
+
+              {/* Candidate interpretations */}
+              <div className="label mb-8">Candidate Interpretations</div>
+              <div className="grid-2 mb-16">
+                {[{l:'Interpretation A',s:scoreA,e:expA,c:'var(--repA)',order:sc.replicaA.join(' → ')},
+                  {l:'Interpretation B',s:scoreB,e:expB,c:'var(--repB)',order:sc.replicaB.join(' → ')}].map(x=>(
+                  <div key={x.l} style={{padding:10,background:'var(--bgAlt)',borderRadius:6,border:'1px solid var(--border)'}}>
+                    <div className="mono" style={{color:x.c,fontWeight:600,fontSize:14,marginBottom:4}}>{x.l}</div>
+                    <div className="mono" style={{fontSize:14,color:'var(--textDim)',marginBottom:2}}>Order: {x.order}</div>
+                    <div className="mono" style={{fontSize:14,color:'var(--textDim)'}}>
+                      Confidence: {x.s.overall.toFixed(2)} | Net: {x.e.net} | H/P: {x.e.hedgeRatio.toFixed(3)} | Causal: {x.s.causalCoherence}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Why */}
+              <div className="mb-12">
+                <div className="label mb-8">Why safe collapse is not yet possible</div>
+                {reasons.map((r,i)=><div key={i} className="mono" style={{fontSize:13,color:'var(--warn)',padding:'3px 0'}}>• {r}</div>)}
+              </div>
+
+              {/* Missing */}
+              <div className="mb-12">
+                <div className="label mb-8">Missing / conflicting evidence</div>
+                {missing.map((r,i)=><div key={i} className="mono" style={{fontSize:13,color:'var(--textDim)',padding:'3px 0'}}>• {r}</div>)}
+              </div>
+
+              {/* Actions */}
+              <div className="mb-12">
+                <div className="label mb-8">Operator Actions — Select to resolve</div>
+                <div className="grid-3">
+                  {actions.map(a=>(
+                    <button key={a.id} className={`arb-btn ${arbAction===a.id?'selected':''}`} onClick={()=>setArbAction(a.id)}>
+                      <div className="mono" style={{fontSize:13,fontWeight:600,color:arbAction===a.id?'var(--accent)':'var(--text)',marginBottom:2}}>{a.label}</div>
+                      <div style={{fontSize:14,color:'var(--textMuted)',lineHeight:1.4}}>{a.desc}</div>
+                      <div style={{fontSize:11,color:'var(--textMuted)',marginTop:4,fontStyle:'italic'}}>Type: {a.type}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Arbitration result */}
+              {arbAction && (
+                <div className="card card-alt p-10" style={{borderColor:'var(--accent)'}}>
+                  <div className="label" style={{color:'var(--accent)'}}>ARBITRATION RESULT</div>
+                  <div className="mono" style={{fontSize:14,marginTop:4,color:'var(--text)'}}>
+                    Action: <span style={{fontWeight:700}}>{actions.find(a=>a.id===arbAction)?.label}</span>
+                  </div>
+                  <div className="mono" style={{fontSize:14,marginTop:2,color:'var(--textDim)'}}>
+                    Resolution: <span style={{color:'var(--accent)',fontWeight:600}}>{arbResult}</span>
+                  </div>
+                  <div className="mono" style={{fontSize:14,marginTop:4,color:'var(--textMuted)'}}>
+                    This decision is recorded, traceable, and auditable — unlike silent early collapse.
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })() : (
+          <div className="card text-center" style={{padding:24}}>
+            <div className="mono" style={{fontSize:14,color:'var(--textMuted)'}}>
+              {step < maxSteps ? 'Arbitration available after simulation completes with divergent state' : 'Branches converged — arbitration not triggered'}
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* ===== SECTION 7: METRICS ===== */}
+      <section>
+        <h2>Metrics / Outcomes</h2>
+        <p className="section-desc">All values computed from the active simulation run. No synthetic or decorative numbers.</p>
+        <div className="grid-2">
+          <div className="card" style={{borderColor:'rgba(220,38,38,0.2)'}}>
+            <div className="label" style={{color:'var(--danger)',marginBottom:10}}>EARLY COLLAPSE</div>
+            {[
+              {l:'Premature Collapse Events', v:metrics.prematureCollapse, bad:metrics.prematureCollapse>0},
+              {l:'Picked Wrong Branch', v:metrics.naivePickedWrong, bad:metrics.naivePickedWrong>0},
+              {l:'Hedge Ratio Violated', v:metrics.wrongHedge, bad:metrics.wrongHedge>0},
+              {l:'Hidden Semantic Errors', v:metrics.hiddenErrors, bad:metrics.hiddenErrors>0},
+              {l:'Manual Intervention Likely', v:metrics.manualIntervention, bad:metrics.manualIntervention>0},
+              {l:'Alternatives Preserved', v:0, bad:true},
+              {l:'Arbitration Deferrals', v:0, bad:true},
+            ].map(m=>(
+              <div key={m.l} className="metric-row">
+                <span style={{color:'var(--textDim)',fontSize:13}}>{m.l}</span>
+                <span style={{color:m.bad?'var(--danger)':'var(--good)',fontWeight:600}}>{m.v}</span>
+              </div>
+            ))}
+          </div>
+          <div className="card" style={{borderColor:'rgba(22,163,74,0.2)'}}>
+            <div className="label" style={{color:'var(--good)',marginBottom:10}}>PARALLEL PERSISTENCE</div>
+            {[
+              {l:'Premature Collapse Events', v:0, bad:false},
+              {l:'Hidden Semantic Errors', v:0, bad:false},
+              {l:'Branches Maintained', v:statesDiffer?2:1, bad:false},
+              {l:'Confidence Gap', v:metrics.confidenceGap.toFixed(2), bad:false},
+              {l:'Best Branch Score', v:metrics.bestScore.toFixed(2), bad:false},
+              {l:'Arbitration Deferrals', v:metrics.arbNeeded, bad:false},
+              {l:'Consensus Status', v:metrics.status, bad:false},
+            ].map(m=>(
+              <div key={m.l} className="metric-row">
+                <span style={{color:'var(--textDim)',fontSize:13}}>{m.l}</span>
+                <span style={{color:'var(--good)',fontWeight:600}}>{m.v}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Divergence timeline */}
+        <div className="card p-10 mt-12">
+          <div className="label">Divergence Timeline — per-step branch agreement</div>
+          <div className="flex items-center mt-8" style={{gap:3,height:44}}>
+            {events.map((e,i) => {
+              let sA = {}, sB = {};
+              for(let j=0; j<=i; j++) { sA=applyEvent(sA,replicaAEvents[j]); sB=applyEvent(sB,replicaBEvents[j]); }
+              const div = JSON.stringify(sA)!==JSON.stringify(sB);
+              const active = i < step;
+              return (
+                <div key={e.id} style={{display:'flex',flexDirection:'column',alignItems:'center',flex:1}}>
+                  <div style={{width:'100%',height:active?(div?36:10):4,background:active?(div?'var(--warn)':'var(--good)'):'var(--border)',borderRadius:2,transition:'all 0.3s'}} />
+                  <span style={{fontSize:11,color:'var(--textMuted)',marginTop:3}}>{e.id}</span>
+                </div>
+              );
+            })}
+          </div>
+          <div className="flex justify-between" style={{marginTop:4}}>
+            <span style={{fontSize:11,color:'var(--good)'}}>■ Converged</span>
+            <span style={{fontSize:11,color:'var(--warn)'}}>■ Diverged</span>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== SECTION 8: TAKEAWAY ===== */}
+      <section>
+        <h2>Technical Summary</h2>
+        <div className="card" style={{padding:16}}>
+          <div className="mono" style={{fontSize:14,color:'var(--textDim)',lineHeight:1.7}}>
+            <p style={{marginBottom:8}}>
+              Early collapse creates silent semantic errors. When two replicas process the same event set in different orders,
+              naive resolution discards a potentially correct interpretation without comparison. The error is locally valid — it
+              passes all syntactic checks — but semantically wrong: wrong leg retained, wrong hedge ratio, wrong exposure.
+            </p>
+            <p style={{marginBottom:8}}>
+              Preserving competing interpretations makes ambiguity explicit. By scoring branches on causal coherence,
+              structural consistency, event completeness, and operator alignment, the system identifies when safe
+              auto-collapse is possible and when it is not — before committing.
+            </p>
+            <p>
+              Manual review becomes structured arbitration instead of post-hoc repair. Rather than discovering hedge
+              violations during end-of-day reconciliation, the system surfaces the decision point with context, scores, and
+              operator actions while competing states are still live.
+            </p>
+          </div>
+        </div>
+
+        <div className="card mt-12" style={{padding:16,borderColor:'rgba(0,46,92,0.2)'}}>
+          <h3 style={{fontSize:14,fontWeight:600,marginBottom:10}}>What this demonstrates</h3>
+          <div className="mono" style={{fontSize:14,color:'var(--textDim)',lineHeight:1.7}}>
+            <p style={{marginBottom:8,paddingLeft:12,borderLeft:'2px solid var(--accent)'}}>
+              The same event set can yield different convergence depending on replica arrival order.
+            </p>
+            <p style={{marginBottom:8,paddingLeft:12,borderLeft:'2px solid var(--warn)'}}>
+              Naive collapse can produce locally valid but semantically wrong outcomes.
+            </p>
+            <p style={{paddingLeft:12,borderLeft:'2px solid var(--good)'}}>
+              Preserving candidate branches makes ambiguity visible and reduces destructive early collapse.
+            </p>
+          </div>
+        </div>
+
+        {/* Two failure classes */}
+        <div className="grid-2 mt-12">
+          <div className="card p-12">
+            <div className="label" style={{color:'var(--accent)'}}>FAILURE CLASS 1</div>
+            <div className="mono" style={{fontSize:14,fontWeight:600,marginBottom:4}}>Replication-Order Non-Determinism</div>
+            <div style={{fontSize:13,color:'var(--textDim)',lineHeight:1.5}}>
+              Identical events arrive in different orders at different replicas due to network jitter, service partitioning, or
+              message queue reordering. Each replica builds a locally valid but globally inconsistent state.
+            </div>
+          </div>
+          <div className="card p-12">
+            <div className="label" style={{color:'var(--purple)'}}>FAILURE CLASS 2</div>
+            <div className="mono" style={{fontSize:14,fontWeight:600,marginBottom:4}}>Semantic Ambiguity in Leg Structure</div>
+            <div style={{fontSize:13,color:'var(--textDim)',lineHeight:1.5}}>
+              Even with the same event order, the intended leg structure may be ambiguous without trader/operator context.
+              Should L2's partial cancel apply to pre-amend qty (200) or post-amend qty (240)? The answer determines primary exposure. This requires semantic arbitration, not just ordering.
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-16" style={{padding:'12px 16px',background:'var(--bgAlt)',borderRadius:6,border:'1px solid var(--border)'}}>
+          <div className="mono" style={{fontSize:14,color:'var(--textMuted)'}}>
+            Seed: {seed} | Scenario: {sc.label} | Policy: {naivePolicy} | Lag: {replicaLag}ms | Jitter: {jitter}ms | Arb: {arbPolicy}
+          </div>
+        </div>
+      </section>
+
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

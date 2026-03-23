@@ -791,6 +791,7 @@ export default function Lab() {
             { href: "/lab/multihead.html", title: "Distributed Writer Array", desc: "Parallel control architecture demonstration." },
             { href: "/lab/psf-synthesis.html", title: "PSF Physics", desc: "Coupled spatial-temporal optimization." },
             { href: "/lab/cta-evaluation.html", title: "CTA Evaluation Engine", desc: "Multi-state decision architecture." },
+            { href: "/lab/replica-race.html", title: "Replica Race Resolution", desc: "Distributed state convergence under ordering ambiguity." },
           ].map(card => (
             <a key={card.href} href={card.href} target="_blank" rel="noreferrer" style={{ textDecoration: "none", color: "inherit" }}>
               <div style={{
