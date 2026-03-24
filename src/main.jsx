@@ -9,6 +9,8 @@ const telemetry = createTelemetry({
   endpoint: "/api/telemetry",
   site: "industriallystrong.com",
   debug: false,
+  respectDNT: false,
+  respectGPC: false,
   heartbeatEnabled: true,
   heartbeatIntervalMs: 30000,
   heartbeatMinVisibleMs: 15000,
