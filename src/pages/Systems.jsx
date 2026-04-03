@@ -114,6 +114,7 @@ export default function Systems() {
                 subtitle="Multi-agent dietary intelligence system"
                 description="A system built around multiple agents, domain-specific reasoning, and applied intelligence workflows. It demonstrates how specialized agents can collaborate within a usable operating surface."
                 evidence="Working multi-agent application with domain focus"
+                to="/systems/gutsense"
               />
 
               <SystemCard

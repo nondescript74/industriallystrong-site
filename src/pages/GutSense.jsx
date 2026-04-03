@@ -1,3 +1,4 @@
+import { trackEvent } from "../utils/analytics";
 import PageShell from "../components/PageShell";
 
 export default function GutSense() {
@@ -11,6 +12,37 @@ export default function GutSense() {
           evaluate foods against FODMAP sensitivity, allergens, and individual
           dietary constraints.
         </p>
+
+        <a
+          href="https://gutsense.industriallystrong.com"
+          target="_blank"
+          rel="noreferrer"
+          onClick={() => trackEvent("navigation", "gutsense_web_launch")}
+          style={{
+            display: "inline-block",
+            marginTop: "20px",
+            padding: "14px 24px",
+            border: "1px solid #334155",
+            borderRadius: "10px",
+            textDecoration: "none",
+            color: "white",
+            background: "#111827",
+            fontWeight: 600,
+            fontSize: "15px",
+            letterSpacing: "0.02em",
+            transition: "background 0.18s ease, border-color 0.18s ease",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = "#5B8DEF";
+            e.currentTarget.style.background = "#172033";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = "#334155";
+            e.currentTarget.style.background = "#111827";
+          }}
+        >
+          Launch GutSense Web →
+        </a>
       </section>
 
       <section
@@ -98,8 +130,17 @@ export default function GutSense() {
 
         <p style={{ opacity: 0.88, maxWidth: "900px" }}>
           GutSense operates as a private iOS application in tester access with a
-          live backend, plus a web companion demo accessible from the Decks page.
-          Multi-agent architecture continues to evolve across both platforms.
+          live backend. The{" "}
+          <a
+            href="https://gutsense.industriallystrong.com"
+            target="_blank"
+            rel="noreferrer"
+            style={{ color: "#5B8DEF", textDecoration: "none" }}
+          >
+            web companion
+          </a>{" "}
+          is publicly accessible for food analysis. Multi-agent architecture
+          continues to evolve across both platforms.
         </p>
       </section>
     </PageShell>
