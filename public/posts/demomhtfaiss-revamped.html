@@ -821,6 +821,7 @@
       .sum-grid { grid-template-columns: repeat(2, 1fr); }
       .cand-table { font-size: 11px; }
       .cand-table th, .cand-table td { padding: 8px 6px; }
+      .regime-example-grid { grid-template-columns: 1fr !important; }
     }
   </style>
 </head>
@@ -845,7 +846,7 @@
     <div class="orientation-label">Decision Pipeline Architecture</div>
     <h1>Most decision systems resolve to a single state too early.</h1>
     <p class="orientation-body">
-      This system maintains multiple candidate states through the pipeline and resolves only at execution.
+      Two decision architectures processing the same uncertain signal stream — one collapses uncertainty, the other tracks competing hypotheses until evidence converges.
     </p>
     <p class="orientation-body" style="font-size:13px; font-style:italic; margin-top:-10px;">
       Think: state persistence across a decision pipeline, not a single-path model.
@@ -984,9 +985,70 @@
     <!-- ─── Expandable: Internal Mechanics ─── -->
     <div class="expandable">
       <button class="expand-trigger" id="mechTrigger" onclick="toggleExpand('mechTrigger','mechContent')">
-        <span class="arrow">▶</span> Show pipeline behavior — state flow, resolution timing, decision surface
+        <span class="arrow">▶</span> Show pipeline behavior — decision surface, state flow, failure comparison
       </button>
       <div class="expand-content" id="mechContent">
+
+        <!-- ── Decision Surface (FIRST — most compelling) ── -->
+        <div style="background:white; border:1px solid var(--border); border-radius:10px; padding:20px; margin-bottom:20px;">
+          <div class="inner-card-label">Ranked Decision Surface</div>
+          <p style="font-size:12px; color:var(--muted); line-height:1.5; margin-bottom:14px;">
+            Actions are ranked continuously instead of flipping between labels.
+          </p>
+          <!-- Bar-style decision ranking -->
+          <div style="margin-bottom:10px;">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+              <span style="font-family:var(--mono); font-size:12px; font-weight:700; color:var(--navy); width:50px;">LONG</span>
+              <div style="flex:1; height:14px; background:#f1f5f9; border-radius:4px; overflow:hidden;">
+                <div style="width:85%; height:100%; background:var(--green); border-radius:4px;"></div>
+              </div>
+              <span style="font-family:var(--mono); font-size:13px; font-weight:700; color:var(--green); width:36px; text-align:right;">0.85</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+              <span style="font-family:var(--mono); font-size:12px; font-weight:700; color:var(--navy); width:50px;">FLAT</span>
+              <div style="flex:1; height:14px; background:#f1f5f9; border-radius:4px; overflow:hidden;">
+                <div style="width:8%; height:100%; background:var(--amber); border-radius:4px;"></div>
+              </div>
+              <span style="font-family:var(--mono); font-size:13px; font-weight:700; color:var(--amber); width:36px; text-align:right;">0.08</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span style="font-family:var(--mono); font-size:12px; font-weight:700; color:var(--navy); width:50px;">HEDGE</span>
+              <div style="flex:1; height:14px; background:#f1f5f9; border-radius:4px; overflow:hidden;">
+                <div style="width:3%; height:100%; background:var(--red); border-radius:4px;"></div>
+              </div>
+              <span style="font-family:var(--mono); font-size:13px; font-weight:700; color:var(--red); width:36px; text-align:right;">0.03</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Failure Comparison Block ── -->
+        <div style="margin-bottom:20px; border-radius:10px; overflow:hidden; border:1px solid var(--border);">
+          <div style="text-align:center; font-size:13px; font-weight:700; color:var(--text); padding:14px 16px 10px; background:#f8fafc; border-bottom:1px solid var(--border);">
+            When Systems Commit Too Early
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr;">
+            <!-- Left: LLM failure -->
+            <div style="background:#fef2f2; padding:16px 18px; border-right:1px solid var(--border);">
+              <div style="font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--red); margin-bottom:8px;">Single-State Pipeline</div>
+              <div style="font-family:var(--mono); font-size:12px; line-height:1.8; color:#991b1b;">
+                <div>LLM commits <span style="background:#dcfce7; color:var(--green); padding:1px 6px; border-radius:3px; font-weight:600;">BULLISH</span></div>
+                <div style="margin-top:4px;">Volatility spike arrives</div>
+                <div style="margin-top:6px; padding:4px 8px; background:#fee2e2; border-radius:4px; font-weight:700; color:var(--red); display:inline-block;">Result: incorrect commitment</div>
+              </div>
+            </div>
+            <!-- Right: Tracked system success -->
+            <div style="background:#f0fdf4; padding:16px 18px;">
+              <div style="font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--green); margin-bottom:8px;">Multi-State Pipeline</div>
+              <div style="font-family:var(--mono); font-size:12px; line-height:1.8; color:#166534;">
+                <div>Trend: <strong>45%</strong> &nbsp; Volatility: <strong>40%</strong></div>
+                <div style="margin-top:4px;">Action: <span style="background:#dcfce7; color:var(--green); padding:1px 6px; border-radius:3px; font-weight:600;">FLAT</span></div>
+                <div style="margin-top:6px; padding:4px 8px; background:#dcfce7; border-radius:4px; font-weight:700; color:var(--green); display:inline-block;">Result: avoided error</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Pipeline Flow (Tracked State History — now below) ── -->
         <div class="arena-grid">
           <!-- Left internals -->
           <div style="background:white; border:1px solid var(--border); border-radius:10px; padding:20px;">
@@ -1018,15 +1080,12 @@
               <span class="p-arrow">→</span>
               <span class="p-chip">Execute</span>
             </div>
-            <div style="font-size:12px; color:var(--muted); line-height:1.6; margin-bottom:14px;">
+            <div style="font-size:12px; color:var(--muted); line-height:1.6;">
               State persists across pipeline stages. Candidate states are updated probabilistically. Resolution happens only when evidence converges at execution.
             </div>
-            <div class="inner-card-label">Ranked Decision Surface</div>
-            <div class="decision-row"><div><span class="decision-rank">1.</span> LONG — trend following momentum</div><div class="decision-score">0.82</div></div>
-            <div class="decision-row"><div><span class="decision-rank">2.</span> FLAT — await confirmation</div><div class="decision-score">0.09</div></div>
-            <div class="decision-row"><div><span class="decision-rank">3.</span> SHORT — counter-trend entry</div><div class="decision-score">0.04</div></div>
           </div>
         </div>
+
       </div>
     </div>
   </div>
@@ -1044,10 +1103,61 @@
       <div class="why-callout">
         This is equivalent to delaying state collapse in a distributed decision system to preserve optionality under changing conditions.
       </div>
-      <h2 style="font-size:18px; margin-top:24px;">Behavior: Deferred Resolution</h2>
+      <h2 style="font-size:18px; margin-top:24px;">Why This System Makes Better Decisions</h2>
       <p>
         Maintaining multiple states allows the system to adapt as new information arrives. The difference is not accuracy on any single cycle — it is behavior over time. A pipeline that preserves candidate states detects regime changes through gradual reweighting. A pipeline that resolves early detects them only through reversal — which is always late, and always lossy.
       </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       LIVE REGIME SHIFT EXAMPLE
+       ═══════════════════════════════════════════════════════════ -->
+  <div style="padding: 40px 0; border-top: 2px solid var(--border);">
+    <div style="max-width: 680px; margin: 0 auto;">
+      <div style="font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px;">Regime Evolution</div>
+      <h2 style="font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 8px;">Live Regime Shift Example</h2>
+      <p style="font-size: 14px; color: var(--muted); line-height: 1.7; margin-bottom: 24px;">
+        Signals evolve through time. One-shot systems flip answers. Tracked systems evolve probabilities.
+      </p>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        <!-- Left: LLM-Only Behavior -->
+        <div style="background: white; border: 1px solid var(--border); border-top: 3px solid var(--red); border-radius: 10px; padding: 20px;">
+          <div style="font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--red); margin-bottom: 14px;">LLM-Only Behavior</div>
+          <div style="font-family: var(--mono); font-size: 13px; line-height: 2.2; color: var(--text);">
+            <div><span style="color: var(--muted); font-size: 11px;">00:00</span> &nbsp;<span style="background: #dcfce7; color: var(--green); padding: 2px 10px; border-radius: 4px; font-weight: 600;">BULLISH</span></div>
+            <div><span style="color: var(--muted); font-size: 11px;">00:04</span> &nbsp;<span style="background: #dcfce7; color: var(--green); padding: 2px 10px; border-radius: 4px; font-weight: 600;">BULLISH</span></div>
+            <div><span style="color: var(--muted); font-size: 11px;">00:07</span> &nbsp;<span style="background: #fee2e2; color: var(--red); padding: 2px 10px; border-radius: 4px; font-weight: 600;">BEARISH</span></div>
+            <div><span style="color: var(--muted); font-size: 11px;">00:10</span> &nbsp;<span style="background: #dcfce7; color: var(--green); padding: 2px 10px; border-radius: 4px; font-weight: 600;">BULLISH</span></div>
+          </div>
+          <div style="font-size: 12px; color: var(--muted); margin-top: 12px; line-height: 1.5; font-style: italic;">
+            One-shot inference appears as abrupt answer flips.
+          </div>
+        </div>
+
+        <!-- Right: Tracked System Behavior -->
+        <div style="background: white; border: 1px solid var(--border); border-top: 3px solid var(--blue); border-radius: 10px; padding: 20px;">
+          <div style="font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--blue); margin-bottom: 14px;">Tracked System Behavior</div>
+          <div style="font-size: 13px; line-height: 1.8; color: var(--text);">
+            <div style="margin-bottom: 6px;">
+              <span style="font-size: 12px; color: var(--muted); display: inline-block; width: 130px;">Trend continuation</span>
+              <span style="font-family: var(--mono); color: var(--blue); font-weight: 600;">0.60 → 0.45 → 0.30</span>
+            </div>
+            <div style="margin-bottom: 6px;">
+              <span style="font-size: 12px; color: var(--muted); display: inline-block; width: 130px;">Volatility spike</span>
+              <span style="font-family: var(--mono); color: var(--orange); font-weight: 600;">0.20 → 0.35 → 0.50</span>
+            </div>
+            <div>
+              <span style="font-size: 12px; color: var(--muted); display: inline-block; width: 130px;">Mean reversion</span>
+              <span style="font-family: var(--mono); color: var(--green); font-weight: 600;">0.10 → 0.20 → 0.40</span>
+            </div>
+          </div>
+          <div style="font-size: 12px; color: var(--muted); margin-top: 12px; line-height: 1.5; font-style: italic;">
+            Tracked hypotheses evolve smoothly as evidence accumulates.
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
