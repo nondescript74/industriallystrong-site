@@ -368,9 +368,9 @@ export default function Lab() {
           {/* Quick-jump anchors — visible on first screen */}
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 0 }}>
             {[
-              { label: "Featured", target: "featured-labs" },
-              { label: "By Domain", target: "browse-by-domain" },
+              { label: "Domains", target: "browse-by-domain" },
               { label: "All Labs", target: "all-labs" },
+              { label: "About", target: "about-labs" },
             ].map(btn => (
               <button
                 key={btn.target}
@@ -397,10 +397,10 @@ export default function Lab() {
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 14 }}>
             {[
-              { href: "/lab/alab.html", title: "Architecture Lab", desc: "MoS₂ ALD on Tier-1 tools — constraint-driven VCSEL write-head insertion.", color: T.blue, posture: "architecture-level" },
-              { href: "/lab/phoenix-state.html", title: "Closed-Loop Control", desc: "Live state tracking with competing causal candidate states.", color: T.green, posture: "simulated" },
-              { href: "/lab/multihead.html", title: "Distributed Writer Array", desc: "12,000-emitter parallel control architecture.", color: T.purple, posture: "derived" },
-              { href: "#core-system", title: "Core System Simulation", desc: "Parallel state evolution, compression, and baseline comparison.", color: T.amber, internal: true, posture: "simulated" },
+              { href: "/lab/alab.html", title: "Architecture Lab", desc: "How distributed control inserts into existing fab tools without modifying them.", color: T.blue, posture: "architecture-level" },
+              { href: "/lab/phoenix-state.html", title: "Closed-Loop State Tracking", desc: "Competing hypotheses scored and updated in real time — live control loop.", color: T.green, posture: "simulated" },
+              { href: "/lab/multihead.html", title: "Distributed Writer Array", desc: "12,000 parallel emitters with per-site dose calibration.", color: T.purple, posture: "derived" },
+              { href: "#core-system", title: "State Evolution Simulator", desc: "Watch candidate states spawn, merge, retire, and survive regime shifts.", color: T.amber, internal: true, posture: "simulated" },
             ].map(card => (
               <a
                 key={card.href}
@@ -949,50 +949,11 @@ export default function Lab() {
           <Divider />
 
         {/* ═══════════════════════════════════════════════════════════════
-            SECTION: LatestLabs
-            Links to the most recent / featured technical detail pages.
-            ═══════════════════════════════════════════════════════════════ */}
-        <section id="latest-labs">
-          <SectionTitle n={7}>Latest Labs</SectionTitle>
-
-          <p style={{ fontSize: 14, color: T.textFaint, marginBottom: 20, lineHeight: 1.6 }}>
-            Supporting implementations and detailed system explorations.
-          </p>
-
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 12 }}>
-            {[
-              { href: "/lab/phoenix-state.html", title: "Closed-Loop Control", desc: "Live state tracking with competing causal candidate states." },
-              { href: "/lab/multihead.html", title: "Distributed Writer Array", desc: "Parallel control architecture demonstration." },
-              { href: "/lab/psf-synthesis.html", title: "PSF Physics", desc: "Coupled spatial-temporal optimization." },
-              { href: "/lab/cta-evaluation.html", title: "CTA Evaluation Engine", desc: "Multi-state decision architecture." },
-              { href: "/lab/replica-race.html", title: "Replica Race Resolution", desc: "Distributed state convergence under ordering ambiguity." },
-            ].map(card => (
-              <a key={card.href} href={card.href} target="_blank" rel="noreferrer" style={{ textDecoration: "none", color: "inherit" }}>
-                <div style={{
-                  padding: "16px 20px", border: `1px solid ${T.border}`, borderRadius: T.radius,
-                  borderTop: `3px solid ${T.border}`, background: T.bg,
-                  transition: "border-color 0.15s ease",
-                }}
-                  onMouseEnter={e => e.currentTarget.style.borderTopColor = T.blue}
-                  onMouseLeave={e => e.currentTarget.style.borderTopColor = T.border}
-                >
-                  <h4 style={{ margin: "0 0 6px", fontSize: 14, color: T.text, fontWeight: 600 }}>{card.title}</h4>
-                  <p style={{ margin: 0, fontSize: 12, color: T.textFaint, lineHeight: 1.5 }}>{card.desc}</p>
-                </div>
-              </a>
-            ))}
-          </div>
-        </section>
-        {/* End LatestLabs */}
-
-          <Divider />
-
-        {/* ═══════════════════════════════════════════════════════════════
             SECTION: AllLabs
             Complete grid of all lab artifacts and explorations.
             ═══════════════════════════════════════════════════════════════ */}
         <section id="all-labs">
-          <SectionTitle n={8}>All Labs</SectionTitle>
+          <SectionTitle n={7}>All Labs</SectionTitle>
 
           <p style={{ fontSize: 14, color: T.textFaint, marginBottom: 20, lineHeight: 1.6 }}>
             Browse every lab artifact — simulations, visualizations, and technical deep-dives.
@@ -1000,12 +961,12 @@ export default function Lab() {
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 12 }}>
             {[
-              { href: "/lab/alab.html", title: "Architecture Lab (ALab)", desc: "Architecture → Constraint → Implementation. MoS₂ ALD / Tier-1 path.", domain: "Architecture" },
-              { href: "/lab/phoenix-state.html", title: "Closed-Loop Control", desc: "Live state tracking with competing causal candidate states.", domain: "Core System" },
-              { href: "/lab/multihead.html", title: "Distributed Writer Array", desc: "Parallel control architecture demonstration.", domain: "Hardware" },
-              { href: "/lab/psf-synthesis.html", title: "PSF Physics", desc: "Coupled spatial-temporal optimization.", domain: "Optics" },
-              { href: "/lab/cta-evaluation.html", title: "CTA Evaluation Engine", desc: "Multi-state decision architecture.", domain: "Decision" },
-              { href: "/lab/replica-race.html", title: "Replica Race Resolution", desc: "Distributed state convergence under ordering ambiguity.", domain: "Distributed" },
+              { href: "/lab/alab.html", title: "Architecture Lab", desc: "How distributed control inserts into existing fab tools. Constraint-driven implementation path.", domain: "Architecture" },
+              { href: "/lab/phoenix-state.html", title: "Closed-Loop State Tracking", desc: "Competing hypotheses scored and updated in real time.", domain: "Core System" },
+              { href: "/lab/multihead.html", title: "Distributed Writer Array", desc: "12,000 parallel emitters with per-site dose calibration.", domain: "Hardware" },
+              { href: "/lab/psf-synthesis.html", title: "PSF Synthesis", desc: "Coupled spatial-temporal point spread function optimization.", domain: "Optics" },
+              { href: "/lab/cta-evaluation.html", title: "CTA Evaluation Engine", desc: "Portfolio evaluation using state resolution — preserved alternatives, not collapsed answers.", domain: "Decision" },
+              { href: "/lab/replica-race.html", title: "Replica Race Resolution", desc: "How distributed replicas converge when event ordering is ambiguous.", domain: "Distributed" },
             ].map(card => (
               <a key={card.href} href={card.href} target="_blank" rel="noreferrer" style={{ textDecoration: "none", color: "inherit" }}>
                 <div style={{
@@ -1037,7 +998,7 @@ export default function Lab() {
             Methodology note and contextual footer for the lab page.
             ═══════════════════════════════════════════════════════════════ */}
         <section id="about-labs">
-          <SectionTitle n={9}>About the Lab</SectionTitle>
+          <SectionTitle n={8}>About the Lab</SectionTitle>
 
           <div style={{
             padding: "16px 20px", borderRadius: T.radius,
