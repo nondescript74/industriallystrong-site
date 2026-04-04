@@ -203,23 +203,41 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; m
         <div style="text-align:center; min-width:120px;">
             <div style="font-size:26px; font-weight:800; color:#16a34a;">61</div>
             <div style="font-size:11px; color:#64748b; text-transform:uppercase;">Wafers/Hour</div>
+            <div style="font-size:8px; font-family:'SF Mono',Consolas,monospace; color:#94a3b8; margin-top:3px; letter-spacing:0.5px;">DERIVED · EMITTER MODEL</div>
         </div>
         <div style="text-align:center; min-width:120px;">
             <div style="font-size:26px; font-weight:800; color:#16a34a;">59s</div>
             <div style="font-size:11px; color:#64748b; text-transform:uppercase;">Per 300mm Wafer</div>
+            <div style="font-size:8px; font-family:'SF Mono',Consolas,monospace; color:#94a3b8; margin-top:3px; letter-spacing:0.5px;">DERIVED · 12K EMITTERS</div>
         </div>
         <div style="text-align:center; min-width:120px;">
             <div style="font-size:26px; font-weight:800; color:#16a34a;">12,000</div>
             <div style="font-size:11px; color:#64748b; text-transform:uppercase;">Parallel Emitters</div>
+            <div style="font-size:8px; font-family:'SF Mono',Consolas,monospace; color:#94a3b8; margin-top:3px; letter-spacing:0.5px;">DESIGN TARGET</div>
         </div>
         <div style="text-align:center; min-width:120px;">
             <div style="font-size:26px; font-weight:800; color:#16a34a;">33 ps</div>
             <div style="font-size:11px; color:#64748b; text-transform:uppercase;">Pixel Dwell</div>
+            <div style="font-size:8px; font-family:'SF Mono',Consolas,monospace; color:#94a3b8; margin-top:3px; letter-spacing:0.5px;">FIRST-PRINCIPLES</div>
         </div>
         <div style="text-align:center; min-width:120px;">
             <div style="font-size:26px; font-weight:800; color:#16a34a;">289 nm</div>
             <div style="font-size:11px; color:#64748b; text-transform:uppercase;">CD at NA=0.7</div>
+            <div style="font-size:8px; font-family:'SF Mono',Consolas,monospace; color:#94a3b8; margin-top:3px; letter-spacing:0.5px;">FIRST-PRINCIPLES · RAYLEIGH</div>
         </div>
+    </div>
+</div>
+
+<!-- Provenance Key -->
+<div style="padding:4px 24px 0 24px;">
+    <div style="font-size:9px; font-family:'SF Mono',Consolas,monospace; color:#94a3b8; line-height:1.8; max-width:900px;">
+        <span style="font-weight:700; color:#64748b;">PROVENANCE KEY:</span>
+        <span style="margin-left:8px;">FIRST-PRINCIPLES = calculated from physics (Rayleigh, √N shot noise)</span> ·
+        <span>DERIVED = computed from model parameters</span> ·
+        <span>DESIGN TARGET = engineering specification, not yet measured</span> ·
+        <span>VENDOR SPEC = published manufacturer data</span> ·
+        <span>PUBLISHED LITERATURE = peer-reviewed source</span> ·
+        <span>ARCHITECTURE = structural design claim</span>
     </div>
 </div>
 
@@ -236,15 +254,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; m
             <h3 style="margin:0 0 6px 0; font-size:14px; color:#0f172a;">1. Contact Patterning</h3>
             <div style="font-size:12px; color:#64748b; line-height:1.5;">
                 <span style="color:#dc2626; font-weight:600;">EBL:</span> Serial, electron dose damages MoS₂ via charging/radiolysis<br>
-                <span style="color:#16a34a; font-weight:600;">VCSEL:</span> 405 nm optical — no electron damage, 290 nm resolution at NA=0.7
+                <span style="color:#16a34a; font-weight:600;">VCSEL:</span> 405 nm optical — no electron damage, 289 nm resolution at NA=0.7 <span style="font-size:8px; font-family:'SF Mono',Consolas,monospace; color:#94a3b8; letter-spacing:0.3px;">RAYLEIGH</span>
             </div>
         </div>
         <!-- Mod 2 -->
         <div style="background:#fff; border:2px solid #457b9d22; border-left:4px solid #457b9d; border-radius:8px; padding:16px 18px;">
             <h3 style="margin:0 0 6px 0; font-size:14px; color:#0f172a;">2. Dose Control</h3>
             <div style="font-size:12px; color:#64748b; line-height:1.5;">
-                <span style="color:#dc2626; font-weight:600;">EUV:</span> 163 photons/voxel → 8% shot noise<br>
-                <span style="color:#16a34a; font-weight:600;">VCSEL:</span> 1,630 photons/voxel → 2.5% shot noise (3× improvement)
+                <span style="color:#dc2626; font-weight:600;">EUV:</span> 163 photons/voxel → 7.8% shot noise <span style="font-size:8px; font-family:'SF Mono',Consolas,monospace; color:#94a3b8; letter-spacing:0.3px;">FIRST-PRINCIPLES · √N</span><br>
+                <span style="color:#16a34a; font-weight:600;">VCSEL:</span> 1,630 photons/voxel → 2.5% shot noise <span style="font-size:8px; font-family:'SF Mono',Consolas,monospace; color:#94a3b8; letter-spacing:0.3px;">FIRST-PRINCIPLES · √N</span>
             </div>
         </div>
         <!-- Mod 3 -->
@@ -252,15 +270,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; m
             <h3 style="margin:0 0 6px 0; font-size:14px; color:#0f172a;">3. Resist Chemistry</h3>
             <div style="font-size:12px; color:#64748b; line-height:1.5;">
                 <span style="color:#dc2626; font-weight:600;">PMMA:</span> Organic residue degrades MoS₂ contacts<br>
-                <span style="color:#16a34a; font-weight:600;">Metal-oxide:</span> HfO₂/ZrO₂ — zero residue, 5–10× etch resistance
+                <span style="color:#16a34a; font-weight:600;">Metal-oxide:</span> HfO₂/ZrO₂ — zero residue, 5–10× etch resistance <span style="font-size:8px; font-family:'SF Mono',Consolas,monospace; color:#94a3b8; letter-spacing:0.3px;">PUBLISHED LITERATURE</span>
             </div>
         </div>
         <!-- Mod 4 -->
         <div style="background:#fff; border:2px solid #e9c46a22; border-left:4px solid #e9c46a; border-radius:8px; padding:16px 18px;">
             <h3 style="margin:0 0 6px 0; font-size:14px; color:#0f172a;">4. Control Architecture</h3>
             <div style="font-size:12px; color:#64748b; line-height:1.5;">
-                <span style="color:#dc2626; font-weight:600;">FPGA:</span> 5–10 ns loop latency — 150× too slow for 33 ps pixel dwell<br>
-                <span style="color:#16a34a; font-weight:600;">Analog:</span> Per-VCSEL photodiode + TIA, zone-level thickness compensation
+                <span style="color:#dc2626; font-weight:600;">FPGA:</span> 5–10 ns loop latency — 150× too slow for 33 ps pixel dwell <span style="font-size:8px; font-family:'SF Mono',Consolas,monospace; color:#94a3b8; letter-spacing:0.3px;">VENDOR SPEC</span><br>
+                <span style="color:#16a34a; font-weight:600;">Analog:</span> Per-VCSEL photodiode + TIA, zone-level thickness compensation <span style="font-size:8px; font-family:'SF Mono',Consolas,monospace; color:#94a3b8; letter-spacing:0.3px;">ARCHITECTURE</span>
             </div>
         </div>
         <!-- Mod 5 -->

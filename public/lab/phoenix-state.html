@@ -246,6 +246,302 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
       <div class="log-list" id="logList"></div>
     </div>
 
+    <!-- ── State Variables ────────────────────────────────────────── -->
+    <div class="card grid-full">
+      <div class="card-title">State Variables</div>
+      <p style="font-size:13px; color:#94a3b8; margin-bottom:16px; line-height:1.6;">The Phoenix engine tracks a set of continuous state variables for each hypothesis and for the system as a whole. These variables evolve on every control loop tick in response to sensor data and internal update rules.</p>
+      <table style="width:100%; border-collapse:collapse; font-size:12px;">
+        <thead>
+          <tr>
+            <th style="padding:10px 12px; text-align:left; color:#64748b; border-bottom:1px solid #1e293b; font-weight:700;">Variable</th>
+            <th style="padding:10px 12px; text-align:left; color:#64748b; border-bottom:1px solid #1e293b; font-weight:700;">Type</th>
+            <th style="padding:10px 12px; text-align:left; color:#64748b; border-bottom:1px solid #1e293b; font-weight:700;">Range</th>
+            <th style="padding:10px 12px; text-align:left; color:#64748b; border-bottom:1px solid #1e293b; font-weight:700;">Update Rule</th>
+            <th style="padding:10px 12px; text-align:left; color:#64748b; border-bottom:1px solid #1e293b; font-weight:700;">Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding:10px 12px; color:#e2e8f0; border-bottom:1px solid #1e293b; font-family:'SF Mono',monospace;">w_i</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b;">float</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b;">0 to 1</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b; font-family:'SF Mono',monospace;">Normalized from likelihood score</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b;">Hypothesis weight; controls correction factor blending</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px; color:#e2e8f0; border-bottom:1px solid #1e293b; font-family:'SF Mono',monospace;">c_i</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b;">float</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b;">0 to 1</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b; font-family:'SF Mono',monospace;">Exponential decay + residual gain</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b;">Confidence in hypothesis; gates active status</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px; color:#e2e8f0; border-bottom:1px solid #1e293b; font-family:'SF Mono',monospace;">age_i</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b;">int</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b;">0 to T_max</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b; font-family:'SF Mono',monospace;">age_i = age_i + 1 each tick</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b;">Counts persistence; triggers retirement when age &gt; T_max</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px; color:#e2e8f0; border-bottom:1px solid #1e293b; font-family:'SF Mono',monospace;">v_i</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b;">float[n]</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b;">unbounded</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b; font-family:'SF Mono',monospace;">Kalman-like prediction update</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b;">State vector (drift, temp, aging coeff); used in residual calc</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px; color:#e2e8f0; border-bottom:1px solid #1e293b; font-family:'SF Mono',monospace;">eligible_i</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b;">bool</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b;">true/false</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b; font-family:'SF Mono',monospace;">if c_i &gt; τ_merge and age_i &gt; τ_age then true</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b;">Flags if hypothesis can merge with others</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px; color:#e2e8f0; border-bottom:1px solid #1e293b; font-family:'SF Mono',monospace;">residual_i</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b;">float</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b;">0 to ∞</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b; font-family:'SF Mono',monospace;">||y - h(v_i)||</td>
+            <td style="padding:10px 12px; color:#94a3b8;">Error between observation and predicted state</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ── Update Logic ────────────────────────────────────────────── -->
+    <div class="card grid-full">
+      <div class="card-title">Update Logic</div>
+      <p style="font-size:13px; color:#94a3b8; margin-bottom:16px; line-height:1.6;">On each control loop tick, Phoenix executes a deterministic sequence of updates. Sensor data enters at the top; correction factors exit for actuation.</p>
+      <div style="background:#0c1420; border:1px solid #1e293b; border-radius:8px; padding:14px; margin-bottom:16px; font-family:'SF Mono',monospace; font-size:12px; line-height:1.8; color:#e2e8f0;">
+        <div><span style="color:#22c55e;">1. INPUT:</span> Read photodiode signal y from sensor array</div>
+        <div><span style="color:#22c55e;">2. PREDICT:</span> For each active hypothesis i, compute predicted state h(v_i) and residual_i = ||y - h(v_i)||</div>
+        <div><span style="color:#22c55e;">3. WEIGHT:</span> Compute likelihood L_i = exp(-residual_i² / σ²); normalize w_i = L_i / ∑L_j</div>
+        <div><span style="color:#22c55e;">4. CONFIDENCE:</span> Update c_i = λ·c_i + (1-λ)·w_i; apply exponential decay if w_i &lt; θ_decay</div>
+        <div><span style="color:#22c55e;">5. MERGE CHECK:</span> For each pair (i, j) where eligible_i ∧ eligible_j, compute distance D_ij; merge if D_ij &lt; τ_merge_dist</div>
+        <div><span style="color:#22c55e;">6. SPAWN:</span> If all w_i are low (concentration &lt; 0.5) and count &lt; N_max, spawn new hypothesis from sensor residual</div>
+        <div><span style="color:#22c55e;">7. RETIRE:</span> For each hypothesis, if c_i &lt; τ_retire or age_i &gt; T_max, mark inactive and remove from active set</div>
+        <div><span style="color:#22c55e;">8. SELECT:</span> Compute system state as v_system = ∑(w_i · v_i) and correction factor Δ from system state</div>
+        <div><span style="color:#22c55e;">9. OUTPUT:</span> Apply Δ to writer drive signals; store telemetry and log state</div>
+      </div>
+      <p style="font-size:12px; color:#64748b; line-height:1.6;"><strong>Key Thresholds:</strong> θ_decay (confidence below which decay accelerates, default 0.3), τ_merge (merge eligibility confidence, default 0.6), τ_retire (retirement confidence floor, default 0.05), T_max (max age in ticks, default 500), N_max (max active hypotheses, default 5), τ_merge_dist (state vector distance, adaptive).</p>
+    </div>
+
+    <!-- ── Weighting Behavior ────────────────────────────────────── -->
+    <div class="card grid-full">
+      <div class="card-title">Weighting Behavior</div>
+      <p style="font-size:13px; color:#94a3b8; margin-bottom:16px; line-height:1.6;">Hypothesis weights evolve as sensor data discriminates among competing explanations. The system transitions from uniform exploration to sharp specialization, then redistributes on regime shift.</p>
+
+      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:24px;">
+
+        <div style="background:#0c1420; border:1px solid #1e293b; border-radius:8px; padding:14px;">
+          <div style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:1px; margin-bottom:12px;">Initial (Uniform)</div>
+          <div style="margin-bottom:8px;">
+            <div style="display:flex; gap:8px; align-items:center; margin-bottom:6px;">
+              <span style="width:60px; font-size:11px; color:#94a3b8;">H0</span>
+              <div style="flex:1; height:20px; background:#1e293b; border-radius:3px; overflow:hidden;">
+                <div style="height:100%; width:33%; background:#3b82f6; transition:width 0.3s;"></div>
+              </div>
+              <span style="width:30px; font-size:11px; color:#94a3b8; text-align:right;">33%</span>
+            </div>
+            <div style="display:flex; gap:8px; align-items:center; margin-bottom:6px;">
+              <span style="width:60px; font-size:11px; color:#94a3b8;">H1</span>
+              <div style="flex:1; height:20px; background:#1e293b; border-radius:3px; overflow:hidden;">
+                <div style="height:100%; width:33%; background:#8b5cf6; transition:width 0.3s;"></div>
+              </div>
+              <span style="width:30px; font-size:11px; color:#94a3b8; text-align:right;">33%</span>
+            </div>
+            <div style="display:flex; gap:8px; align-items:center;">
+              <span style="width:60px; font-size:11px; color:#94a3b8;">H2</span>
+              <div style="flex:1; height:20px; background:#1e293b; border-radius:3px; overflow:hidden;">
+                <div style="height:100%; width:34%; background:#ec4899; transition:width 0.3s;"></div>
+              </div>
+              <span style="width:30px; font-size:11px; color:#94a3b8; text-align:right;">34%</span>
+            </div>
+          </div>
+          <div style="font-size:10px; color:#64748b; border-top:1px solid #1e293b; padding-top:8px; margin-top:8px;">No discrimination yet; all hypotheses equally probable</div>
+        </div>
+
+        <div style="background:#0c1420; border:1px solid #1e293b; border-radius:8px; padding:14px;">
+          <div style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:1px; margin-bottom:12px;">Mid-Process (Diverged)</div>
+          <div style="margin-bottom:8px;">
+            <div style="display:flex; gap:8px; align-items:center; margin-bottom:6px;">
+              <span style="width:60px; font-size:11px; color:#94a3b8;">H0</span>
+              <div style="flex:1; height:20px; background:#1e293b; border-radius:3px; overflow:hidden;">
+                <div style="height:100%; width:72%; background:#3b82f6; transition:width 0.3s;"></div>
+              </div>
+              <span style="width:30px; font-size:11px; color:#94a3b8; text-align:right;">72%</span>
+            </div>
+            <div style="display:flex; gap:8px; align-items:center; margin-bottom:6px;">
+              <span style="width:60px; font-size:11px; color:#94a3b8;">H1</span>
+              <div style="flex:1; height:20px; background:#1e293b; border-radius:3px; overflow:hidden;">
+                <div style="height:100%; width:20%; background:#8b5cf6; transition:width 0.3s;"></div>
+              </div>
+              <span style="width:30px; font-size:11px; color:#94a3b8; text-align:right;">20%</span>
+            </div>
+            <div style="display:flex; gap:8px; align-items:center;">
+              <span style="width:60px; font-size:11px; color:#94a3b8;">H2</span>
+              <div style="flex:1; height:20px; background:#1e293b; border-radius:3px; overflow:hidden;">
+                <div style="height:100%; width:8%; background:#ec4899; transition:width 0.3s;"></div>
+              </div>
+              <span style="width:30px; font-size:11px; color:#94a3b8; text-align:right;">8%</span>
+            </div>
+          </div>
+          <div style="font-size:10px; color:#64748b; border-top:1px solid #1e293b; padding-top:8px; margin-top:8px;">Sensor data favors H0; H2 declining as confidence decays</div>
+        </div>
+
+        <div style="background:#0c1420; border:1px solid #1e293b; border-radius:8px; padding:14px;">
+          <div style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:1px; margin-bottom:12px;">Post Regime Shift</div>
+          <div style="margin-bottom:8px;">
+            <div style="display:flex; gap:8px; align-items:center; margin-bottom:6px;">
+              <span style="width:60px; font-size:11px; color:#94a3b8;">H0</span>
+              <div style="flex:1; height:20px; background:#1e293b; border-radius:3px; overflow:hidden;">
+                <div style="height:100%; width:15%; background:#3b82f6; transition:width 0.3s;"></div>
+              </div>
+              <span style="width:30px; font-size:11px; color:#94a3b8; text-align:right;">15%</span>
+            </div>
+            <div style="display:flex; gap:8px; align-items:center; margin-bottom:6px;">
+              <span style="width:60px; font-size:11px; color:#94a3b8;">H1</span>
+              <div style="flex:1; height:20px; background:#1e293b; border-radius:3px; overflow:hidden;">
+                <div style="height:100%; width:68%; background:#8b5cf6; transition:width 0.3s;"></div>
+              </div>
+              <span style="width:30px; font-size:11px; color:#94a3b8; text-align:right;">68%</span>
+            </div>
+            <div style="display:flex; gap:8px; align-items:center;">
+              <span style="width:60px; font-size:11px; color:#94a3b8;">H2</span>
+              <div style="flex:1; height:20px; background:#1e293b; border-radius:3px; overflow:hidden;">
+                <div style="height:100%; width:17%; background:#ec4899; transition:width 0.3s;"></div>
+              </div>
+              <span style="width:30px; font-size:11px; color:#94a3b8; text-align:right;">17%</span>
+            </div>
+          </div>
+          <div style="font-size:10px; color:#64748b; border-top:1px solid #1e293b; padding-top:8px; margin-top:8px;">H0 confidence collapses; weights redistribute to H1. No hard lock-in.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── Failure and Recovery ────────────────────────────────────── -->
+    <div class="card grid-full">
+      <div class="card-title">Failure and Recovery Pathologies</div>
+      <p style="font-size:13px; color:#94a3b8; margin-bottom:16px; line-height:1.6;">The continuous evaluation strategy introduces distinct failure modes. Each has a detection mechanism and a recovery protocol.</p>
+      <table style="width:100%; border-collapse:collapse; font-size:12px;">
+        <thead>
+          <tr>
+            <th style="padding:10px 12px; text-align:left; color:#64748b; border-bottom:1px solid #1e293b; font-weight:700; width:18%;">Pathology</th>
+            <th style="padding:10px 12px; text-align:left; color:#64748b; border-bottom:1px solid #1e293b; font-weight:700; width:22%;">Condition</th>
+            <th style="padding:10px 12px; text-align:left; color:#64748b; border-bottom:1px solid #1e293b; font-weight:700; width:22%;">Detection</th>
+            <th style="padding:10px 12px; text-align:left; color:#64748b; border-bottom:1px solid #1e293b; font-weight:700; width:22%;">Recovery</th>
+            <th style="padding:10px 12px; text-align:center; color:#64748b; border-bottom:1px solid #1e293b; font-weight:700; width:16%;">Severity</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding:10px 12px; color:#e2e8f0; border-bottom:1px solid #1e293b; font-weight:600;">Premature Collapse</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b;">Single hypothesis reaches w=0.95 before age threshold</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b;">Monitor Herfindahl index; flag if &gt; 0.9</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b;">Enforce minimum persistence; re-spawn low-weight hypotheses</td>
+            <td style="padding:10px 12px; text-align:center; background:rgba(239,68,68,0.1); color:#ef4444; border-bottom:1px solid #1e293b; font-weight:600;">RED</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px; color:#e2e8f0; border-bottom:1px solid #1e293b; font-weight:600;">Merge Pathology</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b;">Distance metric τ_merge_dist too loose; unrelated hypotheses fuse</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b;">Track residual before/after merge; reject if Δresidual &gt; threshold</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b;">Revert merge; increase τ_merge_dist; spawn new hypothesis</td>
+            <td style="padding:10px 12px; text-align:center; background:rgba(245,158,11,0.1); color:#f59e0b; border-bottom:1px solid #1e293b; font-weight:600;">AMBER</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px; color:#e2e8f0; border-bottom:1px solid #1e293b; font-weight:600;">Starvation</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b;">Too few active hypotheses (&lt;2); system loss of redundancy</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b;">Monitor active count; alert if &lt; N_min (typically 2)</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b;">Spawn new hypothesis from random perturbation of best state</td>
+            <td style="padding:10px 12px; text-align:center; background:rgba(245,158,11,0.1); color:#f59e0b; border-bottom:1px solid #1e293b; font-weight:600;">AMBER</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px; color:#e2e8f0; border-bottom:1px solid #1e293b; font-weight:600;">Oscillation</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b;">Weights cycle without convergence; correction flips sign repeatedly</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b;">Track correction Δ sign changes over window of 50 ticks; threshold &gt;5</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b;">Increase confidence decay rate (lower λ); retire lowest-confidence hypothesis</td>
+            <td style="padding:10px 12px; text-align:center; background:rgba(245,158,11,0.1); color:#f59e0b; border-bottom:1px solid #1e293b; font-weight:600;">AMBER</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px; color:#e2e8f0; border-bottom:1px solid #1e293b; font-weight:600;">Sensor Fault</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b;">Photodiode saturated or dead; all residuals equal/constant</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b;">Variance of residual &lt; threshold; or saturation flag from sensor driver</td>
+            <td style="padding:10px 12px; color:#94a3b8;">Freeze weight updates; broadcast alert; fall back to nominal correction Δ=1.0</td>
+            <td style="padding:10px 12px; text-align:center; background:rgba(34,197,94,0.1); color:#22c55e; border-bottom:1px solid #1e293b; font-weight:600;">GREEN</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ── Concrete Evolving Example ────────────────────────────── -->
+    <div class="card grid-full">
+      <div class="card-title">Concrete Evolving Example: 5-Tick Scenario</div>
+      <p style="font-size:13px; color:#94a3b8; margin-bottom:16px; line-height:1.6;">Walk-through of a realistic scenario: sensor reads ambiguous, two competing states diverge, third spawns, one retires, and regime shift triggers weight redistribution. This demonstrates all key dynamics in a single sequence.</p>
+
+      <table style="width:100%; border-collapse:collapse; font-size:11px;">
+        <thead>
+          <tr>
+            <th style="padding:10px 12px; text-align:center; color:#64748b; border-bottom:1px solid #1e293b; font-weight:700; width:8%;">Tick</th>
+            <th style="padding:10px 12px; text-align:left; color:#64748b; border-bottom:1px solid #1e293b; font-weight:700; width:22%;">Event / Input</th>
+            <th style="padding:10px 12px; text-align:center; color:#64748b; border-bottom:1px solid #1e293b; font-weight:700; width:12%;">H0 Weight</th>
+            <th style="padding:10px 12px; text-align:center; color:#64748b; border-bottom:1px solid #1e293b; font-weight:700; width:12%;">H1 Weight</th>
+            <th style="padding:10px 12px; text-align:center; color:#64748b; border-bottom:1px solid #1e293b; font-weight:700; width:12%;">H2 Weight</th>
+            <th style="padding:10px 12px; text-align:center; color:#64748b; border-bottom:1px solid #1e293b; font-weight:700; width:10%;">Active</th>
+            <th style="padding:10px 12px; text-align:left; color:#64748b; border-bottom:1px solid #1e293b; font-weight:700; width:24%;">System Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="background:#0c1420;">
+            <td style="padding:10px 12px; text-align:center; color:#e2e8f0; border-bottom:1px solid #1e293b; font-weight:600;">0</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b;"><span style="color:#22c55e; font-weight:600;">INIT</span><br/>System cold start; sensor reads ambiguous</td>
+            <td style="padding:10px 12px; text-align:center; color:#94a3b8; border-bottom:1px solid #1e293b; font-family:'SF Mono',monospace;">0.33</td>
+            <td style="padding:10px 12px; text-align:center; color:#94a3b8; border-bottom:1px solid #1e293b; font-family:'SF Mono',monospace;">0.33</td>
+            <td style="padding:10px 12px; text-align:center; color:#94a3b8; border-bottom:1px solid #1e293b; font-family:'SF Mono',monospace;">0.34</td>
+            <td style="padding:10px 12px; text-align:center; color:#e2e8f0; border-bottom:1px solid #1e293b; font-family:'SF Mono',monospace;">3</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b;">Spawn three uniform hypotheses; blend correction Δ=1.0</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px; text-align:center; color:#e2e8f0; border-bottom:1px solid #1e293b; font-weight:600;">1</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b;"><span style="color:#22c55e; font-weight:600;">DATA</span><br/>Photodiode reads slight positive drift</td>
+            <td style="padding:10px 12px; text-align:center; color:#94a3b8; border-bottom:1px solid #1e293b; font-family:'SF Mono',monospace;">0.55</td>
+            <td style="padding:10px 12px; text-align:center; color:#94a3b8; border-bottom:1px solid #1e293b; font-family:'SF Mono',monospace;">0.30</td>
+            <td style="padding:10px 12px; text-align:center; color:#94a3b8; border-bottom:1px solid #1e293b; font-family:'SF Mono',monospace;">0.15</td>
+            <td style="padding:10px 12px; text-align:center; color:#e2e8f0; border-bottom:1px solid #1e293b; font-family:'SF Mono',monospace;">3</td>
+            <td style="padding:10px 12px; color:#94a3b8;">H0 (nominal) gains weight; residual favors steady state. Δ slides toward 1.05</td>
+          </tr>
+          <tr style="background:#0c1420;">
+            <td style="padding:10px 12px; text-align:center; color:#e2e8f0; border-bottom:1px solid #1e293b; font-weight:600;">2</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b;"><span style="color:#3b82f6; font-weight:600;">SPAWN</span><br/>Residual concentration &lt;0.5; spawn H3 from perturbation</td>
+            <td style="padding:10px 12px; text-align:center; color:#94a3b8; border-bottom:1px solid #1e293b; font-family:'SF Mono',monospace;">0.48</td>
+            <td style="padding:10px 12px; text-align:center; color:#94a3b8; border-bottom:1px solid #1e293b; font-family:'SF Mono',monospace;">0.28</td>
+            <td style="padding:10px 12px; text-align:center; color:#94a3b8; border-bottom:1px solid #1e293b; font-family:'SF Mono',monospace;">0.12</td>
+            <td style="padding:10px 12px; text-align:center; color:#e2e8f0; border-bottom:1px solid #1e293b; font-family:'SF Mono',monospace;">4</td>
+            <td style="padding:10px 12px; color:#94a3b8;">H3 (thermal aging) initialized at w=0.12. Monitor residual improve.</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px; text-align:center; color:#e2e8f0; border-bottom:1px solid #1e293b; font-weight:600;">3</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b;"><span style="color:#f59e0b; font-weight:600;">REGIME</span><br/>Temperature spike detected; H0 residual suddenly jumps</td>
+            <td style="padding:10px 12px; text-align:center; color:#94a3b8; border-bottom:1px solid #1e293b; font-family:'SF Mono',monospace;">0.12</td>
+            <td style="padding:10px 12px; text-align:center; color:#94a3b8; border-bottom:1px solid #1e293b; font-family:'SF Mono',monospace;">0.65</td>
+            <td style="padding:10px 12px; text-align:center; color:#94a3b8; border-bottom:1px solid #1e293b; font-family:'SF Mono',monospace;">0.08</td>
+            <td style="padding:10px 12px; text-align:center; color:#e2e8f0; border-bottom:1px solid #1e293b; font-family:'SF Mono',monospace;">4</td>
+            <td style="padding:10px 12px; color:#94a3b8;">Weights redistribute sharply; H1 (thermal drift model) dominates. H0 confidence decays.</td>
+          </tr>
+          <tr style="background:#0c1420;">
+            <td style="padding:10px 12px; text-align:center; color:#e2e8f0; border-bottom:1px solid #1e293b; font-weight:600;">4</td>
+            <td style="padding:10px 12px; color:#94a3b8; border-bottom:1px solid #1e293b;"><span style="color:#ec4899; font-weight:600;">RETIRE</span><br/>H2 confidence c_2 &lt; τ_retire (0.05)</td>
+            <td style="padding:10px 12px; text-align:center; color:#94a3b8; border-bottom:1px solid #1e293b; font-family:'SF Mono',monospace;">0.08</td>
+            <td style="padding:10px 12px; text-align:center; color:#94a3b8; border-bottom:1px solid #1e293b; font-family:'SF Mono',monospace;">0.72</td>
+            <td style="padding:10px 12px; text-align:center; color:#94a3b8; border-bottom:1px solid #1e293b; font-family:'SF Mono',monospace;">—</td>
+            <td style="padding:10px 12px; text-align:center; color:#e2e8f0; border-bottom:1px solid #1e293b; font-family:'SF Mono',monospace;">3</td>
+            <td style="padding:10px 12px; color:#94a3b8;">H2 retires; H0/H1/H3 remain active. System correction Δ now driven by thermal model (H1).</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p style="font-size:12px; color:#64748b; margin-top:16px; line-height:1.6;"><strong>Key Observations:</strong> 1) Uniform initialization allows all hypotheses to compete fairly. 2) Sensor data (ticks 1–2) immediately separates strong vs. weak explanations without hard lock-in. 3) Spawning (tick 2) maintains exploration and prevents premature collapse. 4) Regime shift (tick 3) is detected via residual jump, not by assumption; weights flip autonomously. 5) Retirement (tick 4) removes stale hypotheses once confidence is stable and age is sufficient. 6) System never commits to a single model; correction factor is blended from multiple views until evidence is overwhelming.</p>
+    </div>
+
   </div>
 </div>
 

@@ -371,7 +371,7 @@
 
 <header class="page-header">
   <h1>CTA Evaluation Engine</h1>
-  <div class="subtitle">Pipeline-based portfolio evaluation with decision architecture — not just insights, <strong>decisions</strong></div>
+  <div class="subtitle">State-resolution portfolio evaluation — competing hypotheses maintained until evidence converges, not collapsed into premature answers</div>
   <div class="header-badges">
     <span class="badge badge-live" id="liveBadge">● LOADING</span>
     <span class="badge badge-regime" id="regimeBadge">REGIME: —</span>
@@ -386,20 +386,20 @@
   <div class="arch-map-item">
     <div class="arch-map-tech">Vector Search (FAISS)</div>
     <div class="arch-map-equals">=</div>
-    <div class="arch-map-meaning">Manager Similarity &amp; Regime Clustering</div>
-    <div class="arch-map-detail">Cosine similarity across strategy feature vectors identifies concentration risk</div>
+    <div class="arch-map-meaning">Preserved Alternative Detection</div>
+    <div class="arch-map-detail">Cosine similarity across strategy feature vectors identifies concentration risk before commitment</div>
   </div>
   <div class="arch-map-item">
     <div class="arch-map-tech">Multi-Hypothesis Tracking (MHT)</div>
     <div class="arch-map-equals">=</div>
-    <div class="arch-map-meaning">Hypothesis Evaluation Across Strategies</div>
-    <div class="arch-map-detail">5 tests per candidate — contradictions surfaced, not hidden</div>
+    <div class="arch-map-meaning">Competing State Tracking</div>
+    <div class="arch-map-detail">Contradictions maintained and tracked per candidate until evidence converges</div>
   </div>
   <div class="arch-map-item">
     <div class="arch-map-tech">Decision Output</div>
     <div class="arch-map-equals">=</div>
-    <div class="arch-map-meaning">Allocation Decision &amp; Ranking</div>
-    <div class="arch-map-detail">Select / Reject / Watchlist with weights summing to 100%</div>
+    <div class="arch-map-meaning">Evidence-Converged Commitment</div>
+    <div class="arch-map-detail">Select / Reject / Watchlist with weights derived from converged state evidence</div>
   </div>
 </div>
 
@@ -409,7 +409,7 @@
 <div class="section">
 
   <div class="card">
-    <div class="card-header">Decision Pipeline — <span id="pipelineTotal" style="color:var(--green);font-family:var(--mono)">calculating...</span></div>
+    <div class="card-header">State Resolution Pipeline — <span id="pipelineTotal" style="color:var(--green);font-family:var(--mono)">calculating...</span></div>
     <div class="pipeline" id="pipeline">
       <div class="pipeline-step">
         <div class="pipeline-icon pending" id="pipe0">📥</div>
@@ -466,20 +466,20 @@
     <div class="card-header">What Changed — Before vs After</div>
     <div class="before-after">
       <div class="ba-col ba-before">
-        <div class="ba-title">❌ Before (Manual Diligence)</div>
-        <div class="ba-item">Weeks of spreadsheet analysis</div>
-        <div class="ba-item">Fragmented data across databases</div>
-        <div class="ba-item">Manual interpretation, no regime awareness</div>
-        <div class="ba-item">No allocation weights — just "looks good"</div>
-        <div class="ba-item">No reasoning trail — black box decisions</div>
+        <div class="ba-title">❌ Early Resolution Architecture</div>
+        <div class="ba-item">Collapses uncertainty into single inference per tick</div>
+        <div class="ba-item">No persistent tracking of competing states</div>
+        <div class="ba-item">Contradictions hidden in final answer</div>
+        <div class="ba-item">Regime shifts appear as abrupt flips</div>
+        <div class="ba-item">No concentration risk detection before commitment</div>
       </div>
       <div class="ba-col ba-after">
-        <div class="ba-title" id="afterTitle">✅ After (This Engine)</div>
-        <div class="ba-item">Seconds from ingest to decision</div>
-        <div class="ba-item">Normalized IASG data, single pipeline</div>
-        <div class="ba-item">AI regime detection with confidence scores</div>
-        <div class="ba-item">Allocation weights summing to 100%</div>
-        <div class="ba-item">Full reasoning + state resolution trail on every candidate</div>
+        <div class="ba-title" id="afterTitle">✅ State Resolution Architecture</div>
+        <div class="ba-item">Competing candidate states maintained across ticks</div>
+        <div class="ba-item">Contradictions surfaced and tracked per candidate</div>
+        <div class="ba-item">Data-driven regime metrics from OHLCV</div>
+        <div class="ba-item">Allocation weights derived from converged evidence</div>
+        <div class="ba-item">Full state resolution trail with all alternatives visible</div>
       </div>
     </div>
   </div>
@@ -561,7 +561,7 @@
   <div class="card" style="margin-bottom: 20px;">
     <div class="card-header">Why This Matters for CTA Allocation</div>
     <div style="font-size: 13px; color: var(--text);">
-      In the fog of noise, systems that commit too early misread regime changes. The evaluation engine above uses <strong>tracked state resolution</strong> to surface contradictions per candidate and <strong>vector similarity</strong> to detect concentration risk — producing decisions, not just insights. The architecture comparison below shows why this matters.
+      In the fog of noise, systems that resolve uncertainty too early misread regime changes and concentration risk. This engine maintains competing candidate states across evaluation cycles, surfacing contradictions and preserving alternatives until evidence converges — then commits. The architecture comparison below shows the structural difference.
     </div>
   </div>
 
@@ -590,7 +590,7 @@
       </div>
     </div>
     <div>
-      <div class="mht-col-name">Decision Architecture (This Engine)</div>
+      <div class="mht-col-name">State Resolution Architecture (This Engine)</div>
       <div class="mht-col-desc">Candidate states maintained, updated, and scored before commitment.</div>
       <div class="card">
         <div class="card-header">Pipeline Stages</div>
