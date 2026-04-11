@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SW RAID vs ASA — Distributed Correctness Performance Lab</title>
+  <meta name="evidence-posture" content="modeled; derived; architecture-level">
+  <meta name="description" content="Interactive performance calculator comparing Software RAID vs Adaptive Segment Addressing for unstructured data workloads. Models write penalties, dedup ratios, IOPS, latency, rebuild time, and vulnerability windows.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="logo-lockup">
+        <svg class="logo-mark" viewBox="0 0 36 36" fill="none" aria-label="RAID-ASA Calculator" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="2" width="14" height="6" rx="1.5" stroke="currentColor" stroke-width="1.8"/>
+          <rect x="20" y="2" width="14" height="6" rx="1.5" stroke="currentColor" stroke-width="1.8"/>
+          <rect x="2" y="12" width="14" height="6" rx="1.5" stroke="currentColor" stroke-width="1.8"/>
+          <rect x="20" y="12" width="14" height="6" rx="1.5" stroke="currentColor" stroke-width="1.8"/>
+          <rect x="2" y="22" width="14" height="6" rx="1.5" stroke="currentColor" stroke-width="1.8"/>
+          <rect x="20" y="22" width="14" height="6" rx="1.5" stroke="currentColor" stroke-width="1.8"/>
+          <line x1="11" y1="30" x2="25" y2="6" stroke="var(--color-accent)" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="5.5" cy="5" r="1.2" fill="var(--color-accent)"/>
+          <circle cx="23.5" cy="15" r="1.2" fill="var(--color-accent)"/>
+        </svg>
+        <div class="logo-text">
+          <span class="logo-title">RAID·ASA</span>
+          <span class="logo-subtitle">Performance Calculator</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <span class="version-badge">v4.0 · Deployment Profiles</span>
+        <button class="theme-toggle" data-theme-toggle aria-label="Switch theme">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── DEPLOYMENT PROFILES BAR ── -->
+  <div class="profiles-bar">
+    <div class="profiles-inner">
+      <div class="profiles-label">Deployment Profile</div>
+      <div class="profiles-chips" id="profilesGroup" role="group">
+        <button class="profile-chip active" data-profile="custom">Custom</button>
+        <button class="profile-chip" data-profile="vsan">VMware vSAN</button>
+        <button class="profile-chip" data-profile="nutanix">Nutanix HCI</button>
+        <button class="profile-chip" data-profile="cloud">Cloud Object Storage</button>
+        <button class="profile-chip" data-profile="enterprise">Enterprise HA Array</button>
+        <button class="profile-chip" data-profile="edge">Edge Appliance</button>
+      </div>
+      <div class="profile-desc" id="profileDesc">Manually configure all parameters below.</div>
+    </div>
+  </div>
+
+  <main class="app-layout">
+    <!-- Left Panel: Controls -->
+    <aside class="controls-panel" id="controls">
+      <div class="panel-section">
+        <div class="section-label">WORKLOAD PARAMETERS</div>
+
+        <div class="control-group">
+          <label class="control-label" for="diskCount">
+            Disk Count
+            <span class="control-value mono" id="diskCountVal">12</span>
+          </label>
+          <input type="range" id="diskCount" min="4" max="64" step="1" value="12" class="slider">
+          <div class="slider-range"><span>4</span><span>64</span></div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label">RAID Level</label>
+          <div class="button-group" id="raidLevelGroup" role="group">
+            <button class="btn-seg active" data-value="5">RAID-5</button>
+            <button class="btn-seg" data-value="6">RAID-6</button>
+            <button class="btn-seg" data-value="10">RAID-10</button>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="rwRatio">
+            Read / Write Ratio
+            <span class="control-value mono" id="rwRatioVal">70/30</span>
+          </label>
+          <input type="range" id="rwRatio" min="0" max="100" step="5" value="70" class="slider">
+          <div class="slider-range"><span>0% R</span><span>100% R</span></div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="fileSizeLog">
+            File Size
+            <span class="control-value mono" id="fileSizeVal">64 MB</span>
+          </label>
+          <input type="range" id="fileSizeLog" min="0" max="10" step="1" value="6" class="slider">
+          <div class="slider-range"><span>1 MB</span><span>1 GB</span></div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label">Disk Type</label>
+          <div class="button-group" id="diskTypeGroup" role="group">
+            <button class="btn-seg active" data-value="hdd">HDD (7.2k)</button>
+            <button class="btn-seg" data-value="sata-ssd">SATA SSD</button>
+            <button class="btn-seg" data-value="nvme">NVMe</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="section-label">ASA PARAMETERS</div>
+
+        <div class="control-group">
+          <label class="control-label" for="chunkSize">
+            ASA Chunk Size
+            <span class="control-value mono" id="chunkSizeVal">256 KB</span>
+          </label>
+          <input type="range" id="chunkSize" min="0" max="5" step="1" value="3" class="slider">
+          <div class="slider-range"><span>4 KB</span><span>4 MB</span></div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="dedupRatio">
+            Dedup Ratio
+            <span class="control-value mono" id="dedupRatioVal">2.5×</span>
+          </label>
+          <input type="range" id="dedupRatio" min="10" max="80" step="5" value="25" class="slider">
+          <div class="slider-range"><span>1.0×</span><span>8.0×</span></div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="compressionRatio">
+            Compression Ratio
+            <span class="control-value mono" id="compressionRatioVal">1.5×</span>
+          </label>
+          <input type="range" id="compressionRatio" min="10" max="60" step="5" value="15" class="slider">
+          <div class="slider-range"><span>1.0×</span><span>6.0×</span></div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="asaOverhead">
+            ASA Metadata Overhead
+            <span class="control-value mono" id="asaOverheadVal">3%</span>
+          </label>
+          <input type="range" id="asaOverhead" min="1" max="15" step="1" value="3" class="slider">
+          <div class="slider-range"><span>1%</span><span>15%</span></div>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="section-label">REBUILD PARAMETERS</div>
+
+        <div class="control-group">
+          <label class="control-label" for="diskSizeTB">
+            Disk Capacity
+            <span class="control-value mono" id="diskSizeTBVal">4 TB</span>
+          </label>
+          <input type="range" id="diskSizeTB" min="1" max="20" step="1" value="4" class="slider">
+          <div class="slider-range"><span>1 TB</span><span>20 TB</span></div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="rebuildBWPct">
+            Rebuild BW (% of disk)
+            <span class="control-value mono" id="rebuildBWPctVal">30%</span>
+          </label>
+          <input type="range" id="rebuildBWPct" min="10" max="80" step="5" value="30" class="slider">
+          <div class="slider-range"><span>10%</span><span>80%</span></div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="ureRate">
+            URE Rate (sectors)
+            <span class="control-value mono" id="ureRateVal">10<sup>-14</sup></span>
+          </label>
+          <input type="range" id="ureRate" min="12" max="17" step="1" value="14" class="slider">
+          <div class="slider-range"><span>10<sup>-12</sup></span><span>10<sup>-17</sup></span></div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="diskAFR">
+            Disk AFR (Annual Failure Rate)
+            <span class="control-value mono" id="diskAFRVal">2%</span>
+          </label>
+          <input type="range" id="diskAFR" min="1" max="15" step="1" value="2" class="slider">
+          <div class="slider-range"><span>1%</span><span>15%</span></div>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="section-label">CORRECTNESS OVERHEAD</div>
+        <div class="correctness-note">Applied symmetrically. RAID+Correctness is the honest third baseline.</div>
+
+        <div class="control-group">
+          <label class="control-label" for="journalIOFrac">
+            Journal I/O Overhead
+            <span class="control-value mono" id="journalIOFracVal">15%</span>
+          </label>
+          <input type="range" id="journalIOFrac" min="0" max="50" step="5" value="15" class="slider">
+          <div class="slider-range"><span>0%</span><span>50%</span></div>
+          <div class="ctrl-hint">Extra write I/Os for intent log (fsync path). Applies to RAID only.</div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="replicaFactor">
+            Replica / Quorum Factor
+            <span class="control-value mono" id="replicaFactorVal">1×</span>
+          </label>
+          <input type="range" id="replicaFactor" min="10" max="30" step="5" value="10" class="slider">
+          <div class="slider-range"><span>1×</span><span>3×</span></div>
+          <div class="ctrl-hint">Write fan-out for quorum/replica acknowledgment. 1× = no replication overhead.</div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="scrubBWPct">
+            Background Scrub BW
+            <span class="control-value mono" id="scrubBWPctVal">5%</span>
+          </label>
+          <input type="range" id="scrubBWPct" min="0" max="20" step="1" value="5" class="slider">
+          <div class="slider-range"><span>0%</span><span>20%</span></div>
+          <div class="ctrl-hint">Continuous scrub scan consuming disk BW. RAID requires this; ASA hash-verify is ~40% cheaper.</div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="reconcileFreq">
+            Reconciliation Frequency
+            <span class="control-value mono" id="reconcileFreqVal">Monthly</span>
+          </label>
+          <input type="range" id="reconcileFreq" min="0" max="4" step="1" value="2" class="slider">
+          <div class="slider-range"><span>Never</span><span>Weekly</span></div>
+          <div class="ctrl-hint">Replica divergence scans after partition heals. RAID scans extents (O(data)); ASA diffs index (O(index)).</div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="coordStateIOPS">
+            Control-Plane IOPS
+            <span class="control-value mono" id="coordStateIOPSVal">2%</span>
+          </label>
+          <input type="range" id="coordStateIOPS" min="0" max="15" step="1" value="2" class="slider">
+          <div class="slider-range"><span>0%</span><span>15%</span></div>
+          <div class="ctrl-hint">Lease renewal, fencing, version vector writes as % of total IOPS. Applies to RAID; ASA reduces scope by ~60%.</div>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="section-label">DISK SPECS (OVERRIDE)</div>
+
+        <div class="disk-specs" id="diskSpecsDisplay"></div>
+
+        <div class="control-group">
+          <label class="control-label" for="diskIOPS">
+            Disk IOPS (single)
+            <span class="control-value mono" id="diskIOPSVal">—</span>
+          </label>
+          <input type="range" id="diskIOPS" min="100" max="2000000" step="100" value="180" class="slider">
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="diskBW">
+            Disk BW MB/s (single)
+            <span class="control-value mono" id="diskBWVal">—</span>
+          </label>
+          <input type="range" id="diskBW" min="50" max="7000" step="50" value="200" class="slider">
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="diskLatUs">
+            Disk Latency μs
+            <span class="control-value mono" id="diskLatUsVal">—</span>
+          </label>
+          <input type="range" id="diskLatUs" min="50" max="15000" step="50" value="5000" class="slider">
+        </div>
+      </div>
+    </aside>
+
+    <!-- Full-width Results -->
+    <section class="results-panel">
+
+      <!-- Tabs -->
+      <div class="tab-bar">
+        <button class="tab-btn active" data-tab="perf">Performance</button>
+        <button class="tab-btn" data-tab="rebuild">Rebuild &amp; Vulnerability</button>
+        <button class="tab-btn" data-tab="correctness">Correctness Cost</button>
+      </div>
+
+
+
+      <!-- ── TAB: PERFORMANCE ── -->
+      <div class="tab-content" id="tab-perf">
+
+        <!-- Why This Matters Now -->
+        <div class="why-matters-bar">
+          <div class="evidence-posture">
+            <span class="ep-badge">MODELED</span>
+            <span class="ep-badge">ARCHITECTURE-LEVEL</span>
+            <span class="ep-badge">PARAMETERIZED</span>
+          </div>
+          <div class="why-points">
+            <div class="why-point"><span class="why-num">01</span>RAID solved redundancy — it did not solve distributed correctness.</div>
+            <div class="why-point"><span class="why-num">02</span>Distributed systems create divergence, split-brain, and reconciliation debt at scale.</div>
+            <div class="why-point"><span class="why-num">03</span>ASA addresses divergence deterministically — shifting overhead into a simpler, more auditable form.</div>
+          </div>
+        </div>
+
+        <!-- KPI Strip -->
+        <div class="kpi-strip">
+          <div class="kpi-card">
+            <div class="kpi-label">RAID Write Penalty</div>
+            <div class="kpi-value mono" id="kpiWritePenalty">—</div>
+            <div class="kpi-sub" id="kpiWritePenaltySub">I/Os per write</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">RAID Usable Capacity</div>
+            <div class="kpi-value mono" id="kpiUsable">—</div>
+            <div class="kpi-sub" id="kpiUsableSub">of raw</div>
+          </div>
+          <div class="kpi-card accent">
+            <div class="kpi-label">ASA Effective Capacity</div>
+            <div class="kpi-value mono" id="kpiAsaEff">—</div>
+            <div class="kpi-sub" id="kpiAsaEffSub">dedup + compress</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Breakeven Disk Count</div>
+            <div class="kpi-value mono" id="kpiBreakeven">—</div>
+            <div class="kpi-sub" id="kpiBreakevenSub">ASA wins above this</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Effective Write IOPS</div>
+            <div class="kpi-value mono" id="kpiWriteIOPS">—</div>
+            <div class="kpi-sub">RAID vs ASA</div>
+          </div>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="charts-grid">
+          <div class="chart-card span-2">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Throughput vs Disk Count</div>
+                <div class="chart-desc">Effective MB/s for the configured R/W mix as disk count scales</div>
+              </div>
+              <div class="chart-legend" id="legend1"></div>
+            </div>
+            <div class="chart-wrap"><canvas id="chartThroughput"></canvas></div>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-header"><div>
+              <div class="chart-title">Write I/O Amplification</div>
+              <div class="chart-desc">Total I/Os per logical write operation</div>
+            </div></div>
+            <div class="chart-wrap chart-wrap-sm"><canvas id="chartWritePenalty"></canvas></div>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-header"><div>
+              <div class="chart-title">Latency vs File Size</div>
+              <div class="chart-desc">Effective service time (ms) across file sizes</div>
+            </div></div>
+            <div class="chart-wrap chart-wrap-sm"><canvas id="chartLatency"></canvas></div>
+          </div>
+
+          <div class="chart-card span-2">
+            <div class="chart-header"><div>
+              <div class="chart-title">Breakeven Analysis — IOPS Throughput Gain</div>
+              <div class="chart-desc">Net IOPS advantage of ASA over SW RAID across disk counts. Positive = ASA wins; Negative = RAID wins.</div>
+            </div></div>
+            <div class="chart-wrap"><canvas id="chartBreakeven"></canvas></div>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-header"><div>
+              <div class="chart-title">Capacity Efficiency</div>
+              <div class="chart-desc">Usable vs raw capacity (TB) for a fixed raw pool</div>
+            </div></div>
+            <div class="chart-wrap chart-wrap-sm"><canvas id="chartCapacity"></canvas></div>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-header"><div>
+              <div class="chart-title">IOPS vs R/W Mix</div>
+              <div class="chart-desc">Effective aggregate IOPS as workload shifts from write-heavy to read-heavy</div>
+            </div></div>
+            <div class="chart-wrap chart-wrap-sm"><canvas id="chartIopsRW"></canvas></div>
+          </div>
+        </div>
+
+        <!-- Decision Metrics + Stack Diagram + Customer Questions -->
+        <div class="decision-layer">
+
+          <!-- Decision Metrics -->
+          <div class="decision-metrics-panel">
+            <div class="section-label">DECISION METRICS</div>
+            <div class="decision-metrics-grid">
+              <div class="dm-card">
+                <div class="dm-label">Recovery Risk Score</div>
+                <div class="dm-value" id="dmRecoveryRisk">—</div>
+                <div class="dm-bar-wrap"><div class="dm-bar" id="dmRecoveryRiskBar"></div></div>
+                <div class="dm-note" id="dmRecoveryRiskNote">double-fault × URE exposure × rebuild window</div>
+              </div>
+              <div class="dm-card">
+                <div class="dm-label">Operational Complexity</div>
+                <div class="dm-value" id="dmOpsComplexity">—</div>
+                <div class="dm-bar-wrap"><div class="dm-bar" id="dmOpsComplexityBar"></div></div>
+                <div class="dm-note" id="dmOpsComplexityNote">write amp × correctness overhead × scrub cost</div>
+              </div>
+              <div class="dm-card">
+                <div class="dm-label">Rebuild Vulnerability Window</div>
+                <div class="dm-value" id="dmVulnerability">—</div>
+                <div class="dm-bar-wrap"><div class="dm-bar" id="dmVulnerabilityBar"></div></div>
+                <div class="dm-note" id="dmVulnerabilityNote">hours exposed during single-disk rebuild</div>
+              </div>
+              <div class="dm-card dm-card-asa">
+                <div class="dm-label">Divergence Resolution Time</div>
+                <div class="dm-value" id="dmDivergence">—</div>
+                <div class="dm-bar-wrap"><div class="dm-bar dm-bar-asa" id="dmDivergenceBar"></div></div>
+                <div class="dm-note" id="dmDivergenceNote">reconcile scan time: RAID O(data) vs ASA O(index)</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stack Diagram + Customer Questions -->
+          <div class="stack-questions-row">
+
+            <!-- Stack Diagram -->
+            <div class="stack-diagram-panel">
+              <div class="section-label">WHERE ASA FITS IN THE STACK</div>
+              <div class="stack-diagram">
+                <div class="stack-layer stack-app"><span class="stack-layer-label">Application Layer</span><span class="stack-layer-sub">Databases · Object stores · Backup targets</span></div>
+                <div class="stack-arrow">▼</div>
+                <div class="stack-layer stack-platform"><span class="stack-layer-label">Platform / HCI</span><span class="stack-layer-sub">VMware vSAN · Nutanix AHV · OpenStack</span></div>
+                <div class="stack-arrow">▼</div>
+                <div class="stack-layer stack-distributed"><span class="stack-layer-label">Distributed Storage</span><span class="stack-layer-sub">Ceph · GlusterFS · MinIO · cloud object</span></div>
+                <div class="stack-divider">ASA INSERTION POINT</div>
+                <div class="stack-layer stack-asa"><span class="stack-layer-label">ASA Layer</span><span class="stack-layer-sub">Deterministic divergence resolution · O(index) reconcile · idempotent writes</span></div>
+                <div class="stack-arrow">▼</div>
+                <div class="stack-layer stack-raid"><span class="stack-layer-label">Software RAID</span><span class="stack-layer-sub">RAID-5 · RAID-6 · RAID-10 · erasure coding</span></div>
+                <div class="stack-arrow">▼</div>
+                <div class="stack-layer stack-disk"><span class="stack-layer-label">Physical / Cloud Media</span><span class="stack-layer-sub">NVMe · SAS/SATA · S3 · Azure Blob</span></div>
+              </div>
+            </div>
+
+            <!-- Customer Questions -->
+            <div class="questions-panel">
+              <div class="section-label">QUESTIONS THIS LAB ANSWERS</div>
+              <div class="questions-list">
+                <div class="q-item"><span class="q-arrow">▶</span><a class="q-link" href="#" data-goto-tab="rebuild">How does ASA affect rebuild time and the vulnerability window?</a></div>
+                <div class="q-item"><span class="q-arrow">▶</span><a class="q-link" href="#" data-goto-tab="perf">Does ASA increase storage overhead versus bare RAID?</a></div>
+                <div class="q-item"><span class="q-arrow">▶</span><a class="q-link" href="#" data-goto-tab="correctness">Is the ASA vs RAID comparison symmetric and honest?</a></div>
+                <div class="q-item"><span class="q-arrow">▶</span><a class="q-link" href="#" data-goto-tab="correctness">Does ASA improve recovery determinism at scale?</a></div>
+                <div class="q-item"><span class="q-arrow">▶</span><a class="q-link" href="#" data-goto-tab="perf">At what disk count does ASA outperform RAID on IOPS?</a></div>
+                <div class="q-item"><span class="q-arrow">▶</span><a class="q-link" href="#" data-goto-tab="rebuild">What is double-fault risk during rebuild at enterprise disk counts?</a></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Formula Reference -->
+        <div class="formula-section">
+          <div class="section-label">FORMULA REFERENCE</div>
+          <div class="formula-grid" id="formulaGrid"></div>
+        </div>
+
+      </div><!-- /tab-perf -->
+
+      <!-- ── TAB: REBUILD & VULNERABILITY ── -->
+      <div class="tab-content hidden" id="tab-rebuild">
+
+        <!-- Rebuild KPI Strip -->
+        <div class="kpi-strip">
+          <div class="kpi-card danger" id="kpiRebuildTimeCard">
+            <div class="kpi-label">Rebuild Time</div>
+            <div class="kpi-value mono" id="kpiRebuildTime">—</div>
+            <div class="kpi-sub" id="kpiRebuildTimeSub">at current config</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Degraded IOPS</div>
+            <div class="kpi-value mono" id="kpiDegradedIOPS">—</div>
+            <div class="kpi-sub" id="kpiDegradedIOPSSub">% of normal</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Degraded Throughput</div>
+            <div class="kpi-value mono" id="kpiDegradedBW">—</div>
+            <div class="kpi-sub" id="kpiDegradedBWSub">% of normal</div>
+          </div>
+          <div class="kpi-card danger">
+            <div class="kpi-label">Double-Fault Risk</div>
+            <div class="kpi-value mono" id="kpiDoubleFault">—</div>
+            <div class="kpi-sub" id="kpiDoubleFaultSub">during rebuild window</div>
+          </div>
+          <div class="kpi-card accent">
+            <div class="kpi-label">URE Data Loss Risk</div>
+            <div class="kpi-value mono" id="kpiURERisk">—</div>
+            <div class="kpi-sub" id="kpiURERiskSub">bits read during rebuild</div>
+          </div>
+        </div>
+
+        <!-- Alert banner for RAID-5 large arrays -->
+        <div class="risk-banner" id="riskBanner" style="display:none">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <span id="riskBannerText">Warning text</span>
+        </div>
+
+        <!-- Rebuild Charts Grid -->
+        <div class="charts-grid">
+
+          <!-- Chart R1: Rebuild Time vs Disk Count -->
+          <div class="chart-card span-2">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Rebuild Time vs Disk Count</div>
+                <div class="chart-desc">Hours to complete a single-disk rebuild across RAID levels, at configured disk size and rebuild bandwidth</div>
+              </div>
+              <div class="chart-legend" id="legendRebuild"></div>
+            </div>
+            <div class="chart-wrap"><canvas id="chartRebuildTime"></canvas></div>
+          </div>
+
+          <!-- Chart R2: Degraded IOPS vs Disk Count -->
+          <div class="chart-card">
+            <div class="chart-header"><div>
+              <div class="chart-title">Degraded-Mode IOPS</div>
+              <div class="chart-desc">IOPS during rebuild (one failed disk) as % of healthy baseline, across disk counts</div>
+            </div></div>
+            <div class="chart-wrap chart-wrap-sm"><canvas id="chartDegradedIOPS"></canvas></div>
+          </div>
+
+          <!-- Chart R3: Rebuild + Normal IOPS stacked over time -->
+          <div class="chart-card">
+            <div class="chart-header"><div>
+              <div class="chart-title">I/O Contention During Rebuild</div>
+              <div class="chart-desc">Rebuild I/O budget consuming available disk bandwidth over the vulnerability window</div>
+            </div></div>
+            <div class="chart-wrap chart-wrap-sm"><canvas id="chartRebuildContention"></canvas></div>
+          </div>
+
+          <!-- Chart R4: Double-Fault probability vs disk count -->
+          <div class="chart-card span-2">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Vulnerability Window — Double-Fault Probability</div>
+                <div class="chart-desc">P(second disk fails during rebuild window) as disk count scales. RAID-5 has no recovery; RAID-6 survives one more. Elerath-Pecht model.</div>
+              </div>
+              <div class="chart-legend" id="legendDoubleFault"></div>
+            </div>
+            <div class="chart-wrap"><canvas id="chartDoubleFault"></canvas></div>
+          </div>
+
+          <!-- Chart R5: URE risk vs disk capacity -->
+          <div class="chart-card">
+            <div class="chart-header"><div>
+              <div class="chart-title">URE-Induced Data Loss Risk</div>
+              <div class="chart-desc">Probability a rebuild encounters an Unrecoverable Read Error, by disk size and RAID level</div>
+            </div></div>
+            <div class="chart-wrap chart-wrap-sm"><canvas id="chartURERisk"></canvas></div>
+          </div>
+
+          <!-- Chart R6: Throughput degradation during rebuild progress -->
+          <div class="chart-card">
+            <div class="chart-header"><div>
+              <div class="chart-title">Throughput During Rebuild Progress</div>
+              <div class="chart-desc">Effective user-facing throughput (% of normal) as rebuild completes, showing recovery curve</div>
+            </div></div>
+            <div class="chart-wrap chart-wrap-sm"><canvas id="chartRebuildProgress"></canvas></div>
+          </div>
+
+        </div>
+
+        <!-- Rebuild Formula Reference -->
+        <div class="formula-section">
+          <div class="section-label">REBUILD FORMULA REFERENCE</div>
+          <div class="formula-grid" id="formulaGridRebuild"></div>
+        </div>
+
+      </div><!-- /tab-rebuild -->
+
+      <!-- ── TAB: CORRECTNESS COST ── -->
+      <div class="tab-content hidden" id="tab-correctness">
+
+        <!-- Framing note -->
+        <div class="framing-note">
+          <div class="framing-note-title">Three-Baseline Comparison</div>
+          <div class="framing-note-body">Plain SW RAID is not a valid baseline for distributed correctness comparisons. Any system solving split-brain prevention, replica divergence, or distributed recovery already carries journal, coordination, reconciliation, and scrub overhead. The honest comparison has three tracks: <strong>RAID (bare)</strong>, <strong>RAID + Correctness</strong>, and <strong>ASA</strong>. The first track is only valid if correctness is out of scope.</div>
+        </div>
+
+        <!-- Correctness KPI Strip -->
+        <div class="kpi-strip">
+          <div class="kpi-card">
+            <div class="kpi-label">RAID Bare Total Cost</div>
+            <div class="kpi-value mono" id="kpiCorrRaidBare">—</div>
+            <div class="kpi-sub">effective I/O amplification</div>
+          </div>
+          <div class="kpi-card danger">
+            <div class="kpi-label">RAID + Correctness Cost</div>
+            <div class="kpi-value mono" id="kpiCorrRaidFull">—</div>
+            <div class="kpi-sub" id="kpiCorrRaidFullSub">with journal, scrub, coord</div>
+          </div>
+          <div class="kpi-card accent">
+            <div class="kpi-label">ASA Total Cost</div>
+            <div class="kpi-value mono" id="kpiCorrASA">—</div>
+            <div class="kpi-sub" id="kpiCorrASASub">hash + dedup − journal credit</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Breakeven Shift</div>
+            <div class="kpi-value mono" id="kpiCorrBreakevenShift">—</div>
+            <div class="kpi-sub" id="kpiCorrBreakevenShiftSub">disks earlier with correctness</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Reconcile Cost Ratio</div>
+            <div class="kpi-value mono" id="kpiCorrReconcile">—</div>
+            <div class="kpi-sub">RAID extent scan vs ASA index diff</div>
+          </div>
+        </div>
+
+        <div class="charts-grid">
+
+          <!-- C1: Total I/O amplification breakdown stacked bar -->
+          <div class="chart-card">
+            <div class="chart-header"><div>
+              <div class="chart-title">Total I/O Cost Breakdown</div>
+              <div class="chart-desc">Stacked effective amplification across all correctness components at current disk count</div>
+            </div></div>
+            <div class="chart-wrap chart-wrap-sm"><canvas id="chartCorrBreakdown"></canvas></div>
+          </div>
+
+          <!-- C2: Effective write IOPS — 3 baselines vs disk count -->
+          <div class="chart-card">
+            <div class="chart-header"><div>
+              <div class="chart-title">Write IOPS — Three Baselines</div>
+              <div class="chart-desc">Effective write IOPS across disk counts. RAID+Correctness is the operationally honest comparison for ASA.</div>
+            </div></div>
+            <div class="chart-wrap chart-wrap-sm"><canvas id="chartCorrIOPS3"></canvas></div>
+          </div>
+
+          <!-- C3: Shifted breakeven — with and without correctness overhead -->
+          <div class="chart-card span-2">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Breakeven Shift — Correctness-Adjusted</div>
+                <div class="chart-desc">ASA vs RAID-bare (optimistic) and ASA vs RAID+Correctness (honest). The gap between the two lines is the correctness overhead benefit ASA inherits for free.</div>
+              </div>
+              <div class="chart-legend" id="legendCorrBreakeven"></div>
+            </div>
+            <div class="chart-wrap"><canvas id="chartCorrBreakeven"></canvas></div>
+          </div>
+
+          <!-- C4: Background I/O budget consumed by correctness (BW) -->
+          <div class="chart-card">
+            <div class="chart-header"><div>
+              <div class="chart-title">Background Correctness I/O Load</div>
+              <div class="chart-desc">Continuous MB/s consumed by scrub, reconciliation scans, and coordination writes vs disk count</div>
+            </div></div>
+            <div class="chart-wrap chart-wrap-sm"><canvas id="chartCorrBackground"></canvas></div>
+          </div>
+
+          <!-- C5: Capacity overhead — metadata as % of raw -->
+          <div class="chart-card">
+            <div class="chart-header"><div>
+              <div class="chart-title">Metadata Capacity Overhead</div>
+              <div class="chart-desc">Storage consumed by correctness metadata as % of raw capacity, by component and baseline</div>
+            </div></div>
+            <div class="chart-wrap chart-wrap-sm"><canvas id="chartCorrCapacity"></canvas></div>
+          </div>
+
+          <!-- C6: Reconciliation cost — O(data) vs O(index) -->
+          <div class="chart-card span-2">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Reconciliation Scan Cost vs Array Size</div>
+                <div class="chart-desc">MB read during a reconciliation event after a partition heal. RAID must scan O(data); ASA diffs the fingerprint index O(index). Divergence grows with capacity.</div>
+              </div>
+              <div class="chart-legend" id="legendReconcile"></div>
+            </div>
+            <div class="chart-wrap"><canvas id="chartCorrReconcile"></canvas></div>
+          </div>
+
+        </div>
+
+        <!-- Correctness Formula Reference -->
+        <div class="formula-section">
+          <div class="section-label">CORRECTNESS COST REFERENCE</div>
+          <div class="formula-grid" id="formulaGridCorr"></div>
+        </div>
+
+      </div><!-- /tab-correctness -->
+
+    </section>
+  </main>
+
+  <script src="calc.js"></script>
+</body>
+</html>
