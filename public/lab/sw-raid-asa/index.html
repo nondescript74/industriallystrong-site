@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="vendor/chart.umd.min.js"></script>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -56,7 +56,13 @@
       </div>
 
       <div class="lab-hero-framing">
-        <p><strong>RAID solved redundancy. It did not solve distributed correctness.</strong> Any modern storage stack that prevents split-brain, reconciles divergence, or enforces deterministic recovery already carries metadata, coordination, reconciliation, and scrub overhead — whether it is framed as RAID + cluster manager, a distributed filesystem, or ASA. This lab compares three tracks — <em>bare SW RAID</em>, <em>SW RAID + correctness overhead</em>, and <em>ASA</em> — across realistic deployment profiles. The goal is decision support, not benchmark theater.</p>
+        <p><strong>RAID solved redundancy, not distributed correctness.</strong> Modern storage systems that prevent split-brain, reconcile divergence, or enforce deterministic recovery already carry coordination metadata and overhead. This lab compares three approaches — <em>bare RAID</em>, <em>RAID + correctness overhead</em>, and <em>ASA</em> — across realistic deployment profiles.</p>
+        <p class="lab-hero-answers-label">This lab helps answer:</p>
+        <ul class="lab-hero-answers">
+          <li>Where correctness overhead lives</li>
+          <li>When structural correctness becomes advantageous</li>
+          <li>How distributed recovery complexity scales</li>
+        </ul>
       </div>
 
       <div class="lab-hero-meta">

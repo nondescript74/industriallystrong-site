@@ -170,21 +170,71 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
 }
 
 .theme-toggle {
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--color-border);
-  background: var(--color-surface-2);
-  display: flex;
+  min-width: 64px;
+  height: 44px;
+  padding: 0 16px;
+  border-radius: 8px;
+  border: 2px solid var(--color-accent);
+  background: var(--color-accent);
+  color: #ffffff;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-text-muted);
-  transition: all var(--transition);
+  gap: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow:
+    0 0 0 3px rgba(77, 171, 247, 0.22),
+    0 4px 14px rgba(77, 171, 247, 0.35),
+    0 1px 2px rgba(0, 0, 0, 0.25);
+  transition: transform 0.12s ease, box-shadow 0.15s ease, background 0.15s ease, filter 0.15s ease;
+}
+.theme-toggle svg {
+  width: 22px;
+  height: 22px;
+  stroke-width: 2.4;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+.theme-toggle::after {
+  content: "THEME";
 }
 .theme-toggle:hover {
-  background: var(--color-surface-offset);
-  color: var(--color-text);
-  border-color: var(--color-accent);
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+  box-shadow:
+    0 0 0 4px rgba(77, 171, 247, 0.32),
+    0 6px 20px rgba(77, 171, 247, 0.5),
+    0 2px 4px rgba(0, 0, 0, 0.3);
+}
+.theme-toggle:active {
+  transform: translateY(0);
+  filter: brightness(0.96);
+}
+.theme-toggle:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 3px;
+}
+
+/* Light-theme variant: the same button remains prominent but uses a darker
+   accent fill so contrast stays strong against the light surface. */
+:root[data-theme="light"] .theme-toggle {
+  background: #1c7ed6;
+  border-color: #1c7ed6;
+  box-shadow:
+    0 0 0 3px rgba(28, 126, 214, 0.18),
+    0 4px 14px rgba(28, 126, 214, 0.3),
+    0 1px 2px rgba(0, 0, 0, 0.12);
+}
+:root[data-theme="light"] .theme-toggle:hover {
+  box-shadow:
+    0 0 0 4px rgba(28, 126, 214, 0.28),
+    0 6px 20px rgba(28, 126, 214, 0.42),
+    0 2px 4px rgba(0, 0, 0, 0.16);
 }
 
 /* === LAYOUT === */
@@ -1118,10 +1168,42 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
   max-width: 1100px;
 }
 .lab-hero-framing p {
-  margin: 0;
+  margin: 0 0 10px 0;
   font-size: 13.5px;
   line-height: 1.65;
   color: var(--color-text);
+}
+.lab-hero-framing p:last-of-type { margin-bottom: 0; }
+.lab-hero-answers-label {
+  margin: 10px 0 4px 0 !important;
+  font-size: 11px !important;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+.lab-hero-answers {
+  margin: 0;
+  padding-left: 18px;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.lab-hero-answers li {
+  position: relative;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-text);
+}
+.lab-hero-answers li::before {
+  content: "▸";
+  position: absolute;
+  left: -14px;
+  color: var(--color-accent);
+  font-size: 11px;
+  top: 2px;
 }
 .lab-hero-framing strong {
   color: var(--color-text);
