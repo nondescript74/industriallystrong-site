@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ASA Deployment Model</title>
+  <meta name="description" content="Where ASA runs in the storage stack: SDS plug-in, replication-layer module, or node-local agent." />
+  <meta property="og:title" content="ASA Deployment Model" />
+  <meta property="og:description" content="ASA sits above data protection, below control-plane reconciliation. Deploys as an SDS plug-in or replication-layer module." />
+  <meta property="og:url" content="https://industriallystrong.com/decks/asa-deployment-model.html" />
+  <meta property="og:site_name" content="IndustriallyStrong" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:rgba(0,255,65,.12);--text:#f5f5f5;--text2:#d4d4d4;--muted:#a3a3a3;--green:#00FF41;--orange:#FFA500;--red:#FF3B30}
+    *,*::before,*::after{box-sizing:border-box;margin:0}
+    html{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;scroll-behavior:smooth}
+    body{max-width:900px;margin:0 auto;padding:2rem 1.5rem 4rem}
+    h1{font-family:'Instrument Serif',serif;font-size:clamp(2rem,5vw,3.2rem);background:linear-gradient(135deg,var(--green),var(--orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.5rem}
+    h2{font-family:'Instrument Serif',serif;font-size:1.5rem;color:var(--green);margin:2.5rem 0 1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border)}
+    h3{font-size:1.05rem;color:var(--orange);margin:1.5rem 0 .5rem}
+    p,li{color:var(--text2);font-size:.95rem}
+    .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:2rem}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem 1.5rem;margin:.75rem 0}
+    .card.green{border-left:4px solid var(--green)}
+    .card.orange{border-left:4px solid var(--orange)}
+    .card.red{border-left:4px solid var(--red)}
+    code{font-family:'JetBrains Mono',monospace;font-size:.85rem;background:rgba(0,255,65,.08);padding:.15rem .4rem;border-radius:4px;color:#b6f7c7}
+    a{color:var(--green);text-decoration:underline}
+    .nav-back{display:inline-block;margin-bottom:1.5rem;font-size:.85rem;color:var(--muted);text-decoration:none}
+    .nav-back:hover{color:var(--green)}
+    .stack{display:flex;flex-direction:column;gap:0;max-width:700px;margin:1.5rem auto;text-align:center}
+    .stack-layer{padding:1rem;border:1px solid var(--border);font-size:.95rem;color:var(--text2)}
+    .stack-layer.app{background:rgba(255,255,255,.03);border-radius:12px 12px 0 0}
+    .stack-layer.ctrl{background:rgba(255,165,0,.06);border-color:rgba(255,165,0,.15)}
+    .stack-layer.asa{background:rgba(0,255,65,.08);border-color:rgba(0,255,65,.25);color:var(--green);font-weight:700;font-size:1.05rem;padding:1.25rem}
+    .stack-layer.prot{background:rgba(255,255,255,.03);border-radius:0 0 12px 12px}
+    .stack-arrow{text-align:center;font-size:1.5rem;color:var(--green);line-height:1.2;padding:.25rem 0}
+    .model-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin:1rem 0}
+    @media(max-width:600px){.model-grid{grid-template-columns:1fr}}
+    .tag{display:inline-block;padding:.2rem .6rem;border-radius:999px;font-size:.75rem;font-weight:600;margin-left:.5rem}
+    .tag.primary{background:rgba(0,255,65,.12);color:var(--green);border:1px solid rgba(0,255,65,.25)}
+    .tag.secondary{background:rgba(255,165,0,.1);color:var(--orange);border:1px solid rgba(255,165,0,.2)}
+    .tag.avoid{background:rgba(255,59,48,.1);color:var(--red);border:1px solid rgba(255,59,48,.2)}
+  </style>
+</head>
+<body>
+  <a class="nav-back" href="/decks/asa-brief.html">&#8592; Back to ASA Brief</a>
+  <h1>ASA Deployment Model</h1>
+  <p class="subtitle">Where ASA runs, how it integrates, and what it does not replace</p>
+
+  <h2>Stack placement</h2>
+  <div class="stack">
+    <div class="stack-layer app">Application / Database / Data Service</div>
+    <div class="stack-arrow">&#8595;</div>
+    <div class="stack-layer ctrl">VMware / Nutanix / Kubernetes / SDS control plane</div>
+    <div class="stack-arrow">&#8595;</div>
+    <div class="stack-layer asa">&#9670; ASA &#8212; deterministic replica-arbitration layer</div>
+    <div class="stack-arrow">&#8595;</div>
+    <div class="stack-layer prot">RAID / mirroring / erasure coding / JBOD / cloud block-object substrate</div>
+  </div>
+  <p style="text-align:center;color:var(--muted);font-size:.85rem;margin-top:.5rem">ASA sits above data protection, below distributed control-plane reconciliation.</p>
+
+  <h2>Deployment models</h2>
+  <div class="model-grid">
+    <div class="card green">
+      <h3>SDS plug-in / replication-layer module <span class="tag primary">Primary</span></h3>
+      <p>ASA integrates as a module within the software-defined storage or replication layer. It intercepts replication events, records structural metadata inline, and exposes the arbitration API to the control plane above.</p>
+      <p style="margin-top:.75rem"><strong>Best for:</strong> Ceph (RADOS plug-in), GlusterFS (translator), ZFS-on-Linux (channel program), VMware vSAN (provider), Nutanix AOS (stargate hook).</p>
+      <p style="margin-top:.5rem"><strong>Why primary:</strong> Lowest latency insertion point. Feels like infrastructure, not an add-on. Aligns with the storage audience's mental model of where correctness belongs.</p>
+    </div>
+    <div class="card orange">
+      <h3>Node-local agent <span class="tag secondary">Secondary</span></h3>
+      <p>For vendors with more fragmented stacks or heterogeneous storage substrates, ASA runs as a daemon on each storage node. It watches replication traffic via a shim or tap, maintains its own metadata log, and exposes the same arbitration API.</p>
+      <p style="margin-top:.75rem"><strong>Best for:</strong> mdadm/JBOD environments, mixed-vendor metro clusters, legacy arrays with limited API surface.</p>
+      <p style="margin-top:.5rem"><strong>Trade-off:</strong> Slightly higher latency (out-of-path observation), but broader compatibility.</p>
+    </div>
+  </div>
+  <div class="card red">
+    <h3>Sidecar library <span class="tag avoid">Avoid leading with</span></h3>
+    <p>A sidecar or library model is technically viable but sounds looser and less infrastructure-native for storage audiences. It implies ASA is optional middleware rather than a core correctness subsystem. Reserve this framing for application-layer integrations (e.g., database replication) where the storage substrate is opaque.</p>
+  </div>
+
+  <h2>What ASA replaces (and does not replace)</h2>
+  <div class="model-grid">
+    <div class="card green">
+      <h3>ASA replaces</h3>
+      <p>The arbitration decision &#8212; the moment when the system must choose which replica branch to trust after divergence. That decision becomes deterministic and auditable instead of controller-led or manual.</p>
+    </div>
+    <div class="card orange">
+      <h3>ASA does not replace</h3>
+      <p>The storage stack. Not the control plane. Not replication transport. Not RAID. Not the filesystem. ASA is a correctness layer that composes with existing infrastructure, not a rip-and-replace story.</p>
+    </div>
+  </div>
+
+  <h2>Integration surface</h2>
+  <div class="card green">
+    <h3>Write path</h3>
+    <p>A single hook: <code>record_event(object_key, event_metadata)</code> called inline in the replication or SDS write path. Overhead is comparable to existing checksum or dedup header computation (32&#8211;64 bytes per block, ~1&#8211;3% metadata overhead).</p>
+  </div>
+  <div class="card orange">
+    <h3>Read/arbitration path</h3>
+    <p><code>get_branches()</code>, <code>get_arbitration_ticket()</code>, and <code>resolve_ticket()</code> are called only during divergence detection or recovery &#8212; not on the hot read path. Zero overhead on normal reads.</p>
+  </div>
+  <div class="card green">
+    <h3>Telemetry</h3>
+    <p>Divergence rate, auto-collapse rate, deferral rate, score-gap distribution, and failure-class breakdown (order non-determinism vs semantic ambiguity). Exportable to Prometheus, Datadog, or any metrics pipeline.</p>
+  </div>
+
+  <h2>Operational posture</h2>
+  <div class="card green">
+    <p><strong>Failure mode:</strong> If ASA itself is unavailable, the underlying storage stack continues to operate normally &#8212; ASA is additive, not blocking. Divergences detected during ASA downtime are queued and scored on recovery.</p>
+    <p style="margin-top:.75rem"><strong>Upgrade path:</strong> Metadata schema is versioned. New scoring dimensions or event fields can be added without reprocessing historical branches. Old branches retain their original score vectors.</p>
+    <p style="margin-top:.75rem"><strong>Multi-site:</strong> ASA metadata replicates alongside the data it describes. Cross-site arbitration uses the same scoring engine; no separate coordination channel required.</p>
+  </div>
+
+  <p style="margin-top:2.5rem;font-size:.9rem"><a href="/decks/asa-brief.html">&#8592; ASA Brief</a> &#183; <a href="/decks/asa-primitive-spec.html">Arbitration Primitive</a> &#183; <a href="/decks/asa-beachhead-brief.html">Beachhead Brief</a></p>
+</body>
+</html>

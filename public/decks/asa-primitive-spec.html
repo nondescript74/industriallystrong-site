@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ASA Arbitration Primitive &#8212; One-Page Spec</title>
+  <meta name="description" content="Deterministic replica-arbitration primitive: per-mutation metadata, branch model, scoring dimensions, decision rules, and interfaces." />
+  <meta property="og:title" content="ASA Arbitration Primitive Spec" />
+  <meta property="og:description" content="How ASA preserves competing branches, scores each against structural evidence, and selects a winner without controller authority." />
+  <meta property="og:url" content="https://industriallystrong.com/decks/asa-primitive-spec.html" />
+  <meta property="og:site_name" content="IndustriallyStrong" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:rgba(0,255,65,.12);--text:#f5f5f5;--text2:#d4d4d4;--muted:#a3a3a3;--green:#00FF41;--orange:#FFA500;--red:#FF3B30}
+    *,*::before,*::after{box-sizing:border-box;margin:0}
+    html{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;scroll-behavior:smooth}
+    body{max-width:900px;margin:0 auto;padding:2rem 1.5rem 4rem}
+    h1{font-family:'Instrument Serif',serif;font-size:clamp(2rem,5vw,3.2rem);background:linear-gradient(135deg,var(--green),var(--orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.5rem}
+    h2{font-family:'Instrument Serif',serif;font-size:1.5rem;color:var(--green);margin:2.5rem 0 1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border)}
+    h3{font-size:1.05rem;color:var(--orange);margin:1.5rem 0 .5rem}
+    p,li{color:var(--text2);font-size:.95rem}
+    .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:2rem}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem 1.5rem;margin:.75rem 0}
+    .card.green{border-left:4px solid var(--green)}
+    .card.orange{border-left:4px solid var(--orange)}
+    .card.red{border-left:4px solid var(--red)}
+    code,.mono{font-family:'JetBrains Mono',monospace;font-size:.85rem;background:rgba(0,255,65,.08);padding:.15rem .4rem;border-radius:4px;color:#b6f7c7}
+    .field-list{list-style:none;padding:0}
+    .field-list li{padding:.4rem 0;border-bottom:1px solid rgba(255,255,255,.04)}
+    .field-list li:last-child{border-bottom:none}
+    .field-name{color:var(--green);font-family:'JetBrains Mono',monospace;font-size:.85rem}
+    .score-grid{display:grid;grid-template-columns:auto 1fr;gap:.5rem 1.5rem;margin:1rem 0}
+    .score-num{color:var(--green);font-weight:700;font-size:1.1rem}
+    .decision-box{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;margin:1rem 0}
+    @media(max-width:700px){.decision-box{grid-template-columns:1fr}}
+    .formula{background:rgba(0,255,65,.05);border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:'JetBrains Mono',monospace;font-size:.9rem;color:var(--green);text-align:center;margin:1rem 0}
+    a{color:var(--green);text-decoration:underline}
+    .nav-back{display:inline-block;margin-bottom:1.5rem;font-size:.85rem;color:var(--muted);text-decoration:none}
+    .nav-back:hover{color:var(--green)}
+  </style>
+</head>
+<body>
+  <a class="nav-back" href="/decks/asa-brief.html">&#8592; Back to ASA Brief</a>
+  <h1>ASA Arbitration Primitive</h1>
+  <p class="subtitle">One-page spec: how ASA records, scores, and resolves competing replica branches</p>
+
+  <h2>1. Scope and insertion point</h2>
+  <div class="card green">
+    <p><strong>Layer:</strong> Above data protection (RAID, mirroring, erasure coding), below SDS / replication control planes.</p>
+    <p><strong>Objects:</strong> Replica states for a given key (file, object, leg set, or logical record group).</p>
+    <p><strong>Events:</strong> Mutations applied to those objects (open, amend, cancel, fill, rename, write, etc.).</p>
+  </div>
+
+  <h2>2. Per-mutation metadata</h2>
+  <p>For every mutation that reaches a replica, ASA records a compact event record:</p>
+  <ul class="field-list">
+    <li><span class="field-name">event_id</span> &#8212; globally unique logical event identifier.</li>
+    <li><span class="field-name">replica_id</span> &#8212; identity of the node / site that processed the event.</li>
+    <li><span class="field-name">branch_id</span> &#8212; identifier of the candidate branch this mutation extends.</li>
+    <li><span class="field-name">parent_event_ids[]</span> &#8212; one or more parent pointers for causal ancestry.</li>
+    <li><span class="field-name">op_type</span> &#8212; operation class (e.g., OPEN, AMEND, CANCEL, FILL, WRITE, DELETE).</li>
+    <li><span class="field-name">position_map</span> &#8212; structure/leg/extent indices the event touches (e.g., L1/L2/L3, byte ranges, key ranges).</li>
+    <li><span class="field-name">completeness_flags</span> &#8212; markers for required legs/fields present, missing, or partial.</li>
+    <li><span class="field-name">intent_markers</span> <span style="color:var(--muted)">(optional)</span> &#8212; operator / policy hints, derived from source system if available.</li>
+    <li><span class="field-name">content_hash</span> &#8212; cryptographic or strong non-cryptographic hash over the resulting candidate state delta.</li>
+    <li><span class="field-name">lineage_hash</span> &#8212; rolling hash chaining parent state to child state: <code>H' = H(parent) &#8853; H(delta)</code>.</li>
+  </ul>
+  <p style="margin-top:.75rem;color:var(--muted);font-size:.85rem">Records are appended to an ASA metadata log and periodically compacted into branch checkpoints.</p>
+
+  <h2>3. Branch model</h2>
+  <p>For each logical object, ASA maintains one or more branches:</p>
+  <div class="card orange">
+    <p>A branch is an ordered sequence of event records with:</p>
+    <ul class="field-list">
+      <li><span class="field-name">branch_id</span></li>
+      <li><span class="field-name">head_event_id</span></li>
+      <li><span class="field-name">head_lineage_hash</span></li>
+      <li><span class="field-name">score_vector</span> (see scoring below)</li>
+      <li><span class="field-name">status</span> &#8712; {ACTIVE, WINNER, DEFERRED, DISCARDED}</li>
+    </ul>
+  </div>
+  <p>Branches are created when replicas diverge (different arrival orders or interpretations) and are retained until either the confidence gap justifies auto-collapse, or an operator / higher layer explicitly resolves them.</p>
+
+  <h2>4. Scoring dimensions</h2>
+  <p>On each relevant change (new event, branch extension, or divergence detection), ASA computes a score vector per branch:</p>
+
+  <div class="score-grid">
+    <span class="score-num">C<sub>c</sub></span>
+    <div><strong>Causal coherence</strong> &#8212; Measures whether the event sequence is consistent with declared causal dependencies (no missing parents, no impossible re-ordering). Penalizes gaps, cycles, or out-of-order application that violate <code>parent_event_ids</code>.</div>
+    <span class="score-num">S<sub>c</sub></span>
+    <div><strong>Structural consistency</strong> &#8212; Measures whether the resulting structure is internally valid: leg/extent counts, invariants, constraints, hedge ratios, etc. Penalizes invalid combinations (e.g., dangling legs, violated invariants).</div>
+    <span class="score-num">E<sub>c</sub></span>
+    <div><strong>Event completeness</strong> &#8212; Measures whether all required events for a known pattern have been seen (e.g., open+fill+close, or open+cancel). Penalizes branches with missing mandatory steps relative to peers.</div>
+    <span class="score-num">O<sub>a</sub></span>
+    <div><strong>Operator alignment</strong> &#8212; Measures alignment with operator / policy intent where available (intent markers, desk rules, configuration). Penalizes branches that contradict explicit intent or policy.</div>
+  </div>
+
+  <p>Each dimension is normalized to [0, 1]. Branch score is:</p>
+  <div class="formula">S = w<sub>c</sub>C<sub>c</sub> + w<sub>s</sub>S<sub>c</sub> + w<sub>e</sub>E<sub>c</sub> + w<sub>o</sub>O<sub>a</sub></div>
+  <p>with weights w<sub>c</sub>, w<sub>s</sub>, w<sub>e</sub>, w<sub>o</sub> chosen per deployment profile (e.g., safety-biased vs latency-biased).</p>
+
+  <h2>5. Decision rules</h2>
+  <p>Given two or more ACTIVE branches for the same object:</p>
+
+  <div class="decision-box">
+    <div class="card green">
+      <h3>Auto-collapse</h3>
+      <p>If one branch's score exceeds all others by at least a configured confidence gap &#916; (e.g., S<sub>max</sub> &#8722; S<sub>next</sub> &#8805; 0.2) and no hard constraint is violated:</p>
+      <ul style="padding-left:1.2rem;margin-top:.5rem"><li>Mark that branch <code>WINNER</code></li><li>Mark competitors <code>DISCARDED</code> with cause codes</li><li>Emit audit record: winning branch_id, score vector, competing scores, key discriminating factors</li></ul>
+    </div>
+    <div class="card orange">
+      <h3>Defer to arbitration</h3>
+      <p>If scores are within &#916; or any dimension signals unresolved ambiguity (incomplete event set, conflicting intent):</p>
+      <ul style="padding-left:1.2rem;margin-top:.5rem"><li>Keep competing branches <code>ACTIVE</code></li><li>Expose arbitration ticket to higher layers / ops UI</li><li>Optionally accept operator decision or wait for more events</li></ul>
+    </div>
+    <div class="card red">
+      <h3>Preserve under concurrency</h3>
+      <p>When concurrent mutations arrive (conflicting updates across sites):</p>
+      <ul style="padding-left:1.2rem;margin-top:.5rem"><li>Spawn or extend branches without auto-collapse</li><li>Re-score only when causal relationships or structural differences become clear</li></ul>
+    </div>
+  </div>
+
+  <h3>Reconciliation after winner selection</h3>
+  <div class="card green">
+    <p>Once a branch is <code>WINNER</code>, ASA emits a canonical state descriptor (final lineage hash, structural snapshot) and schedules background repair so lagging replicas reconcile to the winner.</p>
+  </div>
+
+  <h2>6. Interfaces</h2>
+  <div class="card green">
+    <h3>Write-side hook</h3>
+    <p><code>record_event(object_key, event_metadata)</code> &#8212; called inline in the replication/SDS path.</p>
+  </div>
+  <div class="card orange">
+    <h3>Arbitration API</h3>
+    <p><code>get_branches(object_key) &#8594; [branch]</code></p>
+    <p><code>get_arbitration_ticket(object_key) &#8594; ticket?</code></p>
+    <p><code>resolve_ticket(object_key, winning_branch_id, reason)</code></p>
+  </div>
+  <div class="card red">
+    <h3>Telemetry</h3>
+    <p>Rate of divergences, auto-collapses, deferrals. Distribution of score gaps and failure classes (order non-determinism vs semantic ambiguity).</p>
+  </div>
+
+  <p style="margin-top:2.5rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--border);padding-top:1rem">This is enough detail that a storage vendor or distributed systems engineer can see what ASA records, how it scores branches, and when it chooses to auto-collapse versus escalate, without forcing a particular implementation of hash type, weights, or storage layout.</p>
+
+  <p style="margin-top:1.5rem;font-size:.9rem"><a href="/decks/asa-brief.html">&#8592; ASA Brief</a> &#183; <a href="/decks/asa-deployment-model.html">Deployment Model</a> &#183; <a href="/decks/asa-beachhead-brief.html">Beachhead Brief</a></p>
+</body>
+</html>

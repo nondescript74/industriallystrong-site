@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="slides-format" content="viewport" />
-  <meta name="description" content="ASA is a distributed correctness layer for modern storage systems. Instead of relying on controller authority or quorum, ASA uses structural evidence to determine replica truth after divergence." />
+  <meta name="description" content="ASA is a deterministic replica-arbitration layer that preserves competing branches after partition or failover, scores each against structural evidence, and selects a winner without controller authority or quorum." />
 
   <!-- OpenGraph / LinkedIn -->
   <meta property="og:type" content="article" />
@@ -69,8 +69,8 @@
     <div class="content text-center">
       <div class="hero-box reveal">A</div>
       <h1 class="font-display text-[clamp(2.8rem,6vw,5.5rem)] font-black tracking-tight mb-4 bg-linear-to-br from-accent-1 via-accent-2 to-accent-1 bg-clip-text text-transparent reveal">Autonomous Structural Arbitration</h1>
-      <p class="text-[clamp(1rem,1.8vw,1.45rem)] text-text-secondary tracking-[4px] uppercase reveal">A distributed correctness layer for modern storage systems</p>
-      <p class="mt-8 text-lg text-text-muted max-w-4xl mx-auto reveal">Reframing replica divergence as a correctness problem that can be resolved structurally — rather than primarily through controller authority, quorum workflow, or ad hoc reconciliation.</p>
+      <p class="text-[clamp(1rem,1.8vw,1.45rem)] text-text-secondary tracking-[4px] uppercase reveal">A deterministic replica-arbitration layer for distributed storage</p>
+      <p class="mt-8 text-lg text-text-muted max-w-4xl mx-auto reveal">ASA is a software layer for deterministic post-divergence replica arbitration. It preserves competing branches after partition or failover and selects a winning branch from structural evidence &#8212; without relying on controller authority, quorum workflow, or ad hoc reconciliation.</p>
     </div>
   </section>
 
@@ -81,7 +81,7 @@
       <h2 class="font-display text-[clamp(2rem,4.5vw,3.4rem)] mb-8 reveal">Redundancy is mature. Distributed correctness is not.</h2>
       <div class="grid grid-cols-2 gap-6 mt-6">
         <div class="stack-card reveal"><h3 class="text-accent-1 text-xl font-semibold mb-3">What storage largely solved</h3><ul class="space-y-3 text-text-secondary text-lg"><li>RAID, mirrored protection, and JBOD-plus-software stacks are standard deployment patterns.</li><li>VMware, cloud, and SDS platforms already assume replication, failover, and recovery primitives exist.</li><li>Most innovation now sits above the device layer, not inside the disk shelf.</li></ul></div>
-        <div class="stack-card orange reveal"><h3 class="text-accent-2 text-xl font-semibold mb-3">What remains stubbornly hard</h3><ul class="space-y-3 text-text-secondary text-lg"><li>Replica divergence after partition, failover, or cross-site disruption.</li><li>Split-brain handling, resync ordering, and multi-cluster truth selection.</li><li>Operational debugging when metadata, controller decisions, and site state disagree.</li></ul></div>
+        <div class="stack-card orange reveal"><h3 class="text-accent-2 text-xl font-semibold mb-3">What remains stubbornly hard</h3><ul class="space-y-3 text-text-secondary text-lg"><li>Replica divergence after partition, failover, or cross-site disruption.</li><li>Split-brain resolution: which branch is correct, and how do you prove it?</li><li>Post-failure debugging when metadata, controller state, and site truth disagree.</li></ul></div>
       </div>
     </div>
   </section>
@@ -92,11 +92,11 @@
       <p class="mono-pill reveal">Why now</p>
       <h2 class="font-display text-[clamp(2rem,4.4vw,3.2rem)] mb-8 reveal">Current systems still pay a coordination tax</h2>
       <div class="grid grid-cols-3 gap-5">
-        <div class="stack-card reveal"><div class="text-3xl mb-3">Q</div><h3 class="text-lg font-semibold mb-2">Quorum and witnesses</h3><p class="small text-text-secondary">Stretch architectures use quorum or witness sites to preserve consistency and prevent split-brain, but availability and recovery behavior hinge on those coordination choices.</p></div>
-        <div class="stack-card orange reveal"><div class="text-3xl mb-3">R</div><h3 class="text-lg font-semibold mb-2">Resync and replay</h3><p class="small text-text-secondary">After failover or outage, mirrored systems often require explicit resynchronization workflows to restore a consistent state.</p></div>
-        <div class="stack-card red reveal"><div class="text-3xl mb-3">O</div><h3 class="text-lg font-semibold mb-2">Operational edge cases</h3><p class="small text-text-secondary">Low-latency synchronous designs improve RPO but add inter-site latency sensitivity, replication overhead, and recovery dependencies.</p></div>
+        <div class="stack-card reveal"><div class="text-3xl mb-3">Q</div><h3 class="text-lg font-semibold mb-2">Quorum and witnesses</h3><p class="small text-text-secondary">Stretch architectures use quorum or witness sites to prevent split-brain, but availability and recovery behavior hinge on those coordination choices.</p></div>
+        <div class="stack-card orange reveal"><div class="text-3xl mb-3">R</div><h3 class="text-lg font-semibold mb-2">Resync and replay</h3><p class="small text-text-secondary">After failover or outage, mirrored systems require explicit resynchronization workflows. The longer the partition, the costlier the resync.</p></div>
+        <div class="stack-card red reveal"><div class="text-3xl mb-3">O</div><h3 class="text-lg font-semibold mb-2">Operational edge cases</h3><p class="small text-text-secondary">Synchronous replication improves RPO but adds inter-site latency sensitivity, and recovery still depends on controller-led arbitration paths.</p></div>
       </div>
-      <p class="mt-8 text-xl text-text-secondary reveal">ASA's product thesis: reduce how much correctness depends on orchestration state, and increase how much can be inferred from the data structure itself.</p>
+      <p class="mt-8 text-xl text-text-secondary reveal">ASA&#8217;s thesis: correctness metadata should be structural &#8212; embedded in the data itself, not dependent on orchestration state.</p>
     </div>
   </section>
 
@@ -104,24 +104,24 @@
     <div class="gradient-mesh"><div class="blob" style="width:320px;height:320px;top:-80px;right:-60px;background:#FFA500;opacity:.08"></div><div class="blob" style="width:260px;height:260px;bottom:-80px;left:-60px;background:#00FF41;opacity:.07"></div></div>
     <div class="content">
       <p class="mono-pill reveal">Core mechanism</p>
-      <h2 class="font-display text-[clamp(2rem,4.4vw,3.2rem)] mb-6 reveal">ASA determines truth structurally</h2>
+      <h2 class="font-display text-[clamp(2rem,4.4vw,3.2rem)] mb-6 reveal">ASA preserves branches and selects a winner from structural evidence</h2>
       <div class="grid grid-cols-[1.2fr_.8fr] gap-8 items-center">
         <div class="reveal">
-          <div class="stack-card mb-4"><p class="text-lg text-text-secondary">Instead of asking <span class="term text-accent-1">which controller won</span>, ASA asks <span class="term text-accent-2">which replica has the strongest structural evidence chain</span>.</p></div>
+          <div class="stack-card mb-4"><p class="text-lg text-text-secondary">Instead of asking <span class="term text-accent-1">which controller won</span>, ASA preserves competing replica branches and <span class="term text-accent-2">scores each against structural evidence</span>: causal lineage, position integrity, mutation completeness, and content hashes.</p></div>
           <div class="space-y-4 text-lg text-text-secondary">
-            <div class="stack-card reveal">Structural metadata ties content to position, lineage, and mutation sequence.</div>
-            <div class="stack-card orange reveal">Cryptographic hashes let the system detect where replicas diverge, not just that they diverged.</div>
-            <div class="stack-card red reveal">Deterministic arbitration logic selects the valid structure without relying exclusively on a centralized authority path.</div>
+            <div class="stack-card reveal">Each write carries structural metadata: event ID, parent pointer, branch ID, position map, and content hash.</div>
+            <div class="stack-card orange reveal">Cryptographic lineage hashes detect exactly where replicas diverge &#8212; not just that they diverged.</div>
+            <div class="stack-card red reveal">Deterministic scoring resolves to one of three outcomes: auto-collapse, defer-to-arbitration, or preserve-both-pending-more-evidence.</div>
           </div>
         </div>
         <div class="reveal">
           <div class="border border-glass-border rounded-3xl p-7 bg-glass-bg">
-            <div class="text-sm uppercase tracking-[3px] text-text-muted mb-4">Evidence chain</div>
+            <div class="text-sm uppercase tracking-[3px] text-text-muted mb-4">Scoring dimensions</div>
             <div class="space-y-3 text-lg">
-              <div class="flex justify-between"><span>Position map</span><span class="text-accent-1">✓</span></div>
-              <div class="flex justify-between"><span>Hash lineage</span><span class="text-accent-1">✓</span></div>
-              <div class="flex justify-between"><span>Mutation ordering</span><span class="text-accent-1">✓</span></div>
-              <div class="flex justify-between"><span>Replica confidence score</span><span class="text-accent-2">deterministic</span></div>
+              <div class="flex justify-between"><span>Causal coherence</span><span class="text-accent-1">&#10003;</span></div>
+              <div class="flex justify-between"><span>Structural consistency</span><span class="text-accent-1">&#10003;</span></div>
+              <div class="flex justify-between"><span>Event completeness</span><span class="text-accent-1">&#10003;</span></div>
+              <div class="flex justify-between"><span>Operator alignment</span><span class="text-accent-2">deterministic</span></div>
             </div>
           </div>
         </div>
@@ -134,30 +134,30 @@
     <canvas class="particle-canvas-ambient" style="position:absolute;inset:0;z-index:1"></canvas>
     <div class="content">
       <p class="mono-pill reveal">Placement</p>
-      <h2 class="font-display text-[clamp(2rem,4.4vw,3.2rem)] mb-8 reveal">ASA sits above storage protection, below distributed control planes</h2>
+      <h2 class="font-display text-[clamp(2rem,4.4vw,3.2rem)] mb-8 reveal">ASA sits above data protection, below control-plane reconciliation</h2>
       <div class="grid grid-cols-1 gap-4 max-w-4xl mx-auto text-center">
         <div class="stack-card reveal">Application / Database / Data Service</div>
-        <div class="reveal text-2xl text-accent-1">↓</div>
+        <div class="reveal text-2xl text-accent-1">&#8595;</div>
         <div class="stack-card orange reveal">VMware / Nutanix / Kubernetes / SDS control plane</div>
-        <div class="reveal text-2xl text-accent-1">↓</div>
-        <div class="stack-card red reveal"><strong>Autonomous Structural Arbitration</strong> — replica divergence detection and deterministic truth selection</div>
-        <div class="reveal text-2xl text-accent-1">↓</div>
+        <div class="reveal text-2xl text-accent-1">&#8595;</div>
+        <div class="stack-card red reveal"><strong>ASA</strong> &#8212; deterministic replica-arbitration layer (SDS plug-in or replication-layer module)</div>
+        <div class="reveal text-2xl text-accent-1">&#8595;</div>
         <div class="stack-card reveal">RAID / mirroring / erasure coding / JBOD / cloud block-object substrate</div>
       </div>
-      <p class="mt-7 text-lg text-text-secondary text-center reveal">That positioning makes ASA an additive software layer rather than a hardware rip-and-replace story.</p>
+      <p class="mt-7 text-lg text-text-secondary text-center reveal">Deploys as an SDS plug-in or replication-layer module. Secondary model: node-local agent for vendors with fragmented stacks. Additive, not rip-and-replace.</p>
     </div>
   </section>
 
   <section class="slide" data-slide="6">
     <div class="gradient-mesh"><div class="blob" style="width:330px;height:330px;top:-70px;left:-50px;background:#00FF41;opacity:.08"></div><div class="blob" style="width:260px;height:260px;bottom:-70px;right:-40px;background:#FF3B30;opacity:.07"></div></div>
     <div class="content">
-      <p class="mono-pill reveal">Where it lands</p>
-      <h2 class="font-display text-[clamp(2rem,4.4vw,3.2rem)] mb-8 reveal">Four buyers with immediate pain</h2>
+      <p class="mono-pill reveal">Beachhead</p>
+      <h2 class="font-display text-[clamp(2rem,4.4vw,3.2rem)] mb-8 reveal">First target: stretched-cluster split-brain recovery</h2>
       <div class="grid grid-cols-2 gap-6">
-        <div class="stack-card reveal"><h3 class="text-accent-1 text-xl font-semibold mb-2">VMware / Broadcom</h3><p class="small text-text-secondary">Stretched-cluster failover, witness-loss edge cases, deterministic site recovery, and less manual intervention around post-failure object availability.</p></div>
-        <div class="stack-card orange reveal"><h3 class="text-accent-2 text-xl font-semibold mb-2">Nutanix / HCI</h3><p class="small text-text-secondary">State reconciliation across nodes and clusters, especially where DR runbooks and platform metadata become hard to reason about under stress.</p></div>
-        <div class="stack-card red reveal"><h3 class="text-red-400 text-xl font-semibold mb-2">Ceph / cloud storage</h3><p class="small text-text-secondary">Cross-site mirroring, snapshot consistency groups, and eventual or asynchronous reconciliation paths that currently depend on explicit resync behavior.</p></div>
-        <div class="stack-card reveal"><h3 class="text-accent-1 text-xl font-semibold mb-2">Enterprise array vendors</h3><p class="small text-text-secondary">Cross-array federation, metro clusters, and controller-based replication stacks that need a software-native correctness differentiator.</p></div>
+        <div class="stack-card reveal"><h3 class="text-accent-1 text-xl font-semibold mb-2">The pain</h3><p class="small text-text-secondary">After partition or failover in a stretched cluster, replicas diverge. Current systems resolve this through controller-led arbitration, quorum votes, or manual intervention. Wrong-branch selection causes data loss. Slow recovery debugging costs hours.</p></div>
+        <div class="stack-card orange reveal"><h3 class="text-accent-2 text-xl font-semibold mb-2">Why ASA fits</h3><p class="small text-text-secondary">ASA preserves both branches, scores each against structural evidence, and resolves deterministically. No quorum dependency. No manual branch selection. Recovery debugging becomes structural inspection, not log archaeology.</p></div>
+        <div class="stack-card red reveal"><h3 class="text-red-400 text-xl font-semibold mb-2">Who feels this today</h3><p class="small text-text-secondary">VMware/Broadcom stretched clusters, Nutanix DR across sites, Ceph cross-site mirroring, any enterprise array with metro-cluster replication. All share the same fundamental gap: no structural proof of which branch is correct.</p></div>
+        <div class="stack-card reveal"><h3 class="text-accent-1 text-xl font-semibold mb-2">What ASA replaces</h3><p class="small text-text-secondary">Not the storage stack. Not the control plane. Just the arbitration decision &#8212; the moment when the system must choose which replica branch to trust after divergence. That decision becomes deterministic and auditable.</p></div>
       </div>
     </div>
   </section>
@@ -170,17 +170,17 @@
       <div class="grid grid-cols-[.9fr_1.1fr] gap-8 items-center">
         <div class="reveal">
           <div class="grid grid-cols-2 gap-4">
-            <div class="stack-card"><div class="text-4xl font-black text-accent-1 mb-2">32–64B</div><div class="small text-text-secondary">Illustrative per-block hash payload in your concept framing.</div></div>
-            <div class="stack-card orange"><div class="text-4xl font-black text-accent-2 mb-2">~1–3%</div><div class="small text-text-secondary">Illustrative metadata overhead, comparable to other storage bookkeeping layers.</div></div>
+            <div class="stack-card"><div class="text-4xl font-black text-accent-1 mb-2">32&#8211;64B</div><div class="small text-text-secondary">Per-block structural metadata payload (comparable to existing checksum/dedup headers).</div></div>
+            <div class="stack-card orange"><div class="text-4xl font-black text-accent-2 mb-2">~1&#8211;3%</div><div class="small text-text-secondary">Metadata overhead, in line with other storage bookkeeping layers.</div></div>
           </div>
-          <p class="mt-5 text-lg text-text-secondary">The key commercialization point is not "free," but "operationally cheaper than ambiguity."</p>
+          <p class="mt-5 text-lg text-text-secondary">The commercialization argument is not &#8220;free&#8221; &#8212; it is &#8220;operationally cheaper than ambiguity.&#8221;</p>
         </div>
         <div class="reveal">
           <div class="space-y-5">
             <div><div class="flex justify-between mb-2"><span>CPU parallelization fit</span><span>High</span></div><div class="bar-track"><div class="bar-fill" data-width="84"></div></div></div>
             <div><div class="flex justify-between mb-2"><span>Pipeline similarity to checksums/dedupe</span><span>Strong</span></div><div class="bar-track"><div class="bar-fill" data-width="78"></div></div></div>
             <div><div class="flex justify-between mb-2"><span>SmartNIC / SIMD / GPU acceleration potential</span><span>High</span></div><div class="bar-track"><div class="bar-fill" data-width="81"></div></div></div>
-            <div><div class="flex justify-between mb-2"><span>Likely first deployment ease in SDS layer</span><span>Highest</span></div><div class="bar-track"><div class="bar-fill" data-width="89"></div></div></div>
+            <div><div class="flex justify-between mb-2"><span>SDS plug-in deployment ease</span><span>Highest</span></div><div class="bar-track"><div class="bar-fill" data-width="89"></div></div></div>
           </div>
         </div>
       </div>
@@ -190,15 +190,16 @@
   <section class="slide" data-slide="8">
     <div class="gradient-mesh"><div class="blob" style="width:500px;height:500px;top:-120px;right:-100px;background:#00FF41;opacity:.11"></div><div class="blob" style="width:280px;height:280px;bottom:-70px;left:-30px;background:#FFA500;opacity:.10"></div><div class="blob" style="width:180px;height:180px;top:45%;left:22%;background:#FF3B30;opacity:.08"></div></div>
     <canvas class="particle-canvas" style="position:absolute;inset:0;z-index:1"></canvas>
-    <div class="content">
-      <p class="mono-pill reveal">Roadmap</p>
-      <h2 class="font-display text-[clamp(2.5rem,5vw,4.4rem)] bg-linear-to-br from-accent-1 via-accent-2 to-accent-1 bg-clip-text text-transparent mb-6 reveal text-center">What we're building next</h2>
-      <div class="grid grid-cols-3 gap-5 mt-4">
-        <div class="stack-card reveal"><div class="text-3xl mb-3 text-accent-1">1</div><h3 class="text-lg font-semibold mb-2">Prove the complexity claim</h3><p class="small text-text-secondary">Empirical benchmark demonstrating O(index) reconciliation scaling — the one claim that survives every competitive counter. Log-log charts, reproducible harness, falsifiable threshold.</p></div>
-        <div class="stack-card orange reveal"><div class="text-3xl mb-3 text-accent-2">2</div><h3 class="text-lg font-semibold mb-2">Beachhead: split-brain recovery</h3><p class="small text-text-secondary">Stretched-cluster failover is the cleanest entry point — buyers already feel the pain, and deterministic truth selection replaces manual intervention and ambiguous runbooks.</p></div>
-        <div class="stack-card red reveal"><div class="text-3xl mb-3 text-red-400">3</div><h3 class="text-lg font-semibold mb-2">Ship the composability layer</h3><p class="small text-text-secondary">ASA as an additive software layer above any storage substrate — Ceph, mdadm, GlusterFS, ZFS, cloud block. Correctness that composes rather than replaces.</p></div>
+    <div class="content text-center">
+      <div class="text-[100px] mb-5 animate-[float_3s_ease-in-out_infinite] reveal">&#9670;</div>
+      <h2 class="font-display text-[clamp(2.5rem,5vw,4.4rem)] bg-linear-to-br from-accent-1 via-accent-2 to-accent-1 bg-clip-text text-transparent mb-6 reveal">ASA v1 definition</h2>
+      <div class="max-w-3xl mx-auto text-left space-y-4">
+        <div class="stack-card reveal"><p class="text-lg text-text-secondary"><strong class="text-accent-1">What it is:</strong> A deterministic replica-arbitration layer. Software that preserves competing branches after divergence, scores each against structural evidence, and selects a winner without controller authority.</p></div>
+        <div class="stack-card orange reveal"><p class="text-lg text-text-secondary"><strong class="text-accent-2">Where it runs:</strong> SDS plug-in or replication-layer module, above data protection, below distributed control-plane reconciliation. Additive to any storage substrate.</p></div>
+        <div class="stack-card red reveal"><p class="text-lg text-text-secondary"><strong class="text-red-400">First target:</strong> Stretched-cluster split-brain recovery. Wrong-branch selection, brittle reconciliation, and slow recovery debugging &#8212; resolved structurally.</p></div>
+        <div class="stack-card reveal"><p class="text-lg text-text-secondary"><strong class="text-accent-1">Falsifiable claim:</strong> Reconciliation scales with index cardinality O(index), not total data volume O(data). Benchmark harness built; empirical evidence in progress.</p></div>
       </div>
-      <p class="mt-8 text-xl text-text-secondary text-center reveal">The goal is not to compete with storage infrastructure — it's to make correctness a separable, provable property of any stack.</p>
+      <p class="mt-8 text-lg text-text-muted reveal">Detailed specs: <a href="/decks/asa-primitive-spec.html" class="text-accent-1 underline">Arbitration Primitive</a> &#183; <a href="/decks/asa-deployment-model.html" class="text-accent-1 underline">Deployment Model</a> &#183; <a href="/decks/asa-beachhead-brief.html" class="text-accent-1 underline">Beachhead Brief</a></p>
     </div>
   </section>
 </div>

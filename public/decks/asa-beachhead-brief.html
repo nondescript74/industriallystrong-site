@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ASA Beachhead Brief &#8212; Stretched-Cluster Split-Brain Recovery</title>
+  <meta name="description" content="ASA first target: deterministic split-brain recovery for stretched clusters. Wrong-branch selection, brittle reconciliation, and slow recovery debugging - resolved structurally." />
+  <meta property="og:title" content="ASA Beachhead: Stretched-Cluster Split-Brain Recovery" />
+  <meta property="og:description" content="Wrong-branch selection, brittle reconciliation, slow recovery debugging. ASA resolves split-brain deterministically from structural evidence." />
+  <meta property="og:url" content="https://industriallystrong.com/decks/asa-beachhead-brief.html" />
+  <meta property="og:site_name" content="IndustriallyStrong" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#0a0a0a;--surface:#141414;--border:rgba(0,255,65,.12);--text:#f5f5f5;--text2:#d4d4d4;--muted:#a3a3a3;--green:#00FF41;--orange:#FFA500;--red:#FF3B30}
+    *,*::before,*::after{box-sizing:border-box;margin:0}
+    html{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;scroll-behavior:smooth}
+    body{max-width:900px;margin:0 auto;padding:2rem 1.5rem 4rem}
+    h1{font-family:'Instrument Serif',serif;font-size:clamp(2rem,5vw,3.2rem);background:linear-gradient(135deg,var(--green),var(--orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.5rem}
+    h2{font-family:'Instrument Serif',serif;font-size:1.5rem;color:var(--green);margin:2.5rem 0 1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border)}
+    h3{font-size:1.05rem;color:var(--orange);margin:1.5rem 0 .5rem}
+    p,li{color:var(--text2);font-size:.95rem}
+    .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:2rem}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem 1.5rem;margin:.75rem 0}
+    .card.green{border-left:4px solid var(--green)}
+    .card.orange{border-left:4px solid var(--orange)}
+    .card.red{border-left:4px solid var(--red)}
+    code{font-family:'JetBrains Mono',monospace;font-size:.85rem;background:rgba(0,255,65,.08);padding:.15rem .4rem;border-radius:4px;color:#b6f7c7}
+    a{color:var(--green);text-decoration:underline}
+    .nav-back{display:inline-block;margin-bottom:1.5rem;font-size:.85rem;color:var(--muted);text-decoration:none}
+    .nav-back:hover{color:var(--green)}
+    .pain-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;margin:1rem 0}
+    @media(max-width:700px){.pain-grid{grid-template-columns:1fr}}
+    .scenario{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin:1rem 0}
+    @media(max-width:600px){.scenario{grid-template-columns:1fr}}
+    .timeline{display:flex;flex-direction:column;gap:0;margin:1.5rem 0;max-width:700px}
+    .timeline-step{display:flex;gap:1rem;align-items:flex-start;padding:.75rem 0;border-left:2px solid var(--border);padding-left:1.5rem;position:relative}
+    .timeline-step::before{content:'';position:absolute;left:-5px;top:1rem;width:10px;height:10px;border-radius:50%;background:var(--green);border:2px solid var(--bg)}
+    .timeline-step.orange::before{background:var(--orange)}
+    .timeline-step.red::before{background:var(--red)}
+    .step-label{font-weight:600;min-width:100px;color:var(--green);font-size:.9rem}
+    .buyer-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin:1rem 0}
+    @media(max-width:600px){.buyer-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <a class="nav-back" href="/decks/asa-brief.html">&#8592; Back to ASA Brief</a>
+  <h1>Beachhead: Stretched-Cluster Split-Brain Recovery</h1>
+  <p class="subtitle">First target use case for ASA &#8212; the pain everyone recognizes, the gap no one has closed</p>
+
+  <h2>The problem</h2>
+  <p>When a stretched cluster loses connectivity between sites, replicas diverge. When connectivity returns, the system must decide which branch of reality is correct. Today, that decision is made by controller authority, quorum votes, or manual intervention. All three have failure modes that cause data loss, extended outages, or operational confusion.</p>
+
+  <div class="pain-grid">
+    <div class="card red">
+      <h3>Wrong-branch selection</h3>
+      <p>The controller or quorum picks the losing side. Writes committed on the winning branch are silently discarded or overwritten. Detection may take hours or days.</p>
+    </div>
+    <div class="card orange">
+      <h3>Brittle reconciliation</h3>
+      <p>Resync workflows assume a clean winner exists. When both branches have valid, conflicting mutations, resync either drops data or requires manual intervention per-object.</p>
+    </div>
+    <div class="card green">
+      <h3>Slow recovery debugging</h3>
+      <p>When something goes wrong, operators must reconstruct what happened from controller logs, replication journals, and site-state snapshots &#8212; log archaeology under pressure.</p>
+    </div>
+  </div>
+
+  <h2>How ASA resolves this</h2>
+
+  <div class="timeline">
+    <div class="timeline-step">
+      <div>
+        <div class="step-label">Partition occurs</div>
+        <p>Sites A and B lose connectivity. Both continue accepting writes independently. Replicas diverge.</p>
+      </div>
+    </div>
+    <div class="timeline-step orange">
+      <div>
+        <div class="step-label" style="color:var(--orange)">ASA preserves branches</div>
+        <p>Instead of forcing a premature winner, ASA records structural metadata for each write on each site. Both branches are preserved as first-class objects with full causal lineage.</p>
+      </div>
+    </div>
+    <div class="timeline-step">
+      <div>
+        <div class="step-label">Connectivity returns</div>
+        <p>Sites exchange ASA metadata (not full data). Lineage hashes identify exactly where branches diverged and what each side did differently.</p>
+      </div>
+    </div>
+    <div class="timeline-step orange">
+      <div>
+        <div class="step-label" style="color:var(--orange)">Scoring and decision</div>
+        <p>ASA scores each branch across four dimensions: causal coherence, structural consistency, event completeness, operator alignment. If the confidence gap exceeds &#916;, the winner is selected automatically. If not, an arbitration ticket is surfaced to ops.</p>
+      </div>
+    </div>
+    <div class="timeline-step">
+      <div>
+        <div class="step-label">Reconciliation</div>
+        <p>The winning branch becomes canonical. ASA emits a state descriptor and schedules background repair. The losing branch is retained (with cause codes) for audit. No data is silently discarded.</p>
+      </div>
+    </div>
+  </div>
+
+  <h2>Before and after</h2>
+  <div class="scenario">
+    <div class="card red">
+      <h3>Without ASA</h3>
+      <p>Controller picks a winner based on replication lag, timestamp, or quorum vote. Operator discovers the wrong branch was selected hours later during a consistency check. Recovery requires manual forensics across replication logs and site-state snapshots. Some data may be unrecoverable.</p>
+    </div>
+    <div class="card green">
+      <h3>With ASA</h3>
+      <p>Both branches are preserved with structural evidence. Scoring selects the winner deterministically. The losing branch is retained with full lineage for audit. Recovery debugging is structural inspection (compare score vectors, examine lineage hashes) &#8212; not log archaeology. Decision is auditable and reproducible.</p>
+    </div>
+  </div>
+
+  <h2>Who feels this pain today</h2>
+  <div class="buyer-grid">
+    <div class="card green">
+      <h3>VMware / Broadcom</h3>
+      <p>vSAN stretched clusters with witness-loss edge cases. Post-failure object availability depends on controller arbitration and quorum health. Deterministic site recovery would eliminate a class of escalations.</p>
+    </div>
+    <div class="card orange">
+      <h3>Nutanix / HCI</h3>
+      <p>DR across sites where platform metadata and runbooks become hard to reason about under stress. State reconciliation across nodes and clusters is manual and error-prone.</p>
+    </div>
+    <div class="card red">
+      <h3>Ceph / open-source storage</h3>
+      <p>Cross-site RBD mirroring and RGW multi-site. Reconciliation depends on explicit resync behavior. PG scrubbing after partition is O(data), not O(divergence).</p>
+    </div>
+    <div class="card green">
+      <h3>Enterprise arrays</h3>
+      <p>Metro-cluster replication (NetApp MetroCluster, Dell SRDF, Pure ActiveCluster). Controller-based arbitration works but is opaque. ASA offers a software-native correctness differentiator that makes the arbitration decision auditable.</p>
+    </div>
+  </div>
+
+  <h2>Why this beachhead</h2>
+  <div class="card green">
+    <p><strong>Already legible:</strong> Every storage team has a split-brain war story. The pain is understood across VMware, Nutanix, Ceph, and enterprise array audiences. No education required on why the problem matters.</p>
+    <p style="margin-top:.75rem"><strong>Scoped:</strong> Split-brain recovery is a specific, bounded problem &#8212; not "solve all distributed consistency." ASA does not need to handle every edge case on day one; it needs to handle this one better than the current approach.</p>
+    <p style="margin-top:.75rem"><strong>Measurable:</strong> Success criteria are concrete: correct branch selection rate, time-to-resolution, data preserved vs discarded, audit trail completeness. These are things you can benchmark.</p>
+    <p style="margin-top:.75rem"><strong>Expandable:</strong> Once ASA proves value for split-brain recovery, the same primitive (branch preservation + structural scoring + deterministic selection) extends to other divergence scenarios: cross-region replication, snapshot consistency groups, multi-cluster state reconciliation.</p>
+  </div>
+
+  <p style="margin-top:2.5rem;font-size:.9rem"><a href="/decks/asa-brief.html">&#8592; ASA Brief</a> &#183; <a href="/decks/asa-primitive-spec.html">Arbitration Primitive</a> &#183; <a href="/decks/asa-deployment-model.html">Deployment Model</a></p>
+</body>
+</html>
