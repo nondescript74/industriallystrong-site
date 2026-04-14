@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="slides-format" content="viewport" />
+  <meta name="description" content="ASA is a distributed correctness layer for modern storage systems. Instead of relying on controller authority or quorum, ASA uses structural evidence to determine replica truth after divergence." />
+
+  <!-- OpenGraph / LinkedIn -->
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Autonomous Structural Arbitration — A Distributed Correctness Layer" />
+  <meta property="og:description" content="Redundancy is mature. Distributed correctness is not. ASA determines replica truth structurally — using content-addressed evidence chains instead of controller-led arbitration." />
+  <meta property="og:url" content="https://industriallystrong.com/decks/asa-brief.html" />
+  <meta property="og:site_name" content="IndustriallyStrong" />
+
+  <!-- Twitter / X card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Autonomous Structural Arbitration — A Distributed Correctness Layer" />
+  <meta name="twitter:description" content="Redundancy is mature. Distributed correctness is not. ASA determines replica truth structurally." />
+
+  <title>Autonomous Structural Arbitration</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style type="text/tailwindcss">
+    @theme {
+      --color-bg: #0a0a0a;
+      --color-bg-deep: #111111;
+      --color-surface: #171717;
+      --color-text: #f5f5f5;
+      --color-text-secondary: #d4d4d4;
+      --color-text-muted: #a3a3a3;
+      --color-accent-1: #00FF41;
+      --color-accent-2: #FFA500;
+      --color-accent-3: #FF3B30;
+      --color-glass-bg: rgba(0,255,65,0.05);
+      --color-glass-border: rgba(0,255,65,0.12);
+      --color-vignette: rgba(0,0,0,0.45);
+      --font-display: 'Instrument Serif', serif;
+      --font-body: 'Inter', sans-serif;
+    }
+  </style>
+  <style>
+    :root { --color-bg: #0a0a0a; --color-text: #f5f5f5; --glow-color-rgb: 0,255,65; --color-glass-bg: rgba(0,255,65,0.05); --color-glass-border: rgba(0,255,65,0.12); }
+    *,*::before,*::after{box-sizing:border-box} html,body{background:var(--color-bg);margin:0} body{font-family:var(--font-body);color:var(--color-text);overflow:hidden;height:100vh;width:100vw}
+    .deck{width:100vw;height:100vh;position:relative}.slide{position:absolute;top:0;left:0;width:100%;height:100%;background:var(--color-bg);display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;transform:scale(.95);transition:opacity .7s ease, transform .7s ease;pointer-events:none;overflow:hidden}.slide.active{opacity:1;transform:scale(1);pointer-events:all}.slide>.content{position:relative;z-index:2;width:100%;max-width:1180px;padding:clamp(1.5rem,4vw,4rem)}
+    .nav-controls{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:16px;z-index:100;background:var(--color-glass-bg);backdrop-filter:blur(10px);padding:10px 24px;border-radius:40px;border:1px solid var(--color-glass-border)}
+    .nav-btn{width:40px;height:40px;border:none;background:var(--color-glass-bg);color:#00FF41;border-radius:50%;font-size:1.2rem;cursor:pointer}.slide-dots{display:flex;gap:8px}.slide-dots .dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.18);cursor:pointer}.slide-dots .dot.active{background:#00FF41;transform:scale(1.3)}.slide-counter{font-size:.8rem;color:#a3a3a3;min-width:46px;text-align:center}.reveal{opacity:0;transform:translateY(20px)}
+    .gradient-mesh{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none}.blob{position:absolute;border-radius:50%;filter:blur(80px);animation:float-slow 12s ease-in-out infinite}.blob:nth-child(2){animation:float-drift 16s ease-in-out infinite}.blob:nth-child(3){animation:float-slow 18s ease-in-out infinite reverse}
+    @keyframes float-slow{0%{transform:translate(0,0) scale(1)}25%{transform:translate(60px,-50px) scale(1.12)}50%{transform:translate(-40px,40px) scale(.9)}75%{transform:translate(50px,20px) scale(1.08)}100%{transform:translate(0,0) scale(1)}}
+    @keyframes float-drift{0%{transform:translate(0,0) scale(1) rotate(0deg)}33%{transform:translate(-50px,-60px) scale(1.15) rotate(3deg)}66%{transform:translate(40px,30px) scale(.88) rotate(-2deg)}100%{transform:translate(0,0) scale(1) rotate(0deg)}}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}} @keyframes pulse{0%,100%{box-shadow:0 0 0 rgba(0,255,65,.0)}50%{box-shadow:0 0 35px rgba(0,255,65,.22)}}
+    .slide::before{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");background-repeat:repeat;background-size:256px 256px;opacity:.03;mix-blend-mode:overlay}
+    .slide::after{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at center, transparent 52%, var(--color-vignette) 100%)}
+    .hero-box{display:grid;place-items:center;width:150px;height:150px;border:1px solid rgba(0,255,65,.25);border-radius:28px;background:rgba(0,255,65,.06);margin:0 auto 1.25rem;animation:float 3s ease-in-out infinite,pulse 3s ease-in-out infinite;font-size:72px;font-weight:800;color:#00FF41}
+    .term{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}.bar-track{height:18px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}.bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#00FF41,#FFA500);width:0}
+    .stack-card{background:var(--color-glass-bg);border:1px solid var(--color-glass-border);border-left:4px solid #00FF41;border-radius:18px;padding:18px 20px}.stack-card.orange{border-left-color:#FFA500}.stack-card.red{border-left-color:#FF3B30}
+    .small{font-size:.92rem;line-height:1.45}.mono-pill{display:inline-block;padding:.35rem .7rem;border-radius:999px;border:1px solid rgba(0,255,65,.18);background:rgba(0,255,65,.05);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:#b6f7c7;font-size:.8rem}
+    @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.2s!important}}
+  </style>
+</head>
+<body>
+<div class="mouse-spotlight" style="position:fixed;inset:0;z-index:99;pointer-events:none;"></div>
+<div class="deck">
+  <section class="slide active" data-slide="1">
+    <div class="gradient-mesh"><div class="blob" style="width:520px;height:520px;top:-120px;right:-120px;background:#00FF41;opacity:.11"></div><div class="blob" style="width:320px;height:320px;bottom:-90px;left:-80px;background:#FFA500;opacity:.10"></div><div class="blob" style="width:230px;height:230px;top:42%;left:18%;background:#FF3B30;opacity:.08"></div></div>
+    <canvas class="particle-canvas" style="position:absolute;inset:0;z-index:1"></canvas>
+    <div class="content text-center">
+      <div class="hero-box reveal">A</div>
+      <h1 class="font-display text-[clamp(2.8rem,6vw,5.5rem)] font-black tracking-tight mb-4 bg-linear-to-br from-accent-1 via-accent-2 to-accent-1 bg-clip-text text-transparent reveal">Autonomous Structural Arbitration</h1>
+      <p class="text-[clamp(1rem,1.8vw,1.45rem)] text-text-secondary tracking-[4px] uppercase reveal">A distributed correctness layer for modern storage systems</p>
+      <p class="mt-8 text-lg text-text-muted max-w-4xl mx-auto reveal">Reframing replica divergence as a correctness problem that can be resolved structurally — rather than primarily through controller authority, quorum workflow, or ad hoc reconciliation.</p>
+    </div>
+  </section>
+
+  <section class="slide" data-slide="2">
+    <div class="gradient-mesh"><div class="blob" style="width:360px;height:360px;top:-80px;right:-80px;background:#00FF41;opacity:.08"></div><div class="blob" style="width:260px;height:260px;bottom:-60px;left:-40px;background:#FFA500;opacity:.06"></div></div>
+    <div class="content">
+      <p class="mono-pill reveal">Problem shift</p>
+      <h2 class="font-display text-[clamp(2rem,4.5vw,3.4rem)] mb-8 reveal">Redundancy is mature. Distributed correctness is not.</h2>
+      <div class="grid grid-cols-2 gap-6 mt-6">
+        <div class="stack-card reveal"><h3 class="text-accent-1 text-xl font-semibold mb-3">What storage largely solved</h3><ul class="space-y-3 text-text-secondary text-lg"><li>RAID, mirrored protection, and JBOD-plus-software stacks are standard deployment patterns.</li><li>VMware, cloud, and SDS platforms already assume replication, failover, and recovery primitives exist.</li><li>Most innovation now sits above the device layer, not inside the disk shelf.</li></ul></div>
+        <div class="stack-card orange reveal"><h3 class="text-accent-2 text-xl font-semibold mb-3">What remains stubbornly hard</h3><ul class="space-y-3 text-text-secondary text-lg"><li>Replica divergence after partition, failover, or cross-site disruption.</li><li>Split-brain handling, resync ordering, and multi-cluster truth selection.</li><li>Operational debugging when metadata, controller decisions, and site state disagree.</li></ul></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-slide="3">
+    <div class="gradient-mesh"><div class="blob" style="width:420px;height:420px;top:-120px;left:-80px;background:#00FF41;opacity:.08"></div><div class="blob" style="width:220px;height:220px;bottom:-50px;right:5%;background:#FF3B30;opacity:.06"></div></div>
+    <div class="content">
+      <p class="mono-pill reveal">Why now</p>
+      <h2 class="font-display text-[clamp(2rem,4.4vw,3.2rem)] mb-8 reveal">Current systems still pay a coordination tax</h2>
+      <div class="grid grid-cols-3 gap-5">
+        <div class="stack-card reveal"><div class="text-3xl mb-3">Q</div><h3 class="text-lg font-semibold mb-2">Quorum and witnesses</h3><p class="small text-text-secondary">Stretch architectures use quorum or witness sites to preserve consistency and prevent split-brain, but availability and recovery behavior hinge on those coordination choices.</p></div>
+        <div class="stack-card orange reveal"><div class="text-3xl mb-3">R</div><h3 class="text-lg font-semibold mb-2">Resync and replay</h3><p class="small text-text-secondary">After failover or outage, mirrored systems often require explicit resynchronization workflows to restore a consistent state.</p></div>
+        <div class="stack-card red reveal"><div class="text-3xl mb-3">O</div><h3 class="text-lg font-semibold mb-2">Operational edge cases</h3><p class="small text-text-secondary">Low-latency synchronous designs improve RPO but add inter-site latency sensitivity, replication overhead, and recovery dependencies.</p></div>
+      </div>
+      <p class="mt-8 text-xl text-text-secondary reveal">ASA’s product thesis: reduce how much correctness depends on orchestration state, and increase how much can be inferred from the data structure itself.</p>
+    </div>
+  </section>
+
+  <section class="slide" data-slide="4">
+    <div class="gradient-mesh"><div class="blob" style="width:320px;height:320px;top:-80px;right:-60px;background:#FFA500;opacity:.08"></div><div class="blob" style="width:260px;height:260px;bottom:-80px;left:-60px;background:#00FF41;opacity:.07"></div></div>
+    <div class="content">
+      <p class="mono-pill reveal">Core mechanism</p>
+      <h2 class="font-display text-[clamp(2rem,4.4vw,3.2rem)] mb-6 reveal">ASA determines truth structurally</h2>
+      <div class="grid grid-cols-[1.2fr_.8fr] gap-8 items-center">
+        <div class="reveal">
+          <div class="stack-card mb-4"><p class="text-lg text-text-secondary">Instead of asking <span class="term text-accent-1">which controller won</span>, ASA asks <span class="term text-accent-2">which replica has the strongest structural evidence chain</span>.</p></div>
+          <div class="space-y-4 text-lg text-text-secondary">
+            <div class="stack-card reveal">Structural metadata ties content to position, lineage, and mutation sequence.</div>
+            <div class="stack-card orange reveal">Cryptographic hashes let the system detect where replicas diverge, not just that they diverged.</div>
+            <div class="stack-card red reveal">Deterministic arbitration logic selects the valid structure without relying exclusively on a centralized authority path.</div>
+          </div>
+        </div>
+        <div class="reveal">
+          <div class="border border-glass-border rounded-3xl p-7 bg-glass-bg">
+            <div class="text-sm uppercase tracking-[3px] text-text-muted mb-4">Evidence chain</div>
+            <div class="space-y-3 text-lg">
+              <div class="flex justify-between"><span>Position map</span><span class="text-accent-1">✓</span></div>
+              <div class="flex justify-between"><span>Hash lineage</span><span class="text-accent-1">✓</span></div>
+              <div class="flex justify-between"><span>Mutation ordering</span><span class="text-accent-1">✓</span></div>
+              <div class="flex justify-between"><span>Replica confidence score</span><span class="text-accent-2">deterministic</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-slide="5">
+    <div class="gradient-mesh"><div class="blob" style="width:390px;height:390px;top:-120px;right:-80px;background:#00FF41;opacity:.08"></div><div class="blob" style="width:200px;height:200px;bottom:0;left:10%;background:#FFA500;opacity:.06"></div></div>
+    <canvas class="particle-canvas-ambient" style="position:absolute;inset:0;z-index:1"></canvas>
+    <div class="content">
+      <p class="mono-pill reveal">Placement</p>
+      <h2 class="font-display text-[clamp(2rem,4.4vw,3.2rem)] mb-8 reveal">ASA sits above storage protection, below distributed control planes</h2>
+      <div class="grid grid-cols-1 gap-4 max-w-4xl mx-auto text-center">
+        <div class="stack-card reveal">Application / Database / Data Service</div>
+        <div class="reveal text-2xl text-accent-1">↓</div>
+        <div class="stack-card orange reveal">VMware / Nutanix / Kubernetes / SDS control plane</div>
+        <div class="reveal text-2xl text-accent-1">↓</div>
+        <div class="stack-card red reveal"><strong>Autonomous Structural Arbitration</strong> — replica divergence detection and deterministic truth selection</div>
+        <div class="reveal text-2xl text-accent-1">↓</div>
+        <div class="stack-card reveal">RAID / mirroring / erasure coding / JBOD / cloud block-object substrate</div>
+      </div>
+      <p class="mt-7 text-lg text-text-secondary text-center reveal">That positioning makes ASA an additive software layer rather than a hardware rip-and-replace story.</p>
+    </div>
+  </section>
+
+  <section class="slide" data-slide="6">
+    <div class="gradient-mesh"><div class="blob" style="width:330px;height:330px;top:-70px;left:-50px;background:#00FF41;opacity:.08"></div><div class="blob" style="width:260px;height:260px;bottom:-70px;right:-40px;background:#FF3B30;opacity:.07"></div></div>
+    <div class="content">
+      <p class="mono-pill reveal">Where it lands</p>
+      <h2 class="font-display text-[clamp(2rem,4.4vw,3.2rem)] mb-8 reveal">Four buyers with immediate pain</h2>
+      <div class="grid grid-cols-2 gap-6">
+        <div class="stack-card reveal"><h3 class="text-accent-1 text-xl font-semibold mb-2">VMware / Broadcom</h3><p class="small text-text-secondary">Stretched-cluster failover, witness-loss edge cases, deterministic site recovery, and less manual intervention around post-failure object availability.</p></div>
+        <div class="stack-card orange reveal"><h3 class="text-accent-2 text-xl font-semibold mb-2">Nutanix / HCI</h3><p class="small text-text-secondary">State reconciliation across nodes and clusters, especially where DR runbooks and platform metadata become hard to reason about under stress.</p></div>
+        <div class="stack-card red reveal"><h3 class="text-red-400 text-xl font-semibold mb-2">Ceph / cloud storage</h3><p class="small text-text-secondary">Cross-site mirroring, snapshot consistency groups, and eventual or asynchronous reconciliation paths that currently depend on explicit resync behavior.</p></div>
+        <div class="stack-card reveal"><h3 class="text-accent-1 text-xl font-semibold mb-2">Enterprise array vendors</h3><p class="small text-text-secondary">Cross-array federation, metro clusters, and controller-based replication stacks that need a software-native correctness differentiator.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-slide="7">
+    <div class="gradient-mesh"><div class="blob" style="width:380px;height:380px;top:-100px;right:-80px;background:#00FF41;opacity:.08"></div><div class="blob" style="width:240px;height:240px;bottom:-50px;left:0;background:#FFA500;opacity:.07"></div></div>
+    <div class="content">
+      <p class="mono-pill reveal">Performance and cost</p>
+      <h2 class="font-display text-[clamp(2rem,4.4vw,3.2rem)] mb-6 reveal">Overhead is real, but familiar</h2>
+      <div class="grid grid-cols-[.9fr_1.1fr] gap-8 items-center">
+        <div class="reveal">
+          <div class="grid grid-cols-2 gap-4">
+            <div class="stack-card"><div class="text-4xl font-black text-accent-1 mb-2">32–64B</div><div class="small text-text-secondary">Illustrative per-block hash payload in your concept framing.</div></div>
+            <div class="stack-card orange"><div class="text-4xl font-black text-accent-2 mb-2">~1–3%</div><div class="small text-text-secondary">Illustrative metadata overhead, comparable to other storage bookkeeping layers.</div></div>
+          </div>
+          <p class="mt-5 text-lg text-text-secondary">The key commercialization point is not “free,” but “operationally cheaper than ambiguity.”</p>
+        </div>
+        <div class="reveal">
+          <div class="space-y-5">
+            <div><div class="flex justify-between mb-2"><span>CPU parallelization fit</span><span>High</span></div><div class="bar-track"><div class="bar-fill" data-width="84"></div></div></div>
+            <div><div class="flex justify-between mb-2"><span>Pipeline similarity to checksums/dedupe</span><span>Strong</span></div><div class="bar-track"><div class="bar-fill" data-width="78"></div></div></div>
+            <div><div class="flex justify-between mb-2"><span>SmartNIC / SIMD / GPU acceleration potential</span><span>High</span></div><div class="bar-track"><div class="bar-fill" data-width="81"></div></div></div>
+            <div><div class="flex justify-between mb-2"><span>Likely first deployment ease in SDS layer</span><span>Highest</span></div><div class="bar-track"><div class="bar-fill" data-width="89"></div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-slide="8">
+    <div class="gradient-mesh"><div class="blob" style="width:420px;height:420px;top:-110px;left:-100px;background:#FF3B30;opacity:.07"></div><div class="blob" style="width:280px;height:280px;bottom:-80px;right:-30px;background:#00FF41;opacity:.08"></div></div>
+    <div class="content">
+      <p class="mono-pill reveal">Positioning refinement</p>
+      <h2 class="font-display text-[clamp(2rem,4.4vw,3.2rem)] mb-8 reveal">What to sharpen next</h2>
+      <div class="space-y-4">
+        <div class="stack-card reveal"><strong>Lead with category clarity:</strong> call ASA a “deterministic replica-arbitration layer” or “distributed correctness engine,” not just a concept.</div>
+        <div class="stack-card orange reveal"><strong>Define the arbitration primitive:</strong> explain the exact structural signals that establish truth and how ties, partial writes, and concurrent mutations are handled.</div>
+        <div class="stack-card red reveal"><strong>State the deployment model:</strong> node agent, SDS plug-in, or sidecar library; this will decide whether the idea feels fundable or merely theoretical.</div>
+        <div class="stack-card reveal"><strong>Pick one beachhead:</strong> stretched-cluster split-brain recovery is the cleanest initial use case because buyers already understand the pain.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-slide="9">
+    <div class="gradient-mesh"><div class="blob" style="width:500px;height:500px;top:-120px;right:-100px;background:#00FF41;opacity:.11"></div><div class="blob" style="width:280px;height:280px;bottom:-70px;left:-30px;background:#FFA500;opacity:.10"></div><div class="blob" style="width:180px;height:180px;top:45%;left:22%;background:#FF3B30;opacity:.08"></div></div>
+    <canvas class="particle-canvas" style="position:absolute;inset:0;z-index:1"></canvas>
+    <div class="content text-center">
+      <div class="text-[100px] mb-5 animate-[float_3s_ease-in-out_infinite] reveal">⟲</div>
+      <h2 class="font-display text-[clamp(2.5rem,5vw,4.4rem)] bg-linear-to-br from-accent-1 via-accent-2 to-accent-1 bg-clip-text text-transparent mb-4 reveal">Suggested outbound framing</h2>
+      <p class="text-[clamp(1rem,1.7vw,1.35rem)] text-text-secondary max-w-4xl mx-auto reveal">“I’m exploring ASA as a software-native correctness layer for stretched and distributed storage. The goal is to make replica truth more deterministic after divergence by using structural evidence rather than relying solely on controller-led arbitration.”</p>
+      <p class="mt-8 uppercase tracking-[4px] text-text-muted reveal">Clean enough for an intro note, technical enough to trigger a real conversation</p>
+    </div>
+  </section>
+</div>
+<div class="nav-controls">
+  <button class="nav-btn" aria-label="Previous slide" onclick="changeSlide(-1)">&#8249;</button>
+  <div class="slide-dots" id="dots"></div>
+  <button class="nav-btn" aria-label="Next slide" onclick="changeSlide(1)">&#8250;</button>
+  <span class="slide-counter" id="counter">1 / 9</span>
+</div>
+<script>
+let current=1;const total=document.querySelectorAll('.slide').length,dotsContainer=document.getElementById('dots'),counter=document.getElementById('counter');for(let i=1;i<=total;i++){const dot=document.createElement('div');dot.className='dot'+(i===1?' active':'');dot.onclick=()=>goToSlide(i);dotsContainer.appendChild(dot)}function goToSlide(n){const prev=document.querySelector('.slide.active');const next=document.querySelector(`.slide[data-slide="${n}"]`);if(prev)prev.classList.remove('active');if(next){next.classList.add('active');animateSlide(next)}current=n;updateNav()}function changeSlide(dir){let next=current+dir;if(next<1)next=total;if(next>total)next=1;goToSlide(next)}function updateNav(){document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('active',i+1===current));counter.textContent=current+' / '+total}document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();changeSlide(1)}if(e.key==='ArrowLeft'){e.preventDefault();changeSlide(-1)}});let touchStartX=0;document.addEventListener('touchstart',e=>{touchStartX=e.touches[0].clientX});document.addEventListener('touchend',e=>{const diff=touchStartX-e.changedTouches[0].clientX;if(Math.abs(diff)>50)changeSlide(diff>0?1:-1)});
+function animateSlide(slide){slide.querySelectorAll('.reveal').forEach((el,i)=>{el.style.transition='none';el.style.opacity='0';el.style.transform='translateY(20px)';el.offsetHeight;const delay=i*.08;el.style.transition=`opacity .35s ease ${delay}s, transform .35s ease ${delay}s`;el.style.opacity='1';el.style.transform='translateY(0px)'});animateSlideEffects(slide)}
+function animateSlideEffects(slide){slide.querySelectorAll('.bar-fill:not(.fill-init)').forEach((bar,i)=>{bar.classList.add('fill-init');bar.style.width='0%';bar.style.transition=`width .5s ease ${i*.08}s`;bar.offsetHeight;bar.style.width=bar.dataset.width+'%'})}
+document.addEventListener('mousemove',e=>{const spotlight=document.querySelector('.mouse-spotlight');if(spotlight){spotlight.style.background=`radial-gradient(600px circle at ${e.clientX}px ${e.clientY}px, rgba(0,255,65,0.06), transparent 40%)`}});
+window.initParticles=function(canvas,options){if(!canvas)return;const ctx=canvas.getContext('2d');canvas.width=canvas.offsetWidth;canvas.height=canvas.offsetHeight;const interactive=options.interactive!==false,count=options.count||(interactive?55:18);let mx=-1000,my=-1000;const particles=Array.from({length:count},()=>({x:Math.random()*canvas.width,y:Math.random()*canvas.height,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,size:Math.random()*2.5+.8,alpha:Math.random()*.35+.1}));if(interactive){canvas.addEventListener('mousemove',e=>{const rect=canvas.getBoundingClientRect();mx=e.clientX-rect.left;my=e.clientY-rect.top});canvas.addEventListener('mouseleave',()=>{mx=-1000;my=-1000})}(function animate(){ctx.clearRect(0,0,canvas.width,canvas.height);particles.forEach(p=>{if(interactive){const dx=p.x-mx,dy=p.y-my,dist=Math.sqrt(dx*dx+dy*dy);if(dist<120){const force=(120-dist)/120*2;p.vx+=(dx/dist)*force*.1;p.vy+=(dy/dist)*force*.1}}p.vx*=.98;p.vy*=.98;p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=canvas.width;if(p.x>canvas.width)p.x=0;if(p.y<0)p.y=canvas.height;if(p.y>canvas.height)p.y=0;ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fillStyle=`rgba(0,255,65,${p.alpha})`;ctx.fill()});requestAnimationFrame(animate)})()};document.querySelectorAll('.particle-canvas').forEach(c=>window.initParticles(c,{interactive:true,count:55}));document.querySelectorAll('.particle-canvas-ambient').forEach(c=>window.initParticles(c,{interactive:false,count:18}));try{animateSlide(document.querySelector('.slide.active'))}catch(e){}
+</script>
+</body>
+</html>
