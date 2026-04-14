@@ -187,21 +187,7 @@
     </div>
   </section>
 
-  <section class="slide" data-slide="8">
-    <div class="gradient-mesh"><div class="blob" style="width:420px;height:420px;top:-110px;left:-100px;background:#FF3B30;opacity:.07"></div><div class="blob" style="width:280px;height:280px;bottom:-80px;right:-30px;background:#00FF41;opacity:.08"></div></div>
-    <div class="content">
-      <p class="mono-pill reveal">Positioning refinement</p>
-      <h2 class="font-display text-[clamp(2rem,4.4vw,3.2rem)] mb-8 reveal">What to sharpen next</h2>
-      <div class="space-y-4">
-        <div class="stack-card reveal"><strong>Lead with category clarity:</strong> call ASA a “deterministic replica-arbitration layer” or “distributed correctness engine,” not just a concept.</div>
-        <div class="stack-card orange reveal"><strong>Define the arbitration primitive:</strong> explain the exact structural signals that establish truth and how ties, partial writes, and concurrent mutations are handled.</div>
-        <div class="stack-card red reveal"><strong>State the deployment model:</strong> node agent, SDS plug-in, or sidecar library; this will decide whether the idea feels fundable or merely theoretical.</div>
-        <div class="stack-card reveal"><strong>Pick one beachhead:</strong> stretched-cluster split-brain recovery is the cleanest initial use case because buyers already understand the pain.</div>
-      </div>
-    </div>
-  </section>
-
-  <section class="slide" data-slide="9">
+  <section class=”slide” data-slide=”8”>
     <div class="gradient-mesh"><div class="blob" style="width:500px;height:500px;top:-120px;right:-100px;background:#00FF41;opacity:.11"></div><div class="blob" style="width:280px;height:280px;bottom:-70px;left:-30px;background:#FFA500;opacity:.10"></div><div class="blob" style="width:180px;height:180px;top:45%;left:22%;background:#FF3B30;opacity:.08"></div></div>
     <canvas class="particle-canvas" style="position:absolute;inset:0;z-index:1"></canvas>
     <div class="content">
@@ -220,7 +206,7 @@
   <button class="nav-btn" aria-label="Previous slide" onclick="changeSlide(-1)">&#8249;</button>
   <div class="slide-dots" id="dots"></div>
   <button class="nav-btn" aria-label="Next slide" onclick="changeSlide(1)">&#8250;</button>
-  <span class="slide-counter" id="counter">1 / 9</span>
+  <span class="slide-counter" id="counter">1 / 8</span>
 </div>
 <script>
 let current=1;const total=document.querySelectorAll('.slide').length,dotsContainer=document.getElementById('dots'),counter=document.getElementById('counter');for(let i=1;i<=total;i++){const dot=document.createElement('div');dot.className='dot'+(i===1?' active':'');dot.onclick=()=>goToSlide(i);dotsContainer.appendChild(dot)}function goToSlide(n){const prev=document.querySelector('.slide.active');const next=document.querySelector(`.slide[data-slide="${n}"]`);if(prev)prev.classList.remove('active');if(next){next.classList.add('active');animateSlide(next)}current=n;updateNav()}function changeSlide(dir){let next=current+dir;if(next<1)next=total;if(next>total)next=1;goToSlide(next)}function updateNav(){document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('active',i+1===current));counter.textContent=current+' / '+total}document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();changeSlide(1)}if(e.key==='ArrowLeft'){e.preventDefault();changeSlide(-1)}});let touchStartX=0;document.addEventListener('touchstart',e=>{touchStartX=e.touches[0].clientX});document.addEventListener('touchend',e=>{const diff=touchStartX-e.changedTouches[0].clientX;if(Math.abs(diff)>50)changeSlide(diff>0?1:-1)});
