@@ -8,15 +8,15 @@
 
   <!-- OpenGraph / LinkedIn -->
   <meta property="og:type" content="article" />
-  <meta property="og:title" content="Autonomous Structural Arbitration — A Distributed Correctness Layer" />
+  <meta property="og:title" content="ASA: Deterministic Replica-Arbitration Layer for Distributed Storage" />
   <meta property="og:description" content="Redundancy is mature. Distributed correctness is not. ASA determines replica truth structurally — using content-addressed evidence chains instead of controller-led arbitration." />
   <meta property="og:url" content="https://industriallystrong.com/decks/asa-brief.html" />
   <meta property="og:site_name" content="IndustriallyStrong" />
 
   <!-- Twitter / X card -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Autonomous Structural Arbitration — A Distributed Correctness Layer" />
-  <meta name="twitter:description" content="Redundancy is mature. Distributed correctness is not. ASA determines replica truth structurally." />
+  <meta name="twitter:title" content="ASA: Deterministic Replica-Arbitration Layer for Distributed Storage" />
+  <meta name="twitter:description" content="Autonomous Structural Arbitration (ASA) is a deterministic replica-arbitration layer for distributed storage systems, selecting a winning re" />
 
   <title>Autonomous Structural Arbitration</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -199,7 +199,8 @@
         <div class="stack-card red reveal"><p class="text-lg text-text-secondary"><strong class="text-red-400">First target:</strong> Stretched-cluster split-brain recovery. Wrong-branch selection, brittle reconciliation, and slow recovery debugging &#8212; resolved structurally.</p></div>
         <div class="stack-card reveal"><p class="text-lg text-text-secondary"><strong class="text-accent-1">Falsifiable claim:</strong> Reconciliation scales with index cardinality O(index), not total data volume O(data). Benchmark harness built; empirical evidence in progress.</p></div>
       </div>
-      <p class="mt-8 text-lg text-text-muted reveal">Detailed specs: <a href="/decks/asa-primitive-spec.html" class="text-accent-1 underline">Arbitration Primitive</a> &#183; <a href="/decks/asa-deployment-model.html" class="text-accent-1 underline">Deployment Model</a> &#183; <a href="/decks/asa-beachhead-brief.html" class="text-accent-1 underline">Beachhead Brief</a></p>
+      <div class="stack-card reveal" style="text-align:left;margin-top:1rem"><p class="text-sm text-text-muted"><strong style="color:#FF3B30">Non-goals:</strong> ASA does not replace RAID, mirroring, erasure coding, or hardware controllers. It does not enforce consistency via locking or global quorum. It does not require application changes for the initial beachhead.</p></div>
+      <p class="mt-4 text-lg text-text-muted reveal">Detailed specs: <a href="/decks/asa-primitive-spec.html" class="text-accent-1 underline">Arbitration Primitive</a> &#183; <a href="/decks/asa-deployment-model.html" class="text-accent-1 underline">Deployment Model</a> &#183; <a href="/decks/asa-beachhead-brief.html" class="text-accent-1 underline">Beachhead Brief</a></p>
     </div>
   </section>
 </div>

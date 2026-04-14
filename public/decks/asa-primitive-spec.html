@@ -45,6 +45,7 @@
   <a class="nav-back" href="/decks/asa-brief.html">&#8592; Back to ASA Brief</a>
   <h1>ASA Arbitration Primitive</h1>
   <p class="subtitle">One-page spec: how ASA records, scores, and resolves competing replica branches</p>
+  <div class="card green"><p><strong>Autonomous Structural Arbitration (ASA) is a deterministic replica-arbitration layer for distributed storage systems, selecting a winning replica branch based on structural evidence rather than controller authority.</strong></p><p style="margin-top:.5rem">ASA's initial beachhead is stretched-cluster split-brain and post-partition recovery, where multiple replicas disagree after a failure and existing quorum-based mechanisms leave ambiguity about which branch is semantically correct.</p></div>
 
   <h2>1. Scope and insertion point</h2>
   <div class="card green">
@@ -143,8 +144,19 @@
     <p>Rate of divergences, auto-collapses, deferrals. Distribution of score gaps and failure classes (order non-determinism vs semantic ambiguity).</p>
   </div>
 
+  <div style="margin-top:1.5rem;padding:1rem 1.5rem;background:rgba(255,59,48,.04);border:1px solid rgba(255,59,48,.12);border-radius:12px">
+    <p style="color:#FF3B30;font-weight:600;font-size:.9rem;margin-bottom:.5rem">Non-goals</p>
+    <p style="font-size:.85rem;color:#a3a3a3">ASA does not replace RAID, mirroring, erasure coding, or hardware controllers. ASA does not enforce consistency via locking or global quorum; it arbitrates between branches after divergence. ASA does not require application changes for the initial beachhead.</p>
+  </div>
+
   <p style="margin-top:2.5rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--border);padding-top:1rem">This is enough detail that a storage vendor or distributed systems engineer can see what ASA records, how it scores branches, and when it chooses to auto-collapse versus escalate, without forcing a particular implementation of hash type, weights, or storage layout.</p>
 
-  <p style="margin-top:1.5rem;font-size:.9rem"><a href="/decks/asa-brief.html">&#8592; ASA Brief</a> &#183; <a href="/decks/asa-deployment-model.html">Deployment Model</a> &#183; <a href="/decks/asa-beachhead-brief.html">Beachhead Brief</a></p>
+  <nav style="margin-top:2.5rem;padding-top:1rem;border-top:1px solid rgba(0,255,65,.12);font-size:.9rem">
+    <span style="color:#a3a3a3;font-size:.8rem;text-transform:uppercase;letter-spacing:2px">ASA docs</span><br>
+    <a href="/decks/asa-brief.html" style="color:#00FF41">1. ASA Brief</a> &#183;
+    <a href="/decks/asa-primitive-spec.html" style="color:#00FF41">2. Arbitration Primitive</a> &#183;
+    <a href="/decks/asa-deployment-model.html" style="color:#00FF41">3. Deployment Model</a> &#183;
+    <a href="/decks/asa-beachhead-brief.html" style="color:#00FF41">4. Beachhead Brief</a>
+  </nav>
 </body>
 </html>

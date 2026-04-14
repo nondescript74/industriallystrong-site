@@ -48,6 +48,7 @@
   <a class="nav-back" href="/decks/asa-brief.html">&#8592; Back to ASA Brief</a>
   <h1>Beachhead: Stretched-Cluster Split-Brain Recovery</h1>
   <p class="subtitle">First target use case for ASA &#8212; the pain everyone recognizes, the gap no one has closed</p>
+  <div class="card green"><p><strong>Autonomous Structural Arbitration (ASA) is a deterministic replica-arbitration layer for distributed storage systems, selecting a winning replica branch based on structural evidence rather than controller authority.</strong></p><p style="margin-top:.5rem">ASA sits above data protection (RAID, mirroring, erasure coding), below SDS / replication control planes. It deploys as an SDS plug-in or replication-layer module.</p></div>
 
   <h2>The problem</h2>
   <p>When a stretched cluster loses connectivity between sites, replicas diverge. When connectivity returns, the system must decide which branch of reality is correct. Today, that decision is made by controller authority, quorum votes, or manual intervention. All three have failure modes that cause data loss, extended outages, or operational confusion.</p>
@@ -142,6 +143,17 @@
     <p style="margin-top:.75rem"><strong>Expandable:</strong> Once ASA proves value for split-brain recovery, the same primitive (branch preservation + structural scoring + deterministic selection) extends to other divergence scenarios: cross-region replication, snapshot consistency groups, multi-cluster state reconciliation.</p>
   </div>
 
-  <p style="margin-top:2.5rem;font-size:.9rem"><a href="/decks/asa-brief.html">&#8592; ASA Brief</a> &#183; <a href="/decks/asa-primitive-spec.html">Arbitration Primitive</a> &#183; <a href="/decks/asa-deployment-model.html">Deployment Model</a></p>
+  <div style="margin-top:1.5rem;padding:1rem 1.5rem;background:rgba(255,59,48,.04);border:1px solid rgba(255,59,48,.12);border-radius:12px">
+    <p style="color:#FF3B30;font-weight:600;font-size:.9rem;margin-bottom:.5rem">Non-goals</p>
+    <p style="font-size:.85rem;color:#a3a3a3">ASA does not replace RAID, mirroring, erasure coding, or hardware controllers. ASA does not enforce consistency via locking or global quorum; it arbitrates between branches after divergence. ASA does not require application changes for the initial beachhead.</p>
+  </div>
+
+  <nav style="margin-top:2.5rem;padding-top:1rem;border-top:1px solid rgba(0,255,65,.12);font-size:.9rem">
+    <span style="color:#a3a3a3;font-size:.8rem;text-transform:uppercase;letter-spacing:2px">ASA docs</span><br>
+    <a href="/decks/asa-brief.html" style="color:#00FF41">1. ASA Brief</a> &#183;
+    <a href="/decks/asa-primitive-spec.html" style="color:#00FF41">2. Arbitration Primitive</a> &#183;
+    <a href="/decks/asa-deployment-model.html" style="color:#00FF41">3. Deployment Model</a> &#183;
+    <a href="/decks/asa-beachhead-brief.html" style="color:#00FF41">4. Beachhead Brief</a>
+  </nav>
 </body>
 </html>
