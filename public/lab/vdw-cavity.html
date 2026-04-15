@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>vdW Intracavity Optical Control — From Architecture to Evidence</title>
+    <meta name="description" content="A van der Waals heterostructure cavity providing intracavity phase, amplitude, and polarization control at DUV wavelengths. Evidence-classified layer-by-layer architecture with conservative regime guardrails.">
+    <link rel="canonical" href="https://industriallystrong.com/lab/vdw-cavity.html">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+/* ── Base ── */
+* { box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; background: #f8fafc; color: #1e293b; }
+
+/* ── Top nav ── */
+.nav { background: #1a1a2e; padding: 8px 24px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.nav a { color: #aac; text-decoration: none; font-size: 14px; padding: 4px 12px; border-radius: 4px; }
+.nav a:hover { background: #2a2a4e; }
+.nav a.active { background: #2563eb; color: #fff; }
+.nav .sep { color: #444; font-size: 11px; margin: 0 4px; }
+
+/* ── Hero ── */
+.hero {
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+    color: #fff; padding: 36px 40px;
+}
+.hero h1 { margin: 0 0 10px 0; font-size: 28px; font-weight: 800; }
+.hero .subtitle { margin: 0; font-size: 15px; color: #94a3b8; max-width: 800px; line-height: 1.7; }
+.hero-stats { display: flex; gap: 48px; margin-top: 24px; flex-wrap: wrap; }
+.hero-stat .val { font-size: 28px; font-weight: 800; color: #93c5fd; }
+.hero-stat .lbl { font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+
+/* ── Thesis bar ── */
+.thesis { background: #1e293b; padding: 14px 40px; border-bottom: 3px solid #2563eb; }
+.thesis p { margin: 0; font-size: 14px; color: #e2e8f0; font-weight: 600; max-width: 800px; line-height: 1.5; }
+
+/* ── Sections ── */
+.section { padding: 28px 40px 16px 40px; }
+.section-num { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+.section h2 { font-size: 20px; font-weight: 800; color: #0f172a; margin: 0 0 14px 0; }
+.section p, .section-text { font-size: 14px; color: #475569; max-width: 800px; line-height: 1.7; margin: 0 0 16px 0; }
+
+/* ── Connectors & dividers ── */
+.connector { text-align: center; padding: 20px 40px 8px 40px; }
+.connector-line { display: inline-block; font-size: 13px; color: #64748b; font-style: italic; max-width: 700px; line-height: 1.6; border-top: 2px dashed #cbd5e1; padding-top: 16px; }
+.divider { border: none; border-top: 3px solid #e2e8f0; margin: 8px 40px 0 40px; }
+
+/* ── Callouts ── */
+.callout { background: #eff6ff; border: 1px solid #93c5fd; border-radius: 8px; padding: 14px 20px; margin: 16px 0; font-size: 13px; color: #1e40af; line-height: 1.5; }
+.callout b { color: #1e3a8a; }
+.callout-warn { background: #fefce8; border: 1px solid #fde68a; border-radius: 8px; padding: 14px 20px; margin: 16px 0; font-size: 13px; color: #92400e; line-height: 1.5; }
+.callout-warn b { color: #78350f; }
+
+/* ── Contrast boxes ── */
+.contrast { display: flex; gap: 0; border-radius: 10px; overflow: hidden; border: 2px solid #e2e8f0; max-width: 900px; margin: 0 0 24px 0; }
+.contrast > div { flex: 1; padding: 18px 24px; }
+.contrast .lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+.contrast .hl { font-size: 16px; font-weight: 800; line-height: 1.3; }
+.contrast .dtl { font-size: 12px; margin-top: 4px; }
+@media (max-width: 720px) { .contrast { flex-direction: column; } }
+
+/* ── Cards ── */
+.card { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px 20px; transition: transform .15s, box-shadow .15s; }
+.card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+.card h3 { margin: 0 0 6px 0; font-size: 15px; font-weight: 700; color: #0f172a; }
+.card .sub { font-size: 12px; color: #64748b; line-height: 1.5; }
+
+/* ── Grid ── */
+.grid { display: grid; gap: 16px; }
+.grid.two { grid-template-columns: 1fr 1fr; }
+.grid.three { grid-template-columns: repeat(3,1fr); }
+@media (max-width: 820px) { .grid.two, .grid.three { grid-template-columns: 1fr; } }
+
+/* ── Badges ── */
+.badge { display: inline-block; padding: 3px 8px; border-radius: 999px; font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; margin: 2px 4px 2px 0; }
+.b-repo { color: #2563eb; border: 1px solid #93c5fd; background: #eff6ff; }
+.b-derived { color: #d97706; border: 1px solid #fde68a; background: #fefce8; }
+.b-proxy { color: #64748b; border: 1px solid #cbd5e1; background: #f1f5f9; }
+.b-sim { color: #2563eb; border: 1px solid #93c5fd; background: #eff6ff; }
+.b-proc { color: #16a34a; border: 1px solid #86efac; background: #f0fdf4; }
+.b-mode1 { color: #16a34a; border: 1px solid #86efac; background: #f0fdf4; }
+.b-hybrid { color: #ea580c; border: 1px solid #fdba74; background: #fff7ed; }
+.b-euv { color: #dc2626; border: 1px solid #fca5a5; background: #fef2f2; }
+.b-arch { color: #7c3aed; border: 1px solid #c4b5fd; background: #f5f3ff; }
+.badge-row { display: flex; gap: 4px; flex-wrap: wrap; margin: 6px 0; }
+
+/* ── Figures ── */
+.fig { width: 100%; border-radius: 8px; border: 1px solid #e2e8f0; display: block; }
+.figcap { font-size: 12px; color: #94a3b8; margin-top: 6px; line-height: 1.4; }
+
+/* ── Table ── */
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+.data-table th { background: #f1f5f9; padding: 10px 12px; text-align: left; font-weight: 700; color: #475569; border-bottom: 2px solid #e2e8f0; }
+.data-table td { padding: 10px 12px; border-bottom: 1px solid #e2e8f0; }
+.data-table tr:hover { background: #f8fafc; }
+
+/* ── KV ── */
+.kv { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+.kv:last-child { border-bottom: none; }
+.kv span { color: #64748b; }
+.kv strong { color: #0f172a; text-align: right; }
+
+/* ── Note ── */
+.note { font-size: 12px; color: #94a3b8; margin-top: 4px; line-height: 1.5; }
+
+/* ── Layer stack ── */
+.layer-stack { display: flex; flex-direction: column; gap: 0; max-width: 700px; }
+.layer-row { display: grid; grid-template-columns: 160px 1fr 120px; gap: 12px; align-items: center; padding: 12px 16px; border-bottom: 1px solid #e2e8f0; font-size: 13px; }
+.layer-row:first-child { border-top: 2px solid #e2e8f0; }
+.layer-row .l-name { font-weight: 700; color: #0f172a; }
+.layer-row .l-role { color: #64748b; }
+.layer-row .l-loss { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12px; color: #0f172a; text-align: right; }
+
+/* ── Metric ── */
+.metric { font-size: 28px; font-weight: 800; color: #0f172a; }
+.metric-lbl { font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 2px; }
+
+/* ── Interactive chart area ── */
+.chart-box { position: relative; height: 280px; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }
+.chart-box canvas { width: 100% !important; height: 100% !important; }
+
+/* ── PSF ── */
+.psf-box { height: 200px; border-radius: 10px; background: #f1f5f9; border: 1px solid #e2e8f0; position: relative; overflow: hidden; }
+.psf-box::after { content:""; position:absolute; inset:0; background-image: linear-gradient(rgba(0,0,0,.04) 1px,transparent 1px), linear-gradient(90deg,rgba(0,0,0,.04) 1px,transparent 1px); background-size:24px 24px; opacity:.5; }
+
+/* ── Footer ── */
+.footer { padding: 24px 40px; background: #f1f5f9; border-top: 2px solid #e2e8f0; margin-top: 40px; }
+.footer p { font-size: 12px; color: #64748b; margin: 0; line-height: 1.6; max-width: 800px; }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- NAV                                                                -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="nav">
+    <a href="multihead.html">Distributed Writer Array</a>
+    <a href="phoenix-state.html">Closed-Loop Control</a>
+    <a href="writer-head.html">11-DOF Actuation</a>
+    <a href="psf-synthesis.html">PSF Physics</a>
+    <a href="fleet-economics.html">Why This Wins</a>
+    <span class="sep">|</span>
+    <a href="vdw-cavity.html" class="active">vdW Cavity</a>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- HERO                                                               -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="hero">
+    <h1>Intracavity Optical Control via van der Waals Heterostructures</h1>
+    <p class="subtitle">
+        A DBR-bounded cavity integrating graphene, MoS&#8322;, and black phosphorus layers to provide
+        phase, amplitude, and polarization modulation at DUV wavelengths — with every displayed value
+        classified against its evidence source.
+    </p>
+    <div class="hero-stats">
+        <div class="hero-stat"><div class="val">7</div><div class="lbl">Functional Layers</div></div>
+        <div class="hero-stat"><div class="val">248 nm</div><div class="lbl">Primary Regime</div></div>
+        <div class="hero-stat"><div class="val">3</div><div class="lbl">Control Axes</div></div>
+        <div class="hero-stat"><div class="val">6</div><div class="lbl">Evidence Sources</div></div>
+    </div>
+</div>
+
+<div class="thesis">
+    <p>248–365 nm is the only fully supported intracavity regime. 193 nm is absorption-limited and constrained to a hybrid path. EUV is explicitly forward-looking and routed through a separate HHG pipeline. No displayed quantity exceeds its evidence classification.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- SECTION 1 — REGIME ARCHITECTURE                                    -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="section">
+    <div class="section-num" style="color:#2563eb;">Section 1</div>
+    <h2>Regime Architecture</h2>
+    <p>
+        The cavity operates in one of three regimes. The evidence base, displayed quantities, and guardrail behavior change with each. Mode 1 is the only regime where intracavity layer-by-layer values are presented with confidence. Mode 2 and EUV forward explicitly constrain or disable these values.
+    </p>
+
+    <div class="contrast">
+        <div style="background:#f0fdf4;">
+            <div class="lbl" style="color:#16a34a;">Mode 1 · 248–365 nm</div>
+            <div class="hl" style="color:#166534;">Full intracavity modulation</div>
+            <div class="dtl" style="color:#15803d;">Phase (graphene), amplitude (MoS&#8322;), polarization (BP) — all evidence-backed within the supported DUV range. Tolerable absorption (~32%). Cavity viability demonstrated.</div>
+        </div>
+        <div style="background:#fff7ed;">
+            <div class="lbl" style="color:#ea580c;">Mode 2 · 193 nm</div>
+            <div class="hl" style="color:#9a3412;">Hybrid-only</div>
+            <div class="dtl" style="color:#c2410c;">Absorption ~99% at the intracavity stack level. No intracavity modulation is claimed. External hybrid stage required for any useful control.</div>
+        </div>
+        <div style="background:#fef2f2;">
+            <div class="lbl" style="color:#dc2626;">EUV Forward</div>
+            <div class="hl" style="color:#991b1b;">HHG pipeline</div>
+            <div class="dtl" style="color:#b91c1c;">Architecture-level only. Intracavity layer values are disabled. Focus shifts to HHG generation, propagation, dose, and resist interaction.</div>
+        </div>
+    </div>
+
+    <div class="callout-warn">
+        <b>Guardrail.</b> The 193 nm mode does not present validated intracavity modulation. EUV remains explicitly separated as a forward architecture supported by HHG system simulation, not the vdW cavity alone. Any displayed value outside Mode 1 is constrained, disabled, or tagged ARCHITECTURE-LEVEL.
+    </div>
+</div>
+
+<div class="connector"><div class="connector-line">
+    Within Mode 1, the cavity is a seven-layer functional stack. Each layer has a specific optical role, and each role is bound to a specific evidence source.
+</div></div>
+<hr class="divider">
+
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- SECTION 2 — THE LAYER STACK                                        -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="section">
+    <div class="section-num" style="color:#16a34a;">Section 2</div>
+    <h2>Seven-Layer Functional Stack</h2>
+    <p>
+        The cavity is bounded by dielectric DBR mirrors and contains three functional van der Waals layers — graphene for phase control, MoS&#8322; for amplitude modulation, and black phosphorus for polarization shaping — separated by hBN spacers. Each layer's incremental loss and functional role is classified independently.
+    </p>
+
+    <div class="grid two" style="margin-bottom:24px;">
+        <div>
+            <img class="fig" src="vdw-assets/FIG_2_stack_cross_section-8.jpg" alt="Process-realistic layer stack cross section">
+            <div class="figcap">Process-realistic stack cross section. MoS&#8322; layer deposited via ALD MoO&#8323; precursor route with sulfurization, validated by Raman, XPS, ellipsometry, and uniformity mapping.</div>
+        </div>
+        <div>
+            <img class="fig" src="vdw-assets/FIG_1_system_overview-9.jpg" alt="System architecture overview">
+            <div class="figcap">System architecture overview. The vdW cavity controls the intracavity field in Mode 1; 193 nm uses a hybrid external stage; EUV routes through a separate HHG pipeline.</div>
+        </div>
+    </div>
+
+    <div class="layer-stack">
+        <div class="layer-row" style="font-weight:700; color:#475569; font-size:11px; text-transform:uppercase; letter-spacing:.5px;">
+            <div>Layer</div><div>Role</div><div style="text-align:right">Loss (Mode 1)</div>
+        </div>
+        <div class="layer-row">
+            <div class="l-name">Bottom DBR</div>
+            <div class="l-role">Defines cavity reflectivity and field confinement. <span class="badge b-repo">REPO</span></div>
+            <div class="l-loss">~1%</div>
+        </div>
+        <div class="layer-row">
+            <div class="l-name">hBN spacer</div>
+            <div class="l-role">Low-loss spacing and field placement control. <span class="badge b-derived">DERIVED</span></div>
+            <div class="l-loss">~0.5%</div>
+        </div>
+        <div class="layer-row">
+            <div class="l-name">Graphene</div>
+            <div class="l-role">Primary phase-control axis via carrier-density tuning. <span class="badge b-derived">DERIVED</span></div>
+            <div class="l-loss">~4%</div>
+        </div>
+        <div class="layer-row" style="background:#fefce8;">
+            <div class="l-name">MoS&#8322;</div>
+            <div class="l-role">Amplitude modulation and process realism anchor. <span class="badge b-proc">PROCESS-VALIDATED</span></div>
+            <div class="l-loss">~18%</div>
+        </div>
+        <div class="layer-row">
+            <div class="l-name">Black phosphorus</div>
+            <div class="l-role">Polarization shaping through anisotropic response. <span class="badge b-sim">SIMULATED</span></div>
+            <div class="l-loss">~7%</div>
+        </div>
+        <div class="layer-row">
+            <div class="l-name">Top spacer</div>
+            <div class="l-role">Positions the emitting field before output coupling. <span class="badge b-derived">DERIVED</span></div>
+            <div class="l-loss">~0.4%</div>
+        </div>
+        <div class="layer-row">
+            <div class="l-name">Top DBR / output</div>
+            <div class="l-role">Output coupling and spectral filtering. <span class="badge b-repo">REPO</span></div>
+            <div class="l-loss">~2%</div>
+        </div>
+    </div>
+    <div class="note" style="margin-top:8px;">All per-layer loss values are derived estimates within the Mode 1 (248–365 nm) regime, not directly exported solver meters. Classification: DERIVED. MoS&#8322; loss is the dominant contributor and anchors the power budget.</div>
+
+    <div class="callout" style="margin-top:20px;">
+        <b>Evidence classification.</b> Every displayed quantity is tagged: <span class="badge b-repo">REPO</span> = directly from repository evidence. <span class="badge b-derived">DERIVED</span> = computed from repository-backed inputs. <span class="badge b-proxy">PROXY</span> = illustrative only, not physically validated. The page never presents proxy values as if they were solver outputs.
+    </div>
+</div>
+
+<div class="connector"><div class="connector-line">
+    The three functional layers each provide a distinct control axis. Their evidence bases are independent.
+</div></div>
+<hr class="divider">
+
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- SECTION 3 — CONTROL AXES                                           -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="section">
+    <div class="section-num" style="color:#8b5cf6;">Section 3</div>
+    <h2>Three Control Axes</h2>
+    <p>
+        Intracavity modulation in Mode 1 is decomposed into three independently evidenced control axes. Each axis is tied to a specific material layer, a specific simulation or process evidence source, and a specific figure in the repository.
+    </p>
+
+    <div class="grid three" style="margin-bottom:20px;">
+        <div class="card">
+            <h3>Phase — Graphene</h3>
+            <img class="fig" src="vdw-assets/FIG_12_fdtd_gate_modulation-18.jpg" alt="Graphene gate modulation evidence">
+            <div class="figcap">FIG 12 · Gate modulation / Pauli blocking</div>
+            <div class="badge-row" style="margin-top:8px;">
+                <span class="badge b-sim">SIMULATED</span>
+                <span class="badge b-derived">DERIVED</span>
+                <span class="badge b-mode1">MODE-1 VALID</span>
+            </div>
+            <p class="sub" style="margin:8px 0 0 0;">Graphene is the primary phase-control axis. Carrier-density tuning modulates the optical phase within the cavity. Phase magnitude is summarized conservatively rather than imported as a direct number.</p>
+        </div>
+        <div class="card">
+            <h3>Amplitude — MoS&#8322;</h3>
+            <img class="fig" src="vdw-assets/FIG_2_stack_cross_section-8.jpg" alt="MoS2 process-realistic layer evidence">
+            <div class="figcap">FIG 2 · Process-realistic stack cross section</div>
+            <div class="badge-row" style="margin-top:8px;">
+                <span class="badge b-proc">PROCESS-VALIDATED</span>
+                <span class="badge b-derived">DERIVED</span>
+                <span class="badge b-mode1">MODE-1 VALID</span>
+            </div>
+            <p class="sub" style="margin:8px 0 0 0;">Amplitude behavior is derived from the absorbing-layer role of MoS&#8322;. Process readiness is repository-bound to ALD/metrology evidence: Raman, XPS, ellipsometry, uniformity mapping.</p>
+        </div>
+        <div class="card">
+            <h3>Polarization — Black Phosphorus</h3>
+            <img class="fig" src="vdw-assets/FIG_6_bp_dichroism-4.jpg" alt="BP dichroism / anisotropy evidence">
+            <div class="figcap">FIG 6 · BP dichroism</div>
+            <div class="badge-row" style="margin-top:8px;">
+                <span class="badge b-sim">SIMULATED</span>
+                <span class="badge b-repo">REPO</span>
+                <span class="badge b-mode1">MODE-1 VALID</span>
+            </div>
+            <p class="sub" style="margin:8px 0 0 0;">Polarization function is bound to BP anisotropy / dichroism evidence. Quantitative effect size remains conservative. Environmental handling constraints apply to BP integration.</p>
+        </div>
+    </div>
+
+    <div class="callout-warn">
+        <b>Mode constraint.</b> All three control axes are presented as Mode 1 (248–365 nm) only. At 193 nm, intracavity modulation is constrained by absorption and forced to a hybrid-only path. In EUV forward mode, intracavity control axes are disabled entirely.
+    </div>
+</div>
+
+<div class="connector"><div class="connector-line">
+    The MoS&#8322; amplitude layer is the only layer with direct process-level validation. Its metrology readiness anchors the fabrication realism of the full stack.
+</div></div>
+<hr class="divider">
+
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- SECTION 4 — PROCESS REALISM                                        -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="section">
+    <div class="section-num" style="color:#16a34a;">Section 4</div>
+    <h2>MoS&#8322; Process Readiness</h2>
+    <p>
+        The MoS&#8322; layer is the process-realism anchor for the stack. It is the only functional layer with direct metrology validation (not just optical simulation). The ALD precursor route — MoO&#8323; deposition followed by sulfurization — has been characterized across four independent metrology channels.
+    </p>
+
+    <table class="data-table" style="max-width:700px;">
+        <tr><th>Metrology</th><th>Status</th><th>Classification</th></tr>
+        <tr><td>Raman spectroscopy</td><td>Process-validated</td><td><span class="badge b-proc">PROCESS-VALIDATED</span></td></tr>
+        <tr><td>X-ray photoelectron spectroscopy (XPS)</td><td>Process-validated</td><td><span class="badge b-proc">PROCESS-VALIDATED</span></td></tr>
+        <tr><td>Spectroscopic ellipsometry</td><td>Process-validated</td><td><span class="badge b-proc">PROCESS-VALIDATED</span></td></tr>
+        <tr><td>Uniformity mapping</td><td>Process-validated</td><td><span class="badge b-proc">PROCESS-VALIDATED</span></td></tr>
+    </table>
+    <div class="note" style="margin-top:8px;">All metrology is repository-bound. Process status is elevated to REPO-level evidence tied directly to ALD flow and metrology readiness.</div>
+</div>
+
+<div class="connector"><div class="connector-line">
+    With per-layer losses established, the cumulative power budget through the stack becomes a derived quantity that no individual display should overstate.
+</div></div>
+<hr class="divider">
+
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- SECTION 5 — POWER BUDGET                                           -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="section">
+    <div class="section-num" style="color:#d97706;">Section 5</div>
+    <h2>Intracavity Power Budget</h2>
+    <p>
+        Power is tracked cumulatively through the seven-layer stack. Each segment is a derived allocation tied to per-layer loss estimates in Mode 1. The budget is not a raw solver export — it is a conservative composition of individually classified layer losses.
+    </p>
+
+    <div class="grid two">
+        <div>
+            <div class="chart-box">
+                <canvas id="budgetChart"></canvas>
+            </div>
+            <div class="badge-row" style="margin-top:8px;">
+                <span class="badge b-derived">DERIVED</span>
+                <span class="badge b-mode1">MODE-1 ONLY</span>
+            </div>
+            <div class="note">Cumulative optical power through the layer stack at 248 nm. MoS&#8322; is the dominant loss contributor (~18%). Total output efficiency depends on DBR coupling and output-coupler design.</div>
+        </div>
+        <div>
+            <div class="card" style="margin-bottom:16px;">
+                <h3>Budget Segments</h3>
+                <div class="kv"><span>Pump to cavity input</span><strong>100% reference</strong></div>
+                <div class="kv"><span>DBR confinement</span><strong>Derived segment</strong></div>
+                <div class="kv"><span>vdW active stack</span><strong>Derived segment</strong></div>
+                <div class="kv"><span>Output to free space</span><strong>Derived segment</strong></div>
+                <div class="note" style="margin-top:8px;">Each segment is a derived allocation, not a directly exported solver meter.</div>
+            </div>
+            <div class="card">
+                <h3>Cavity Figures</h3>
+                <img class="fig" src="vdw-assets/FIG_11_fdtd_vcsel_248nm-19.jpg" alt="248 nm cavity output">
+                <div class="figcap">FIG 11 · 248 nm cavity output. Repository evidence binding the supported intracavity regime.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="connector"><div class="connector-line">
+    The optical and process evidence above covers the intracavity regime. The remaining evidence sources address DBR behavior, cavity resonance, and the forward EUV architecture.
+</div></div>
+<hr class="divider">
+
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- SECTION 6 — EVIDENCE AND VALIDATION                                -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="section">
+    <div class="section-num" style="color:#dc2626;">Section 6</div>
+    <h2>Evidence Sources and Validation</h2>
+    <p>
+        Six primary evidence sources underpin the architecture. Each is classified by type (simulation, process-validation, or architecture-level), scope (which mode it supports), and binding (which figure it maps to). No evidence source is used outside its declared scope.
+    </p>
+
+    <div class="grid two" style="margin-bottom:20px;">
+        <div class="card">
+            <h3>vdW Optical Simulation Stack</h3>
+            <img class="fig" src="vdw-assets/FIG_13_tmm_vs_fdtd-17.jpg" alt="TMM vs FDTD consistency">
+            <div class="figcap">FIG 13 · TMM vs FDTD consistency</div>
+            <div class="badge-row"><span class="badge b-sim">SIMULATED</span><span class="badge b-mode1">MODE-1 VALID</span><span class="badge b-repo">REPO</span></div>
+            <p class="sub">Layer transfer, field evolution, cavity viability. Primary repository evidence for the validated intracavity regime.</p>
+        </div>
+        <div class="card">
+            <h3>ALD MoS&#8322; Process + Metrology</h3>
+            <img class="fig" src="vdw-assets/FIG_2_stack_cross_section-8.jpg" alt="Process-realistic layer stack">
+            <div class="figcap">FIG 2 · Process-realistic layer stack</div>
+            <div class="badge-row"><span class="badge b-proc">PROCESS-VALIDATED</span><span class="badge b-mode1">MODE-1 VALID</span><span class="badge b-repo">REPO</span></div>
+            <p class="sub">Fabrication realism, amplitude layer readiness, thickness/uniformity monitoring. Repository-bound process evidence.</p>
+        </div>
+        <div class="card">
+            <h3>248 nm Cavity Operation</h3>
+            <img class="fig" src="vdw-assets/FIG_11_fdtd_vcsel_248nm-19.jpg" alt="248 nm cavity output">
+            <div class="figcap">FIG 11 · 248 nm cavity output</div>
+            <div class="badge-row"><span class="badge b-sim">SIMULATED</span><span class="badge b-mode1">MODE-1 VALID</span><span class="badge b-repo">REPO</span></div>
+            <p class="sub">Mode-1 resonance and viable intracavity emission regime. Repository evidence binding the supported intracavity regime.</p>
+        </div>
+        <div class="card">
+            <h3>Graphene Gate Modulation</h3>
+            <img class="fig" src="vdw-assets/FIG_12_fdtd_gate_modulation-18.jpg" alt="Graphene gate modulation">
+            <div class="figcap">FIG 12 · Gate modulation</div>
+            <div class="badge-row"><span class="badge b-sim">SIMULATED</span><span class="badge b-mode1">MODE-1 VALID</span><span class="badge b-repo">REPO</span></div>
+            <p class="sub">Phase-control evidence in the supported DUV cavity regime. Primary source for phase control claims.</p>
+        </div>
+        <div class="card">
+            <h3>BP Dichroism Evidence</h3>
+            <img class="fig" src="vdw-assets/FIG_6_bp_dichroism-4.jpg" alt="BP dichroism">
+            <div class="figcap">FIG 6 · BP dichroism</div>
+            <div class="badge-row"><span class="badge b-sim">SIMULATED</span><span class="badge b-mode1">MODE-1 VALID</span><span class="badge b-repo">REPO</span></div>
+            <p class="sub">Polarization anisotropy and dichroic behavior. Primary source for polarization-control claims.</p>
+        </div>
+        <div class="card">
+            <h3>HHG / EUV System Simulation</h3>
+            <img class="fig" src="vdw-assets/FIG_1_system_overview-9.jpg" alt="System architecture overview">
+            <div class="figcap">FIG 1 · System overview</div>
+            <div class="badge-row"><span class="badge b-euv">FORWARD-EUV</span><span class="badge b-arch">ARCHITECTURE-LEVEL</span><span class="badge b-repo">REPO</span></div>
+            <p class="sub">Generation, propagation, PSF synthesis, dose, resist interaction. Used only for forward EUV architecture-level claims, not intracavity layer proof.</p>
+        </div>
+    </div>
+</div>
+
+<hr class="divider">
+
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- SECTION 7 — SUPPORTING FIGURES                                     -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="section">
+    <div class="section-num" style="color:#475569;">Section 7</div>
+    <h2>Supporting Figures</h2>
+    <p>Additional repository-bound figures supporting the cavity architecture and individual layer behavior.</p>
+
+    <div class="grid three">
+        <div>
+            <img class="fig" src="vdw-assets/FIG_10_fdtd_dbr_stopband-20.jpg" alt="DBR stopband">
+            <div class="figcap">FIG 10 · FDTD DBR stopband. Defines cavity reflectivity and spectral selectivity.</div>
+        </div>
+        <div>
+            <img class="fig" src="vdw-assets/FIG_3_hbn_dispersion-7.jpg" alt="hBN dispersion">
+            <div class="figcap">FIG 3 · hBN dispersion / hyperbolicity. Supports spacer layer optical role.</div>
+        </div>
+        <div>
+            <img class="fig" src="vdw-assets/field_profile-11.jpg" alt="Field profile">
+            <div class="figcap">Field profile / cavity envelope. Positions the emitting field before output coupling.</div>
+        </div>
+        <div>
+            <img class="fig" src="vdw-assets/FIG_9_pauli_blocking.jpg" alt="Pauli blocking">
+            <div class="figcap">FIG 9 · Pauli blocking. Graphene optical transition modulation mechanism.</div>
+        </div>
+        <div>
+            <img class="fig" src="vdw-assets/FIG_5_cavity_spectrum-5.jpg" alt="Cavity spectrum">
+            <div class="figcap">FIG 5 · Cavity spectrum. Resonance behavior of the bounded stack.</div>
+        </div>
+        <div>
+            <img class="fig" src="vdw-assets/FIG_4_dual_gate-6.jpg" alt="Dual gate structure">
+            <div class="figcap">FIG 4 · Dual gate structure. Carrier-density control topology for graphene.</div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- FOOTER                                                             -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="footer">
+    <p>
+        <b>Evidence posture.</b> This page uses a three-tier classification: <span class="badge b-repo">REPO</span> for directly repository-bound evidence, <span class="badge b-derived">DERIVED</span> for quantities computed from repository inputs, and <span class="badge b-proxy">PROXY</span> for illustrative displays not physically validated. No proxy value is presented as if it were a solver output. 248–365 nm is the only fully supported intracavity regime. All claims are scoped to their declared mode.
+    </p>
+</div>
+
+<script>
+// Power budget chart
+(function(){
+    const labels = ['Bottom DBR','hBN','Graphene','MoS\u2082','BP','Top spacer','Top DBR'];
+    const losses = [1, 0.5, 4, 18, 7, 0.4, 2];
+    let power = 100;
+    const cumPower = losses.map(l => { power *= (1 - l/100); return +power.toFixed(1); });
+
+    const ctx = document.getElementById('budgetChart');
+    if(ctx) new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: cumPower,
+                borderColor: '#2563eb',
+                backgroundColor: 'rgba(37,99,235,0.08)',
+                tension: 0.35,
+                fill: true,
+                pointBackgroundColor: '#2563eb',
+                pointRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(ctx) { return ctx.parsed.y + '% remaining'; }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    min: 50, max: 100,
+                    ticks: { color: '#64748b', callback: v => v + '%' },
+                    grid: { color: 'rgba(0,0,0,0.06)' },
+                    title: { display: true, text: 'Cumulative power (%)', color: '#64748b', font: { size: 11 } }
+                },
+                x: {
+                    ticks: { color: '#64748b', font: { size: 11 } },
+                    grid: { color: 'rgba(0,0,0,0.06)' }
+                }
+            }
+        }
+    });
+})();
+</script>
+
+</body>
+</html>
