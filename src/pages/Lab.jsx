@@ -402,6 +402,7 @@ export default function Lab() {
               { href: "/lab/phoenix-state.html", title: "Closed-Loop State Tracking", desc: "Competing hypotheses scored and updated in real time — live control loop.", color: T.green, posture: "simulated" },
               { href: "/lab/multihead.html", title: "Distributed Writer Array", desc: "12,000 parallel emitters with per-site dose calibration.", color: T.purple, posture: "derived" },
               { href: "/lab/sw-raid-asa/index.html", title: "SW RAID vs ASA — Distributed Correctness Performance Lab", desc: "Modeled comparison of structural correctness versus coordination-based recovery across modern storage deployment profiles.", color: T.amber, posture: "modeled" },
+              { href: "/lab/vdw-cavity.html", title: "vdW Intracavity Optical Control", desc: "Seven-layer van der Waals cavity with phase, amplitude, and polarization modulation at DUV wavelengths. Evidence-classified.", color: T.green, posture: "simulated" },
               { href: "#core-system", title: "State Evolution Simulator", desc: "Watch candidate states spawn, merge, retire, and survive regime shifts.", color: T.amber, internal: true, posture: "simulated" },
             ].map(card => (
               <a
@@ -970,6 +971,7 @@ export default function Lab() {
               { href: "/lab/cta-evaluation.html", title: "CTA Evaluation Engine", desc: "Portfolio evaluation using state resolution — preserved alternatives, not collapsed answers.", domain: "Decision" },
               { href: "/lab/replica-race.html", title: "Replica Race Resolution", desc: "How distributed replicas converge when event ordering is ambiguous.", domain: "Distributed" },
               { href: "/lab/sw-raid-asa/index.html", title: "SW RAID vs ASA", desc: "Modeled comparison of structural correctness vs coordination-based recovery across storage deployment profiles. Modeled · derived · architecture-level.", domain: "Storage" },
+              { href: "/lab/vdw-cavity.html", title: "vdW Intracavity Optical Control", desc: "Seven-layer vdW cavity providing phase, amplitude, and polarization control at DUV wavelengths. REPO / DERIVED / PROXY classified.", domain: "Optics" },
             ].map(card => (
               <a key={card.href} href={card.href} target="_blank" rel="noreferrer" style={{ textDecoration: "none", color: "inherit" }}>
                 <div style={{
