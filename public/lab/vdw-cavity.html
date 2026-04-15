@@ -123,6 +123,16 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; m
 .psf-box { height: 200px; border-radius: 10px; background: #f1f5f9; border: 1px solid #e2e8f0; position: relative; overflow: hidden; }
 .psf-box::after { content:""; position:absolute; inset:0; background-image: linear-gradient(rgba(0,0,0,.04) 1px,transparent 1px), linear-gradient(90deg,rgba(0,0,0,.04) 1px,transparent 1px); background-size:24px 24px; opacity:.5; }
 
+/* ── Field transformation diagram ── */
+.field-diagram { display: flex; align-items: stretch; gap: 0; max-width: 900px; overflow-x: auto; margin: 16px 0 8px 0; }
+.field-stage { flex: 1; min-width: 90px; text-align: center; padding: 12px 6px 10px; position: relative; border-right: 1px solid #e2e8f0; }
+.field-stage:last-child { border-right: none; }
+.field-stage .stage-label { font-size: 10px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; white-space: nowrap; }
+.field-stage .stage-icon { width: 48px; height: 48px; border-radius: 50%; margin: 0 auto 6px; display: flex; align-items: center; justify-content: center; font-size: 18px; border: 2px solid #e2e8f0; }
+.field-stage .stage-effect { font-size: 10px; color: #94a3b8; line-height: 1.3; }
+.field-arrow { display: flex; align-items: center; color: #cbd5e1; font-size: 18px; padding: 0 2px; flex-shrink: 0; }
+.field-meter { height: 6px; border-radius: 3px; margin: 6px auto 0; max-width: 56px; }
+
 /* ── Footer ── */
 .footer { padding: 24px 40px; background: #f1f5f9; border-top: 2px solid #e2e8f0; margin-top: 40px; }
 .footer p { font-size: 12px; color: #64748b; margin: 0; line-height: 1.6; max-width: 800px; }
@@ -157,6 +167,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; m
     <div class="hero-stats">
         <div class="hero-stat"><div class="val">7</div><div class="lbl">Functional Layers</div></div>
         <div class="hero-stat"><div class="val">248 nm</div><div class="lbl">Primary Regime</div></div>
+        <div class="hero-stat">
+            <div class="val">~32%</div>
+            <div class="lbl">Stack Absorption</div>
+            <div style="margin-top:4px;"><span class="badge b-derived" style="border-color:#93c5fd80;">DERIVED</span><span class="badge b-mode1" style="border-color:#86efac80;">MODE-1 VALID</span></div>
+        </div>
         <div class="hero-stat"><div class="val">3</div><div class="lbl">Control Axes</div></div>
         <div class="hero-stat"><div class="val">6</div><div class="lbl">Evidence Sources</div></div>
     </div>
@@ -178,25 +193,25 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; m
     </p>
 
     <div class="contrast">
-        <div style="background:#f0fdf4;">
+        <div style="background:#f0fdf4; flex:1.3;">
             <div class="lbl" style="color:#16a34a;">Mode 1 · 248–365 nm</div>
             <div class="hl" style="color:#166534;">Full intracavity modulation</div>
-            <div class="dtl" style="color:#15803d;">Phase (graphene), amplitude (MoS&#8322;), polarization (BP) — all evidence-backed within the supported DUV range. Tolerable absorption (~32%). Cavity viability demonstrated.</div>
+            <div class="dtl" style="color:#15803d;">Phase (graphene), amplitude (MoS&#8322;), polarization (BP) — all evidence-backed within the supported DUV range. Tolerable absorption (~32% <span class="badge b-derived" style="font-size:9px;vertical-align:middle;">DERIVED</span> <span class="badge b-mode1" style="font-size:9px;vertical-align:middle;">MODE-1 VALID</span>). Cavity viability demonstrated.</div>
         </div>
-        <div style="background:#fff7ed;">
-            <div class="lbl" style="color:#ea580c;">Mode 2 · 193 nm</div>
-            <div class="hl" style="color:#9a3412;">Hybrid-only</div>
-            <div class="dtl" style="color:#c2410c;">Absorption ~99% at the intracavity stack level. No intracavity modulation is claimed. External hybrid stage required for any useful control.</div>
+        <div style="background:#f8f8f8; flex:0.85; opacity:0.72;">
+            <div class="lbl" style="color:#94a3b8;">Mode 2 · 193 nm — non-viable intracavity</div>
+            <div class="hl" style="color:#64748b;">Constrained fallback</div>
+            <div class="dtl" style="color:#94a3b8;">Intracavity modulation is not physically viable at 193 nm due to absorption constraints (~99% <span class="badge b-derived" style="font-size:9px;vertical-align:middle;">DERIVED</span> <span class="badge b-hybrid" style="font-size:9px;vertical-align:middle;">HYBRID-MODE</span>). Phase, amplitude, and polarization axes are disabled. Any useful 193 nm control requires an external hybrid stage downstream of the cavity.</div>
         </div>
-        <div style="background:#fef2f2;">
+        <div style="background:#fef2f2; flex:1;">
             <div class="lbl" style="color:#dc2626;">EUV Forward</div>
             <div class="hl" style="color:#991b1b;">HHG pipeline</div>
-            <div class="dtl" style="color:#b91c1c;">Architecture-level only. Intracavity layer values are disabled. Focus shifts to HHG generation, propagation, dose, and resist interaction.</div>
+            <div class="dtl" style="color:#b91c1c;">Intracavity layer values are disabled. Focus shifts to HHG generation, propagation, dose, and resist interaction. The vdW cavity remains relevant as an upstream optical conditioning layer prior to HHG generation — spectral and polarization state preparation occurs at the cavity level before the nonlinear conversion stage.</div>
         </div>
     </div>
 
     <div class="callout-warn">
-        <b>Guardrail.</b> The 193 nm mode does not present validated intracavity modulation. EUV remains explicitly separated as a forward architecture supported by HHG system simulation, not the vdW cavity alone. Any displayed value outside Mode 1 is constrained, disabled, or tagged ARCHITECTURE-LEVEL.
+        <b>Regime guardrail.</b> Intracavity modulation is not physically viable at 193 nm — absorption at the vdW stack level eliminates useful field modulation before any control axis can act. This is not a tuning limitation; it is a physical constraint. EUV remains explicitly separated as a forward architecture supported by HHG system simulation, not the vdW cavity alone. Any displayed value outside Mode 1 is constrained, disabled, or tagged <span class="badge b-arch" style="font-size:9px;vertical-align:middle;">ARCHITECTURE-LEVEL</span>.
     </div>
 </div>
 
@@ -213,7 +228,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; m
     <div class="section-num" style="color:#16a34a;">Section 2</div>
     <h2>Seven-Layer Functional Stack</h2>
     <p>
-        The cavity is bounded by dielectric DBR mirrors and contains three functional van der Waals layers — graphene for phase control, MoS&#8322; for amplitude modulation, and black phosphorus for polarization shaping — separated by hBN spacers. Each layer's incremental loss and functional role is classified independently.
+        The cavity is bounded by dielectric DBR mirrors and contains three functional van der Waals layers — graphene for phase control, MoS&#8322; for amplitude modulation, and black phosphorus for polarization shaping — separated by hBN spacers. Each layer transforms the circulating optical field through a specific physical mechanism: graphene shifts the phase via carrier-density-dependent refractive index, MoS&#8322; attenuates amplitude via wavelength-dependent absorption, and black phosphorus rotates polarization state via crystallographic anisotropy. The cumulative output field emerges from the ordered composition of these transformations — not from independent, isolated layer effects. Layer ordering matters because each transformation acts on the field state produced by the preceding layer.
     </p>
 
     <div class="grid two" style="margin-bottom:24px;">
@@ -234,43 +249,141 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; m
         <div class="layer-row">
             <div class="l-name">Bottom DBR</div>
             <div class="l-role">Defines cavity reflectivity and field confinement. <span class="badge b-repo">REPO</span></div>
-            <div class="l-loss">~1%</div>
+            <div class="l-loss">~1% <span class="badge b-derived" style="font-size:8px;">DERIVED</span></div>
         </div>
         <div class="layer-row">
             <div class="l-name">hBN spacer</div>
             <div class="l-role">Low-loss spacing and field placement control. <span class="badge b-derived">DERIVED</span></div>
-            <div class="l-loss">~0.5%</div>
+            <div class="l-loss">~0.5% <span class="badge b-derived" style="font-size:8px;">DERIVED</span></div>
         </div>
         <div class="layer-row">
             <div class="l-name">Graphene</div>
-            <div class="l-role">Primary phase-control axis via carrier-density tuning. <span class="badge b-derived">DERIVED</span></div>
-            <div class="l-loss">~4%</div>
+            <div class="l-role">Phase shift via carrier-density-dependent refractive index. <span class="badge b-derived">DERIVED</span></div>
+            <div class="l-loss">~4% <span class="badge b-derived" style="font-size:8px;">DERIVED</span></div>
         </div>
         <div class="layer-row" style="background:#fefce8;">
             <div class="l-name">MoS&#8322;</div>
-            <div class="l-role">Amplitude modulation and process realism anchor. <span class="badge b-proc">PROCESS-VALIDATED</span></div>
-            <div class="l-loss">~18%</div>
+            <div class="l-role">Amplitude attenuation via wavelength-dependent absorption. <span class="badge b-proc">PROCESS-VALIDATED</span></div>
+            <div class="l-loss">~18% <span class="badge b-derived" style="font-size:8px;">DERIVED</span></div>
         </div>
         <div class="layer-row">
             <div class="l-name">Black phosphorus</div>
-            <div class="l-role">Polarization shaping through anisotropic response. <span class="badge b-sim">SIMULATED</span></div>
-            <div class="l-loss">~7%</div>
+            <div class="l-role">Polarization rotation via crystallographic anisotropy. <span class="badge b-sim">SIMULATED</span></div>
+            <div class="l-loss">~7% <span class="badge b-derived" style="font-size:8px;">DERIVED</span></div>
         </div>
         <div class="layer-row">
             <div class="l-name">Top spacer</div>
             <div class="l-role">Positions the emitting field before output coupling. <span class="badge b-derived">DERIVED</span></div>
-            <div class="l-loss">~0.4%</div>
+            <div class="l-loss">~0.4% <span class="badge b-derived" style="font-size:8px;">DERIVED</span></div>
         </div>
         <div class="layer-row">
             <div class="l-name">Top DBR / output</div>
             <div class="l-role">Output coupling and spectral filtering. <span class="badge b-repo">REPO</span></div>
-            <div class="l-loss">~2%</div>
+            <div class="l-loss">~2% <span class="badge b-derived" style="font-size:8px;">DERIVED</span></div>
         </div>
     </div>
     <div class="note" style="margin-top:8px;">All per-layer loss values are derived estimates within the Mode 1 (248–365 nm) regime, not directly exported solver meters. Classification: DERIVED. MoS&#8322; loss is the dominant contributor and anchors the power budget.</div>
 
     <div class="callout" style="margin-top:20px;">
         <b>Evidence classification.</b> Every displayed quantity is tagged: <span class="badge b-repo">REPO</span> = directly from repository evidence. <span class="badge b-derived">DERIVED</span> = computed from repository-backed inputs. <span class="badge b-proxy">PROXY</span> = illustrative only, not physically validated. The page never presents proxy values as if they were solver outputs.
+    </div>
+
+    <!-- Field Transformation Through the Stack -->
+    <div style="margin-top:28px;">
+        <h3 style="font-size:16px; font-weight:700; color:#0f172a; margin:0 0 6px;">Field Transformation Through the Stack</h3>
+        <p style="font-size:12px; color:#94a3b8; margin:0 0 4px; max-width:700px; line-height:1.5;">Schematic representation of how the optical field is progressively transformed as it traverses the seven-layer stack in Mode 1. Each layer acts on the field state produced by the preceding layer. Intensity, phase, and polarization encodings are illustrative — not solver outputs.</p>
+        <div class="badge-row"><span class="badge b-proxy">SCHEMATIC</span><span class="badge b-derived">DERIVED</span><span class="badge b-mode1">MODE-1 ONLY</span></div>
+
+        <div style="background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:18px 12px 14px; max-width:900px; margin-top:8px;">
+            <div class="field-diagram">
+                <div class="field-stage">
+                    <div class="stage-label">Input</div>
+                    <div class="stage-icon" style="background:#dbeafe; border-color:#93c5fd;">
+                        <span style="color:#2563eb;">&#x2588;</span>
+                    </div>
+                    <div class="field-meter" style="background:#2563eb;"></div>
+                    <div class="stage-effect">100% power<br>&#x3C6;&#x2080; phase<br>&#x2194; linear pol</div>
+                </div>
+                <div class="field-arrow">&#x25B6;</div>
+                <div class="field-stage">
+                    <div class="stage-label">Bottom DBR</div>
+                    <div class="stage-icon" style="background:#e0e7ff; border-color:#a5b4fc;">
+                        <span style="color:#6366f1;">&#x25A8;</span>
+                    </div>
+                    <div class="field-meter" style="background:linear-gradient(90deg,#2563eb 99%,#e2e8f0 99%);"></div>
+                    <div class="stage-effect">Confines field<br>~1% loss<br>pol preserved</div>
+                </div>
+                <div class="field-arrow">&#x25B6;</div>
+                <div class="field-stage">
+                    <div class="stage-label">hBN</div>
+                    <div class="stage-icon" style="background:#f0fdf4; border-color:#86efac;">
+                        <span style="color:#16a34a;">&#x2500;</span>
+                    </div>
+                    <div class="field-meter" style="background:linear-gradient(90deg,#2563eb 98%,#e2e8f0 98%);"></div>
+                    <div class="stage-effect">Optical path<br>~0.5% loss<br>low perturbation</div>
+                </div>
+                <div class="field-arrow">&#x25B6;</div>
+                <div class="field-stage" style="background:#f5f3ff;">
+                    <div class="stage-label">Graphene</div>
+                    <div class="stage-icon" style="background:#ede9fe; border-color:#8b5cf6;">
+                        <span style="color:#7c3aed;">&#x3C6;</span>
+                    </div>
+                    <div class="field-meter" style="background:linear-gradient(90deg,#7c3aed 94%,#e2e8f0 94%);"></div>
+                    <div class="stage-effect"><b>Phase shift</b><br>~4% loss<br>&#x3C6; modulated</div>
+                </div>
+                <div class="field-arrow">&#x25B6;</div>
+                <div class="field-stage" style="background:#fefce8;">
+                    <div class="stage-label">MoS&#8322;</div>
+                    <div class="stage-icon" style="background:#fef3c7; border-color:#f59e0b;">
+                        <span style="color:#d97706;">&#x25BC;</span>
+                    </div>
+                    <div class="field-meter" style="background:linear-gradient(90deg,#d97706 76%,#e2e8f0 76%);"></div>
+                    <div class="stage-effect"><b>Amplitude cut</b><br>~18% loss<br>dominant absorber</div>
+                </div>
+                <div class="field-arrow">&#x25B6;</div>
+                <div class="field-stage" style="background:#fff1f2;">
+                    <div class="stage-label">BP</div>
+                    <div class="stage-icon" style="background:#ffe4e6; border-color:#f43f5e;">
+                        <span style="color:#e11d48;">&#x21BB;</span>
+                    </div>
+                    <div class="field-meter" style="background:linear-gradient(90deg,#e11d48 69%,#e2e8f0 69%);"></div>
+                    <div class="stage-effect"><b>Pol. rotation</b><br>~7% loss<br>anisotropic</div>
+                </div>
+                <div class="field-arrow">&#x25B6;</div>
+                <div class="field-stage">
+                    <div class="stage-label">Top spacer</div>
+                    <div class="stage-icon" style="background:#f0fdf4; border-color:#86efac;">
+                        <span style="color:#16a34a;">&#x2500;</span>
+                    </div>
+                    <div class="field-meter" style="background:linear-gradient(90deg,#16a34a 68%,#e2e8f0 68%);"></div>
+                    <div class="stage-effect">Field positioning<br>~0.4% loss<br>pol preserved</div>
+                </div>
+                <div class="field-arrow">&#x25B6;</div>
+                <div class="field-stage">
+                    <div class="stage-label">Top DBR</div>
+                    <div class="stage-icon" style="background:#e0e7ff; border-color:#a5b4fc;">
+                        <span style="color:#6366f1;">&#x25A9;</span>
+                    </div>
+                    <div class="field-meter" style="background:linear-gradient(90deg,#6366f1 66%,#e2e8f0 66%);"></div>
+                    <div class="stage-effect">Output coupling<br>~2% loss<br>spectral filter</div>
+                </div>
+                <div class="field-arrow">&#x25B6;</div>
+                <div class="field-stage">
+                    <div class="stage-label">Output</div>
+                    <div class="stage-icon" style="background:#dcfce7; border-color:#4ade80;">
+                        <span style="color:#16a34a;">&#x2588;</span>
+                    </div>
+                    <div class="field-meter" style="background:#16a34a;"></div>
+                    <div class="stage-effect">~66% power<br>&#x3C6; + &#x394;A + &#x394;P<br>modulated output</div>
+                </div>
+            </div>
+            <div style="display:flex; gap:20px; margin-top:14px; padding-top:10px; border-top:1px solid #f1f5f9; font-size:10px; color:#94a3b8; flex-wrap:wrap;">
+                <div><span style="display:inline-block;width:10px;height:10px;background:#2563eb;border-radius:2px;vertical-align:middle;margin-right:4px;"></span> Intensity (bar fill = remaining power)</div>
+                <div><span style="color:#7c3aed; font-weight:700;">&#x3C6;</span> Phase shift (graphene layer)</div>
+                <div><span style="color:#d97706; font-weight:700;">&#x25BC;</span> Amplitude attenuation (MoS&#8322; layer)</div>
+                <div><span style="color:#e11d48; font-weight:700;">&#x21BB;</span> Polarization rotation (BP layer)</div>
+            </div>
+        </div>
     </div>
 </div>
 
