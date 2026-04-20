@@ -28,29 +28,75 @@ export default function Home() {
 
         <h1
           style={{
-            fontSize: "56px",
-            lineHeight: 1.05,
-            margin: "0 0 20px 0",
+            fontSize: "44px",
+            lineHeight: 1.15,
+            margin: "0 0 18px 0",
             maxWidth: "980px",
           }}
         >
-          Building systems where correctness is provable, not assumed.
+          AI systems can produce convincing reasoning without guaranteeing
+          correct decisions.
         </h1>
 
         <p
           style={{
             fontSize: "22px",
-            lineHeight: 1.6,
+            lineHeight: 1.55,
             maxWidth: "900px",
             opacity: 0.9,
+            marginBottom: "18px",
+          }}
+        >
+          This platform demonstrates where that fails — and shows the
+          deterministic decision structures required to replace it.
+        </p>
+
+        <p
+          style={{
+            fontSize: "18px",
+            lineHeight: 1.55,
+            maxWidth: "900px",
+            opacity: 0.85,
+            marginBottom: "14px",
+          }}
+        >
+          See the proof live:{" "}
+          <a
+            href="https://compare.industriallystrong.com"
+            target="_blank"
+            rel="noreferrer"
+            onClick={() => {
+              trackEvent("navigation", "launch_correctness_comparator_hero");
+              sendTelemetry({
+                app: "industriallystrong",
+                lane: "general",
+                eventType: "outbound_click",
+                metadata: {
+                  label: "s02_correctness_comparator_hero",
+                  href: "https://compare.industriallystrong.com",
+                  section: "hero",
+                },
+              });
+            }}
+            style={{ color: "inherit", textDecoration: "underline" }}
+          >
+            compare.industriallystrong.com
+          </a>{" "}
+          — deterministic vs heuristic reconstruction under adversarial
+          conditions.
+        </p>
+
+        <p
+          style={{
+            fontSize: "16px",
+            lineHeight: 1.55,
+            maxWidth: "900px",
+            opacity: 0.78,
             marginBottom: "28px",
           }}
         >
-          IndustriallyStrong connects program concepts, deployed systems, and
-          research architecture across fintech, multi-agent AI, and advanced
-          technical infrastructure. The correctness comparator demonstrates
-          where deterministic reconstruction is required — and where heuristic
-          approaches fail under divergence, corruption, and metadata loss.
+          This is systems architecture work — defining what holds under
+          failure, not just what works under normal conditions.
         </p>
 
         <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
