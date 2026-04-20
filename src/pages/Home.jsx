@@ -92,11 +92,24 @@ export default function Home() {
             lineHeight: 1.55,
             maxWidth: "900px",
             opacity: 0.78,
+            marginBottom: "10px",
+          }}
+        >
+          This defines the boundary where system correctness becomes a
+          platform liability if owned below the architectural level.
+        </p>
+
+        <p
+          style={{
+            fontSize: "16px",
+            lineHeight: 1.55,
+            maxWidth: "900px",
+            opacity: 0.78,
             marginBottom: "28px",
           }}
         >
-          This defines the boundary where system correctness stops being an
-          implementation detail and becomes a platform-level responsibility.
+          At this boundary, responsibility cannot be delegated to
+          implementation teams.
         </p>
 
         <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
