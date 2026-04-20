@@ -34,8 +34,7 @@ export default function Home() {
             maxWidth: "980px",
           }}
         >
-          Building AI systems, research engines, and deployable technical
-          platforms.
+          Building systems where correctness is provable, not assumed.
         </h1>
 
         <p
@@ -49,7 +48,9 @@ export default function Home() {
         >
           IndustriallyStrong connects program concepts, deployed systems, and
           research architecture across fintech, multi-agent AI, and advanced
-          technical infrastructure.
+          technical infrastructure. The correctness comparator demonstrates
+          where deterministic reconstruction is required — and where heuristic
+          approaches fail under divergence, corruption, and metadata loss.
         </p>
 
         <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
@@ -241,6 +242,35 @@ export default function Home() {
             gap: "22px",
           }}
         >
+          <a
+            href="https://compare.industriallystrong.com"
+            target="_blank"
+            rel="noreferrer"
+            onClick={() => {
+              trackEvent("navigation", "launch_correctness_comparator");
+              sendTelemetry({
+                app: "industriallystrong",
+                lane: "general",
+                eventType: "outbound_click",
+                metadata: {
+                  label: "s02_correctness_comparator",
+                  href: "https://compare.industriallystrong.com",
+                  section: "live_systems",
+                },
+              });
+            }}
+            style={{ textDecoration: "none", color: "inherit" }}
+          >
+            <div className="structure-card">
+              <h3>S02 Correctness Comparator</h3>
+              <p style={{ margin: 0 }}>
+                Interactive proof surface demonstrating where deterministic
+                reconstruction succeeds and heuristic reconciliation fails
+                across storage, tape, and semiconductor scenarios.
+              </p>
+            </div>
+          </a>
+
           <a
             href="https://demomhtfaiss.industriallystrong.com"
             target="_blank"

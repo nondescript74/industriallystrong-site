@@ -23,6 +23,10 @@ export default function SiteFooter() {
         <div>
           Systems, research architectures, and technical platform development.
         </div>
+        <div style={{ marginTop: "8px" }}>
+          This is systems architecture work — not feature development. The
+          goal is proving what holds under adversarial conditions.
+        </div>
         <div
           style={{
             marginTop: "16px",
