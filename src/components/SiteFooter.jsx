@@ -21,11 +21,14 @@ export default function SiteFooter() {
           IndustriallyStrong
         </div>
         <div>
-          Systems, research architectures, and technical platform development.
+          Engineering leadership, systems architecture, and execution discipline
+          made visible through deployed systems and evidence-backed technical
+          artifacts.
         </div>
         <div style={{ marginTop: "8px" }}>
-          This is systems architecture work — not feature development. The
-          goal is proving what holds under adversarial conditions.
+          The goal is to show how leadership decisions, architecture, and
+          execution discipline translate into systems that hold under
+          real-world constraints.
         </div>
         <div
           style={{
@@ -52,7 +55,7 @@ export default function SiteFooter() {
                 lane: window.location.pathname === "/correctness" ? "storage" : "general",
                 eventType: "outbound_click",
                 metadata: {
-                  label: "about_the_builder",
+                  label: "leadership_stories",
                   href: "https://z.industriallystrong.com",
                   section: "site_footer",
                 },
@@ -61,7 +64,7 @@ export default function SiteFooter() {
             onMouseOver={(e) => (e.currentTarget.style.opacity = "1")}
             onMouseOut={(e) => (e.currentTarget.style.opacity = "inherit")}
           >
-            About the builder
+            Leadership Stories
           </a>
         </div>
       </div>

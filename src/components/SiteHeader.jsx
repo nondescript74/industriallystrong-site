@@ -57,43 +57,27 @@ export default function SiteHeader() {
             gap: "22px",
             flexWrap: "wrap",
             fontSize: "15px",
-            alignItems: "center"
+            alignItems: "center",
           }}
         >
           <Link to="/" style={linkStyle} onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
             Home
           </Link>
 
-          <Link to="/architecture" style={linkStyle} onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
-            Architecture
+          <Link to="/leadership" style={linkStyle} onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
+            Leadership
           </Link>
 
-          <Link to="/concepts" style={linkStyle} onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
-            Concepts
+          <Link to="/operating-model" style={linkStyle} onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
+            Operating Model
           </Link>
 
           <Link to="/systems" style={linkStyle} onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
             Systems
           </Link>
 
-          <Link to="/decks" style={linkStyle} onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
-            Decks
-          </Link>
-
-          <Link to="/research" style={linkStyle} onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
-            Research
-          </Link>
-
-          <Link to="/programs" style={linkStyle} onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
-            Programs
-          </Link>
-
-          <Link to="/lab" style={linkStyle} onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
-            Lab
-          </Link>
-
-          <Link to="/about" style={linkStyle} onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
-            About
+          <Link to="/evidence" style={linkStyle} onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
+            Evidence
           </Link>
 
           <Link to="/contact" style={linkStyle} onMouseEnter={handleEnter} onMouseLeave={handleLeave}>

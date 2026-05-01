@@ -1,9 +1,19 @@
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import PageShell from "../components/PageShell";
 import CardLink from "../components/CardLink";
 import PrimaryButton from "../components/PrimaryButton";
 import LiveMetricsCard from "../components/LiveMetricsCard";
 import { trackEvent } from "../utils/analytics";
 import { sendTelemetry } from "../utils/telemetry";
+
+// Map nav-IA paths to in-page section anchors so /leadership, /operating-model
+// and /evidence scroll to the matching section on Home.
+const PATH_TO_SECTION = {
+  "/leadership": "leadership-evidence",
+  "/operating-model": "operating-model",
+  "/evidence": "evidence",
+};
 
 // Style helpers reused across this page
 const proofStripStyle = {
@@ -116,6 +126,24 @@ const sectionLeadStyle = {
 const Z_BASE = "https://z.industriallystrong.com";
 
 export default function Home() {
+  const location = useLocation();
+
+  // When entering Home via /leadership, /operating-model, or /evidence,
+  // scroll to the corresponding section. Plain "/" leaves scroll at top.
+  useEffect(() => {
+    const sectionId = PATH_TO_SECTION[location.pathname];
+    if (!sectionId) {
+      window.scrollTo({ top: 0, behavior: "auto" });
+      return;
+    }
+    // Allow the page to render before scrolling.
+    const t = window.setTimeout(() => {
+      const el = document.getElementById(sectionId);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 0);
+    return () => window.clearTimeout(t);
+  }, [location.pathname]);
+
   return (
     <PageShell>
       {/* 1. HERO — engineering executive / systems architect / builder */}

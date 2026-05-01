@@ -43,6 +43,10 @@ export default function App() {
 
       <Routes>
         <Route path="/" element={<Home />} />
+        {/* New leadership-first IA paths — render Home and scroll to the matching section */}
+        <Route path="/leadership" element={<Home />} />
+        <Route path="/operating-model" element={<Home />} />
+        <Route path="/evidence" element={<Home />} />
         <Route path="/concepts" element={<Concepts />} />
         <Route path="/systems" element={<Systems />} />
         <Route path="/research" element={<Research />} />
