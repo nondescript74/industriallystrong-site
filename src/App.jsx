@@ -20,6 +20,9 @@ import { trackStatcounterPageView } from "./utils/statcounter";
 import Lithography from "./pages/Lithography";
 import Lab from "./pages/Lab";
 import CorrectnessArbitration from "./pages/CorrectnessArbitration";
+// PM47.10.1 — Cognition showcase page (public, auth-free; hosts the
+// banked PM47.9.2 production proof-pack with operator-curated captions).
+import Cognition from "./pages/Cognition";
 import TelemetryPageView from "./components/TelemetryPageView";
 
 // External redirect component for /z
@@ -60,6 +63,7 @@ export default function App() {
         <Route path="/lithography" element={<Lithography />} />
         <Route path="/lab" element={<Lab />} />
         <Route path="/correctness" element={<CorrectnessArbitration />} />
+        <Route path="/cognition" element={<Cognition />} />
         <Route path="/z" element={<ExternalRedirect to="https://z.industriallystrong.com" />} />
       </Routes>
 
